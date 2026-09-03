@@ -117,3 +117,8 @@ img{max-width:100%;display:block}
   .nav ul{flex-direction:column;padding:8px 0}
   .nav a{height:46px;margin-right:0}
 }
+
+.ast-article-single figure,
+.ast-article-single img:not(figure img){
+  box-shadow:none;
+}

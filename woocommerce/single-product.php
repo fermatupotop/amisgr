@@ -115,35 +115,41 @@ if ( isset( WC()->structured_data ) ) {
 	<!-- Главный экран -->
 	<div class="wrap main">
 
-		<div>
-			<div class="gal-big">
-				<?php echo $product->get_image( 'woocommerce_single' ); // phpcs:ignore WordPress.Security.EscapeOutput — WooCommerce отдаёт готовый тег img. ?>
-			</div>
+<?php
+$gallery = $product->get_gallery_image_ids();
+$main_id = $product->get_image_id();
 
-			<?php
-			$gallery = $product->get_gallery_image_ids();
-			if ( $gallery ) :
-				?>
-				<div class="gal-thumbs">
-					<?php foreach ( array_slice( $gallery, 0, 5 ) as $i => $image_id ) : ?>
-						<div class="<?php echo 0 === $i ? 'on' : ''; ?>">
-							<?php echo wp_get_attachment_image( $image_id, 'woocommerce_gallery_thumbnail' ); ?>
-						</div>
-					<?php endforeach; ?>
+// Все изображения одним массивом: главное первым.
+$images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
+?>
+
+<div class="gallery">
+	<div class="gal-big">
+		<?php if ( $images ) : ?>
+			<?php foreach ( $images as $i => $image_id ) : ?>
+				<div class="gal-slide <?php echo 0 === $i ? 'on' : ''; ?>" data-slide="<?php echo esc_attr( $i ); ?>">
+					<?php echo wp_get_attachment_image( $image_id, 'large' ); ?>
 				</div>
-			<?php endif; ?>
+			<?php endforeach; ?>
+		<?php else : ?>
+			<?php echo $product->get_image( 'woocommerce_single' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+		<?php endif; ?>
+	</div>
 
-			<?php if ( $key_specs ) : ?>
-				<dl class="key">
-					<?php foreach ( $key_specs as $spec ) : ?>
-						<div>
-							<dt><?php echo esc_html( $spec['label'] ); ?></dt>
-							<dd><?php echo esc_html( $spec['value'] ); ?></dd>
-						</div>
-					<?php endforeach; ?>
-				</dl>
-			<?php endif; ?>
+	<?php if ( count( $images ) > 1 ) : ?>
+		<div class="gal-thumbs">
+			<?php foreach ( $images as $i => $image_id ) : ?>
+				<button
+					class="gal-thumb <?php echo 0 === $i ? 'on' : ''; ?>"
+					data-slide="<?php echo esc_attr( $i ); ?>"
+					aria-label="<?php echo esc_attr( sprintf( 'Фото %d', $i + 1 ) ); ?>"
+				>
+					<?php echo wp_get_attachment_image( $image_id, 'thumbnail' ); ?>
+				</button>
+			<?php endforeach; ?>
 		</div>
+	<?php endif; ?>
+</div>
 
 		<!-- Панель покупки -->
 		<aside class="buy">

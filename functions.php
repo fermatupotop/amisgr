@@ -116,6 +116,7 @@ function amis_enqueue_assets() {
 
 	if ( function_exists( 'is_product' ) && is_product() ) {
 		wp_enqueue_style( 'amis-product', AMIS_URI . '/assets/css/product.css', array( 'amis-base' ), AMIS_VERSION );
+		wp_enqueue_script( 'amis-product', AMIS_URI . '/assets/js/product.js', array(), AMIS_VERSION, true );
 	}
 
 	if ( amis_is_home_template() ) {

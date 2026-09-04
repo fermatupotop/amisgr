@@ -122,3 +122,24 @@ img{max-width:100%;display:block}
 .ast-article-single img:not(figure img){
   box-shadow:none;
 }
+.gallery .gal-thumb,
+.gallery .gal-thumb:hover,
+.gallery .gal-thumb:focus{
+  background:#fff;
+  border:1px solid var(--line);
+  color:inherit;
+  box-shadow:none;
+}
+.gallery .gal-thumb:hover{border-color:var(--gray-2)}
+.gallery .gal-thumb.on{border-color:var(--orange)}
+.gallery .gal-thumb:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+
+@media (min-width: 1200px){
+  .single-product.ast-plain-container.ast-no-sidebar #primary{
+    margin-top:0;
+    margin-bottom:0;
+  }
+}
+
+.foot-cta{margin-bottom:0}
+.footer{border-top:4px solid var(--orange)}

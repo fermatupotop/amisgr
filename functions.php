@@ -15,6 +15,8 @@ require_once AMIS_DIR . '/inc/queries.php';
 require_once AMIS_DIR . '/inc/shortcodes.php';
 require_once AMIS_DIR . '/inc/product-fields.php';
 require_once AMIS_DIR . '/inc/product-map.php';
+require_once AMIS_DIR . '/inc/product-docs.php';
+require_once AMIS_DIR . '/inc/product-package.php';
 
 /**
  * Поддержка возможностей темы и регистрация меню.
@@ -162,6 +164,14 @@ add_filter( 'get_terms_args', 'amis_frequency_terms_order', 10, 2 );
  * Внутри CSS-грида они становятся лишними элементами и ломают колонки.
  */
 add_filter( 'wpcf7_autop_or_not', '__return_false' );
+
+add_filter( 'astra_get_content_layout', function ( $layout ) {
+	if ( function_exists( 'is_product' ) && is_product() ) {
+		return 'page-builder';
+	}
+	return $layout;
+} );
+
 
 add_filter( 'astra_get_content_layout', function ( $layout ) {
 	if ( function_exists( 'is_product' ) && is_product() ) {

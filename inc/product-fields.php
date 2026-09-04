@@ -73,28 +73,6 @@ function amis_product_data_panel() {
 		<div class="options_group">
 			<?php
 			woocommerce_wp_textarea_input( array(
-				'id'          => '_amis_kit',
-				'label'       => __( 'Комплект поставки', 'amis' ),
-				'placeholder' => "Осциллограф DHO4804|1 шт.\nПробник PVP2350|4 шт.",
-				'desc_tip'    => true,
-				'description' => __( 'По одной позиции на строку. Название и количество разделяются вертикальной чертой.', 'amis' ),
-				'style'       => 'height:120px',
-			) );
-
-			woocommerce_wp_textarea_input( array(
-				'id'          => '_amis_docs',
-				'label'       => __( 'Документы', 'amis' ),
-				'placeholder' => "Руководство по эксплуатации|/wp-content/uploads/manual.pdf|PDF, 4,2 МБ",
-				'desc_tip'    => true,
-				'description' => __( 'По одному файлу на строку: название, ссылка и размер через вертикальную черту. Ссылку берите из медиабиблиотеки.', 'amis' ),
-				'style'       => 'height:100px',
-			) );
-			?>
-		</div>
-
-		<div class="options_group">
-			<?php
-			woocommerce_wp_textarea_input( array(
 				'id'          => '_amis_long_text',
 				'label'       => __( 'Развёрнутый материал', 'amis' ),
 				'placeholder' => "## Полоса пропускания\nПравило пяти гармоник...\n\n## Пробники\nВ комплект входят...",
@@ -132,7 +110,7 @@ function amis_save_product_fields( $post_id ) {
 	update_post_meta( $post_id, '_amis_sort_value', $sort );
 
 	// Многострочные поля: переносы сохраняем, теги вырезаем.
-	$area_fields = array( '_amis_kit', '_amis_docs', '_amis_long_text' );
+	$area_fields = array( '_amis_long_text' );
 
 	foreach ( $area_fields as $field ) {
 		$value = isset( $_POST[ $field ] ) ? sanitize_textarea_field( wp_unslash( $_POST[ $field ] ) ) : '';
@@ -141,31 +119,6 @@ function amis_save_product_fields( $post_id ) {
 }
 add_action( 'woocommerce_process_product_meta', 'amis_save_product_fields' );
 
-/**
- * Разбор многострочного поля в массив частей.
- *
- * «Название|Значение» на каждой строке превращается в array( array( 'Название', 'Значение' ) ).
- *
- * @param string $raw Сырое значение меты.
- * @return array
- */
-function amis_parse_lines( $raw ) {
-
-	$rows = array();
-
-	foreach ( preg_split( '/\r\n|\r|\n/', (string) $raw ) as $line ) {
-
-		$line = trim( $line );
-
-		if ( '' === $line ) {
-			continue;
-		}
-
-		$rows[] = array_map( 'trim', explode( '|', $line ) );
-	}
-
-	return $rows;
-}
 
 /**
  * Простейшая разметка развёрнутого текста в HTML.

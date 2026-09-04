@@ -174,3 +174,53 @@
 }
 .key{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
 .buy-acts .ast-stock-detail{display:none}
+
+/* ---------- Документация ---------- */
+.docs-groups{display:grid;gap:32px}
+.docs-group__title{
+  font-size:14px;font-weight:600;color:var(--orange);
+  margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--line);
+}
+.docs-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.docs-link{
+  display:flex;align-items:center;gap:16px;
+  padding:14px 18px;border:1px solid var(--line);border-radius:var(--r);
+  background:#fff;transition:border-color .15s;
+}
+.docs-link:hover{border-color:var(--orange)}
+.docs-icon{width:24px;height:24px;color:var(--orange);flex:none}
+.docs-icon svg{width:100%;height:100%}
+.docs-body{flex:1;min-width:0}
+.docs-title{display:block;font-size:15.5px;font-weight:500}
+.docs-meta{display:flex;gap:12px;flex-wrap:wrap;margin-top:5px;font-size:13px;color:var(--muted)}
+.docs-badge{
+  background:var(--panel);border:1px solid var(--line);border-radius:2px;
+  padding:1px 7px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--gray-2);
+}
+.docs-action{width:20px;height:20px;color:var(--muted);flex:none}
+.docs-action svg{width:100%;height:100%}
+.docs-link:hover .docs-action{color:var(--orange)}
+.docs-note{margin-top:22px;font-size:14.5px;color:var(--gray-2)}
+.docs-note a{color:var(--orange);border-bottom:1px solid rgba(217,103,60,.3)}
+
+/* ---------- Комплект поставки ---------- */
+.pack{display:grid;gap:26px}
+.pack__head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px;
+  padding-bottom:8px;border-bottom:1px solid var(--line)}
+.pack__title{font-size:14px;font-weight:600;color:var(--orange);margin:0}
+.pack__group--request .pack__title,
+.pack__group--verification .pack__title{color:var(--gray)}
+.pack__note{font-size:13px;color:var(--muted)}
+.pack__list{list-style:none;margin:0;padding:0;columns:2;column-gap:56px}
+.pack__list li{padding:8px 0 8px 24px;position:relative;font-size:15px;break-inside:avoid}
+.pack__list li::before{
+  content:"";position:absolute;left:2px;top:16px;
+  width:7px;height:7px;border-radius:50%;background:var(--orange);
+}
+.pack__group--request .pack__list li::before,
+.pack__group--verification .pack__list li::before{background:var(--muted)}
+.pack__footer{margin-top:8px;font-size:13.5px;color:var(--muted);max-width:70ch}
+
+@media(max-width:800px){
+  .pack__list{columns:1}
+}

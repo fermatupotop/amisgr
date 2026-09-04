@@ -30,8 +30,6 @@ $product_id = $product->get_id();
 // Собственные поля.
 $gosreestr = get_post_meta( $product_id, '_amis_gosreestr', true );
 $lead_time = get_post_meta( $product_id, '_amis_lead_time', true );
-$kit       = amis_parse_lines( get_post_meta( $product_id, '_amis_kit', true ) );
-$docs      = amis_parse_lines( get_post_meta( $product_id, '_amis_docs', true ) );
 $long_text = get_post_meta( $product_id, '_amis_long_text', true );
 
 // Характеристики.
@@ -156,7 +154,7 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 			<div class="buy-price">
 				<?php if ( $product->get_price() ) : ?>
 					<div class="price"><?php echo wp_kses_post( $product->get_price_html() ); ?></div>
-					<div class="price-note"><?php esc_html_e( 'с НДС 20%, включая первичную поверку', 'amis' ); ?></div>
+					<div class="price-note"><?php esc_html_e( 'с НДС 22%. Поверка оплачивается отдельно', 'amis' ); ?></div>
 				<?php else : ?>
 					<div class="price" style="font-size:22px"><?php esc_html_e( 'Цена по запросу', 'amis' ); ?></div>
 					<div class="price-note"><?php esc_html_e( 'Пришлём КП в течение рабочего дня', 'amis' ); ?></div>
@@ -197,7 +195,7 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 				</div>
 				<div>
 					<svg width="17" height="17" viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 9l3.5 3.5L14 5"/></svg>
-					<?php esc_html_e( 'Свидетельство о поверке ЦСМ в комплекте', 'amis' ); ?>
+					<?php esc_html_e( 'Организуем поверку в аккредитованном ЦСМ', 'amis' ); ?>
 				</div>
 				<div>
 					<svg width="17" height="17" viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 9l3.5 3.5L14 5"/></svg>
@@ -208,9 +206,9 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 			<div class="mgr">
 				<span class="mgr-ava"><?php echo esc_html( 'АК' ); ?></span>
 				<div>
-					<b><?php esc_html_e( 'Алексей Кузнецов', 'amis' ); ?></b>
+					<b><?php esc_html_e( 'Владислав Босканов', 'amis' ); ?></b>
 					<span><?php esc_html_e( 'Инженер по КИП', 'amis' ); ?></span>
-					<a href="tel:+74957700497">+7 (495) 770-04-97</a>
+					<a href="tel:+74953637709">+7 (495) 363-77-09</a>
 				</div>
 			</div>
 		</aside>
@@ -250,48 +248,28 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 		</section>
 	<?php endif; ?>
 
-	<!-- Комплект поставки -->
-	<?php if ( $kit ) : ?>
-		<section class="sec">
-			<div class="wrap">
-				<h2><?php esc_html_e( 'Комплект поставки', 'amis' ); ?></h2>
-				<ul class="kit">
-					<?php foreach ( $kit as $item ) : ?>
-						<li>
-							<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8.5L6.5 12 13 4.5"/></svg>
-							<?php echo esc_html( $item[0] ); ?>
-							<?php if ( isset( $item[1] ) ) : ?>
-								<span><?php echo esc_html( $item[1] ); ?></span>
-							<?php endif; ?>
-						</li>
-					<?php endforeach; ?>
-				</ul>
-			</div>
-		</section>
-	<?php endif; ?>
+<!-- Комплект поставки -->
+<?php $package = amis_get_product_package( $product_id ); ?>
+<?php if ( $package ) : ?>
+	<section class="sec">
+		<div class="wrap">
+			<h2><?php esc_html_e( 'Комплект поставки', 'amis' ); ?></h2>
+			<?php amis_render_package( $package ); ?>
+		</div>
+	</section>
+<?php endif; ?>
 
-	<!-- Документы -->
-	<?php if ( $docs ) : ?>
-		<section class="sec">
-			<div class="wrap">
-				<h2><?php esc_html_e( 'Документация', 'amis' ); ?></h2>
-				<p class="sec-lead"><?php esc_html_e( 'Файлы доступны без регистрации — можно приложить к заявке на закупку или к обоснованию НМЦК.', 'amis' ); ?></p>
-				<div class="docs">
-					<?php foreach ( $docs as $doc ) : ?>
-						<a class="doc" href="<?php echo esc_url( isset( $doc[1] ) ? $doc[1] : '#' ); ?>" target="_blank" rel="noopener">
-							<svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M15 2H7a2 2 0 0 0-2 2v18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M15 2v6h6"/></svg>
-							<div>
-								<b><?php echo esc_html( $doc[0] ); ?></b>
-								<?php if ( isset( $doc[2] ) ) : ?>
-									<span><?php echo esc_html( $doc[2] ); ?></span>
-								<?php endif; ?>
-							</div>
-						</a>
-					<?php endforeach; ?>
-				</div>
-			</div>
-		</section>
-	<?php endif; ?>
+<!-- Документы -->
+<?php $doc_groups = amis_get_product_docs( $product_id ); ?>
+<?php if ( $doc_groups ) : ?>
+	<section class="sec">
+		<div class="wrap">
+			<h2><?php esc_html_e( 'Документация', 'amis' ); ?></h2>
+			<p class="sec-lead"><?php esc_html_e( 'Файлы доступны без регистрации — можно приложить к заявке на закупку или к обоснованию НМЦК.', 'amis' ); ?></p>
+			<?php amis_render_docs( $doc_groups ); ?>
+		</div>
+	</section>
+<?php endif; ?>
 
 	<!-- Развёрнутый материал -->
 	<?php if ( $long_text ) : ?>
@@ -310,11 +288,11 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 			<div class="verify">
 				<div>
 					<h3><?php esc_html_e( 'Поверка', 'amis' ); ?></h3>
-					<p><?php esc_html_e( 'Первичная поверка в аккредитованном ЦСМ входит в стоимость. Напомним о сроке очередной поверки заранее.', 'amis' ); ?></p>
+					<p><?php esc_html_e( 'Организуем поверку в аккредитованном ЦСМ. Напомним о сроке очередной поверки заранее.', 'amis' ); ?></p>
 				</div>
 				<div>
 					<h3><?php esc_html_e( 'Гарантия', 'amis' ); ?></h3>
-					<p><?php esc_html_e( 'Гарантия производителя, сервисный центр в Москве, подменный прибор на время ремонта.', 'amis' ); ?></p>
+					<p><?php esc_html_e( 'Гарантия производителя, сервисный центр в Москве и Китае.', 'amis' ); ?></p>
 				</div>
 				<div>
 					<h3><?php esc_html_e( 'Доставка', 'amis' ); ?></h3>

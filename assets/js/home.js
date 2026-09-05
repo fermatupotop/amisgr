@@ -14,7 +14,9 @@
 		elCount = document.getElementById( 'axCount' ),
 		elWord  = document.getElementById( 'axWord' ),
 		elChips = document.getElementById( 'axChips' ),
-		elLink  = document.getElementById( 'axLink' );
+		elLink  = document.getElementById( 'axLink' ),
+		wave      = document.querySelector( '.axis-wave' ),
+		container = document.querySelector( '.bands' );
 
 	/**
 	 * Склонение существительного после числительного.
@@ -31,6 +33,30 @@
 			return forms[1];
 		}
 		return forms[2];
+	}
+
+	/**
+	 * Подсветка участка волны над активной кнопкой.
+	 */
+	function highlightWave( btn ) {
+		if ( ! wave || ! container ) {
+			return;
+		}
+
+		// Координаты берём относительно волны, а не контейнера кнопок:
+		// это разные по ширине элементы.
+		var waveBox = wave.getBoundingClientRect(),
+			btnBox = btn.getBoundingClientRect();
+
+		if ( ! waveBox.width ) {
+			return;
+		}
+
+		var left = ( btnBox.left - waveBox.left ) / waveBox.width * 100,
+			right = ( waveBox.right - btnBox.right ) / waveBox.width * 100;
+
+		wave.style.setProperty( '--wave-left', Math.max( 0, left ) + '%' );
+		wave.style.setProperty( '--wave-right', Math.max( 0, right ) + '%' );
 	}
 
 	function render( btn ) {
@@ -67,12 +93,28 @@
 				elChips.appendChild( a );
 			} );
 		}
+
+		highlightWave( btn );
 	}
 
 	Array.prototype.forEach.call( bands, function ( b ) {
 		b.addEventListener( 'click', function () {
 			render( b );
 		} );
+	} );
+
+	// Пересчёт подсветки при изменении размеров окна.
+	// Таймер гасит десятки срабатываний при перетаскивании края.
+	var resizeTimer;
+
+	window.addEventListener( 'resize', function () {
+		clearTimeout( resizeTimer );
+		resizeTimer = setTimeout( function () {
+			var active = document.querySelector( '.band[aria-selected="true"]' );
+			if ( active ) {
+				highlightWave( active );
+			}
+		}, 150 );
 	} );
 
 	render( document.querySelector( '.band[aria-selected="true"]' ) || bands[0] );

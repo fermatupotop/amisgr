@@ -179,3 +179,7 @@ add_filter( 'astra_get_content_layout', function ( $layout ) {
 	}
 	return $layout;
 } );
+
+add_filter( 'woocommerce_price_format', function () {
+	return '%1$s&nbsp;%2$s'; // Неразрывный пробел между числом и символом.
+}, 10 );

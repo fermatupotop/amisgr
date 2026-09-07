@@ -33,6 +33,7 @@ defined( 'ABSPATH' ) || exit;
 		<span class="live"><i></i> <?php esc_html_e( 'Пн–Пт 09:00–18:00', 'amis' ); ?></span>
 		<span><?php esc_html_e( 'Москва, Алтуфьевское ш., 48к1', 'amis' ); ?></span>
 		<div class="tb-r">
+			<?php echo amis_phone_link( 'msk' ); // phpcs:ignore WordPress.Security.EscapeOutput — экранирование внутри функции. ?>
 			<a href="<?php echo esc_url( home_url( '/verification/' ) ); ?>"><?php esc_html_e( 'Поверка и калибровка', 'amis' ); ?></a>
 			<a href="<?php echo esc_url( home_url( '/rent/' ) ); ?>"><?php esc_html_e( 'Аренда приборов', 'amis' ); ?></a>
 			<a href="<?php echo esc_url( home_url( '/payment/' ) ); ?>"><?php esc_html_e( 'Оплата для юрлиц', 'amis' ); ?></a>
@@ -89,9 +90,9 @@ defined( 'ABSPATH' ) || exit;
 
 		<div class="hd-r">
 
-			<a class="phone" href="tel:+74953637709">
-				+7 (495) 363-77-09
-				<span><?php esc_html_e( 'Инженер на линии', 'amis' ); ?></span>
+			<a class="phone" href="tel:<?php echo esc_attr( amis_phone( 'free' )['href'] ); ?>">
+				<?php echo esc_html( amis_phone( 'free' )['display'] ); ?>
+				<span><?php echo esc_html( amis_phone( 'free' )['note'] ); ?></span>
 			</a>
 
 			<?php if ( class_exists( 'WooCommerce' ) ) : ?>

@@ -299,8 +299,10 @@ get_header();
 				с ценами, сроками и обоснованием. Обычно отвечаем в тот же рабочий день.
 			</p>
 			<p style="margin-top:26px">
-				<a class="f-phone" href="tel:+74953637709" style="color:var(--ink);font-size:26px">+7 (495) 363-77-09</a>
-				<a href="mailto:info@amisgr.ru" style="color:var(--gray)">info@amisgr.ru</a>
+				<?php echo amis_phone_link( 'free', 'f-phone' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+				<a href="mailto:<?php echo esc_attr( amis_company_email() ); ?>" style="color:var(--gray)">
+					<?php echo esc_html( amis_company_email() ); ?>
+				</a>
 			</p>
 		</div>
 

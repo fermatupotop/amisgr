@@ -264,6 +264,8 @@ td.price small{display:block;font-family:"IBM Plex Sans";font-weight:400;font-si
 .contact{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
 .contact h2{font-size:clamp(25px,2.9vw,34px);letter-spacing:-.028em}
 .contact p{margin-top:16px;color:var(--gray);max-width:52ch}
+.contact .f-phone{color:var(--ink);font-size:18px}
+.contact .f-phone:hover{color:var(--orange)}
 .c-list{list-style:none;margin:26px 0 0;padding:0;display:grid;gap:12px;font-size:15px}
 .c-list li{display:flex;gap:11px;align-items:flex-start;color:var(--gray)}
 .c-list svg{color:var(--orange);flex:none;margin-top:4px}
@@ -308,7 +310,7 @@ td.price small{display:block;font-family:"IBM Plex Sans";font-weight:400;font-si
 .f-bot{border-top:1px solid rgba(255,255,255,.1);padding:20px 0 28px;display:flex;justify-content:space-between;
   gap:20px;flex-wrap:wrap;font-size:13px;color:#7E8286}
 
-.mobar{display:none}
+
 
 /* ---------- ADAPTIVE ---------- */
 @media(max-width:1200px){
@@ -338,11 +340,7 @@ td.price small{display:block;font-family:"IBM Plex Sans";font-weight:400;font-si
   .axis-out .go{margin-left:0;width:100%}
   .axis-out .go .btn{width:100%}
   body{padding-bottom:64px}
-  .mobar{display:grid;grid-template-columns:1fr 1fr;position:fixed;left:0;right:0;bottom:0;z-index:70;
-    background:#fff;border-top:1px solid var(--line)}
-  .mobar a{height:60px;display:grid;place-items:center;font-weight:500;font-size:15px}
-  .mobar a:first-child{border-right:1px solid var(--line)}
-  .mobar a:last-child{background:var(--orange);color:#fff}
+
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 
@@ -402,4 +400,27 @@ td.price small{display:block;font-family:"IBM Plex Sans";font-weight:400;font-si
   background:var(--orange-soft);
   border-top-color:var(--orange);
   color:var(--ink);
+}
+
+/* ---------- Мобильная панель действий ---------- */
+.mobar{display:none}
+
+@media(max-width:640px){
+  body{padding-bottom:64px}
+  .mobar{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    position:fixed;left:0;right:0;bottom:0;z-index:70;
+    background:#fff;
+    border-top:1px solid var(--line);
+  }
+  .mobar a{
+    height:60px;
+    display:grid;
+    place-items:center;
+    font-weight:500;
+    font-size:15px;
+  }
+  .mobar a:first-child{border-right:1px solid var(--line);color:var(--ink)}
+  .mobar a:last-child{background:var(--orange);color:#fff}
 }

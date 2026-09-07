@@ -189,3 +189,6 @@ a.c-value:hover{color:var(--orange)}
   display:block;
   margin:12px auto 0;
 }
+
+.c-card .c-value + .c-note{margin-bottom:12px}
+.c-card .c-note:last-child{margin-bottom:0}

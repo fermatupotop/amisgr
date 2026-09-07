@@ -204,11 +204,11 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 			</div>
 
 			<div class="mgr">
-				<span class="mgr-ava"><?php echo esc_html( 'АК' ); ?></span>
+				<span class="mgr-ava">ВБ</span>
 				<div>
 					<b><?php esc_html_e( 'Владислав Босканов', 'amis' ); ?></b>
 					<span><?php esc_html_e( 'Инженер по КИП', 'amis' ); ?></span>
-					<a href="tel:+74953637709">+7 (495) 363-77-09</a>
+					<?php echo amis_phone_link( 'free' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 				</div>
 			</div>
 		</aside>

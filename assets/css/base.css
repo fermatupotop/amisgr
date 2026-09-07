@@ -51,6 +51,16 @@ img{max-width:100%;display:block}
 .tb-r{margin-left:auto;display:flex;gap:22px}
 .live{display:inline-flex;align-items:center;gap:7px}
 .live i{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.topbar .tb-r a[href^="tel:"]{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:13px;
+  letter-spacing:-.02em;
+  color:var(--ink);
+  padding-right:22px;
+  border-right:1px solid var(--line);
+  white-space:nowrap;
+}
+.topbar .tb-r a[href^="tel:"]:hover{color:var(--orange)}
 
 /* ---------- HEADER ---------- */
 .header{position:sticky;top:0;z-index:60;background:#fff;border-bottom:1px solid var(--line)}
@@ -138,6 +148,13 @@ img{max-width:100%;display:block}
   letter-spacing:-.04em;
   white-space:nowrap;
 }
+.f-phones{display:grid;gap:2px}
+.f-phone--sec{
+  font-size:15px;
+  color:#C8CCD0;
+  margin-top:12px;
+}
+.f-phone--sec:hover{color:var(--orange)}
 .f-phone:hover,.f-link-strong:hover{color:var(--orange)}
 .f-link-strong{display:block;font-size:15.5px;font-weight:500;color:#fff}
 .f-text{display:block;font-size:14px}

@@ -46,9 +46,14 @@ get_header();
 						</svg>
 					</span>
 					<div>
-						<span class="c-label"><?php esc_html_e( 'Телефон', 'amis' ); ?></span>
-						<a class="c-value c-value--mono" href="tel:+74957700497">+7 (495) 770-04-97</a>
-						<span class="c-note"><?php esc_html_e( 'Многоканальный', 'amis' ); ?></span>
+						<span class="c-label"><?php esc_html_e( 'Телефоны', 'amis' ); ?></span>
+
+						<?php foreach ( amis_company_phones() as $phone ) : ?>
+							<a class="c-value c-value--mono" href="tel:<?php echo esc_attr( $phone['href'] ); ?>">
+								<?php echo esc_html( $phone['display'] ); ?>
+							</a>
+							<span class="c-note"><?php echo esc_html( $phone['note'] ); ?></span>
+						<?php endforeach; ?>
 					</div>
 				</div>
 

@@ -59,7 +59,7 @@ function amis_company_managers() {
 			'email' => 'ee@amisgr.ru',
 		),
 		array(
-			'name'  => 'Имя Фамилия',
+			'name'  => 'Редискина Екатерина',
 			'role'  => 'Менеджер по закупкам',
 			'area'  => 'Тендеры, 44-ФЗ и 223-ФЗ, документы',
 			'phone' => '+7 (495) 363-77-09',
@@ -67,4 +67,71 @@ function amis_company_managers() {
 			'email' => 'tender@amisgr.ru',
 		),
 	);
+}
+
+/**
+ * Телефоны компании.
+ *
+ * Единственное место, где хранятся номера. Меняется тут — меняется везде.
+ *
+ * @return array
+ */
+function amis_company_phones() {
+
+	return array(
+		'free' => array(
+			'display' => '8 (800) 770-04-97',
+			'href'    => '+78007700497',
+			'note'    => 'Бесплатно по России',
+		),
+		'msk'  => array(
+			'display' => '+7 (495) 363-77-09',
+			'href'    => '+74953637709',
+			'note'    => 'Офис в Москве',
+		),
+	);
+}
+
+/**
+ * Один телефон по ключу.
+ *
+ * Возвращает массив с полями display, href, note.
+ * При неизвестном ключе отдаёт основной номер — шаблон не сломается.
+ *
+ * @param string $key Ключ: 'free' или 'msk'.
+ * @return array
+ */
+function amis_phone( $key = 'free' ) {
+
+	$phones = amis_company_phones();
+
+	return isset( $phones[ $key ] ) ? $phones[ $key ] : $phones['free'];
+}
+
+/**
+ * Готовая ссылка на телефон.
+ *
+ * @param string $key   Ключ телефона.
+ * @param string $class CSS-класс ссылки.
+ * @return string HTML.
+ */
+function amis_phone_link( $key = 'free', $class = '' ) {
+
+	$phone = amis_phone( $key );
+
+	return sprintf(
+		'<a class="%s" href="tel:%s">%s</a>',
+		esc_attr( $class ),
+		esc_attr( $phone['href'] ),
+		esc_html( $phone['display'] )
+	);
+}
+
+/**
+ * Почта компании.
+ *
+ * @return string
+ */
+function amis_company_email() {
+	return 'info@amisgr.ru';
 }

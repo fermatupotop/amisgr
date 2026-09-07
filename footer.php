@@ -74,9 +74,21 @@ defined( 'ABSPATH' ) || exit;
 							<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
 						</svg>
 					</span>
-					<div>
-						<a class="f-phone" href="tel:+74953637709">+7 (495) 363-77-09</a>
-						<span class="f-note"><?php esc_html_e( 'Инженер ответит в рабочее время', 'amis' ); ?></span>
+					<div class="f-phones">
+						<?php
+						// Основной номер крупнее, городской — справочно.
+						$phone_classes = array(
+							'free' => 'f-phone',
+							'msk'  => 'f-phone f-phone--sec',
+						);
+
+						foreach ( amis_company_phones() as $key => $phone ) :
+							?>
+							<a class="<?php echo esc_attr( $phone_classes[ $key ] ); ?>" href="tel:<?php echo esc_attr( $phone['href'] ); ?>">
+								<?php echo esc_html( $phone['display'] ); ?>
+							</a>
+							<span class="f-note"><?php echo esc_html( $phone['note'] ); ?></span>
+						<?php endforeach; ?>
 					</div>
 				</div>
 
@@ -87,7 +99,9 @@ defined( 'ABSPATH' ) || exit;
 						</svg>
 					</span>
 					<div>
-						<a class="f-link-strong" href="mailto:info@amisgr.ru">info@amisgr.ru</a>
+						<a class="f-link-strong" href="mailto:<?php echo esc_attr( amis_company_email() ); ?>">
+							<?php echo esc_html( amis_company_email() ); ?>
+						</a>
 						<span class="f-note"><?php esc_html_e( 'Ответим в течение 2 часов', 'amis' ); ?></span>
 					</div>
 				</div>
@@ -215,6 +229,11 @@ defined( 'ABSPATH' ) || exit;
 
 	</div>
 </footer>
+
+<div class="mobar">
+	<a href="tel:<?php echo esc_attr( amis_phone( 'free' )['href'] ); ?>"><?php esc_html_e( 'Позвонить', 'amis' ); ?></a>
+	<a href="<?php echo esc_url( home_url( '/contact/#write' ) ); ?>"><?php esc_html_e( 'Написать', 'amis' ); ?></a>
+</div>
 
 <?php wp_footer(); ?>
 </body>

@@ -242,6 +242,21 @@ defined( 'ABSPATH' ) || exit;
 	<a href="<?php echo esc_url( home_url( '/contact/#write' ) ); ?>"><?php esc_html_e( 'Написать', 'amis' ); ?></a>
 </div>
 
+<div class="cookie-notice" id="amis-cookie-notice" role="region" aria-label="<?php esc_attr_e( 'Уведомление о cookie', 'amis' ); ?>">
+	<p>
+		<?php
+		printf(
+			/* translators: %s — ссылка на политику конфиденциальности. */
+			esc_html__( 'Сайт использует файлы cookie для корректной работы и статистики посещений. Подробнее — в %s.', 'amis' ),
+			'<a href="' . esc_url( home_url( '/privacy/' ) ) . '">' . esc_html__( 'политике конфиденциальности', 'amis' ) . '</a>'
+		); // phpcs:ignore WordPress.Security.EscapeOutput -- строка собрана из esc_html/esc_url выше.
+		?>
+	</p>
+	<button type="button" class="btn btn-primary cookie-notice__ok" id="amis-cookie-ok">
+		<?php esc_html_e( 'Понятно', 'amis' ); ?>
+	</button>
+</div>
+
 <?php wp_footer(); ?>
 </body>
 </html>

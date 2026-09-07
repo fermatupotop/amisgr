@@ -285,3 +285,22 @@ img{max-width:100%;display:block}
   .mobar a:first-child{border-right:1px solid var(--line);color:var(--ink)}
   .mobar a:last-child{background:var(--orange);color:#fff}
 }
+
+/* ---------- Уведомление о cookie (footer.php, все страницы) ---------- */
+.cookie-notice{
+  display:none;
+  position:fixed;left:20px;bottom:20px;z-index:80;
+  max-width:400px;
+  background:#fff;border:1px solid var(--line);border-radius:var(--r);
+  padding:18px 20px;
+  box-shadow:0 12px 32px rgba(35,38,41,.12);
+}
+.cookie-notice.is-visible{display:flex;flex-direction:column;gap:14px}
+.cookie-notice p{margin:0;font-size:13.5px;color:var(--gray);line-height:1.5}
+.cookie-notice a{color:var(--orange)}
+.cookie-notice a:hover{text-decoration:underline}
+.cookie-notice__ok{align-self:flex-start;height:36px;padding:0 18px;font-size:13.5px}
+
+@media(max-width:640px){
+  .cookie-notice{left:12px;right:12px;bottom:76px;max-width:none}
+}

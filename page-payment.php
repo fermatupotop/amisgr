@@ -25,7 +25,7 @@ get_header();
 </nav>
 
 <!-- Шапка страницы -->
-<section class="section section--head">
+<section class="section section--head" id="delivery">
 	<div class="wrap">
 		<span class="eyebrow"><?php esc_html_e( 'Доставка по всей России', 'amis' ); ?></span>
 		<h1><?php the_title(); ?></h1>
@@ -161,7 +161,7 @@ get_header();
 </section>
 
 <!-- Способы оплаты -->
-<section class="section">
+<section class="section" id="payment">
 	<div class="wrap">
 		<div class="s-head">
 			<div>

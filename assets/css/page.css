@@ -2,8 +2,85 @@
 
 /* ---------- Шапка страницы ---------- */
 .section--head{padding-bottom:0}
-.section--head h1{font-size:clamp(28px,3.4vw,42px);letter-spacing:-.03em}
+.section--head h1{font-size:clamp(28px,3.4vw,42px);letter-spacing:-.03em;margin-top:14px}
 .page-lead{margin-top:16px;font-size:17px;color:var(--gray);max-width:60ch}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:7px;
+  height:28px;padding:0 12px;border-radius:20px;
+  background:var(--orange-soft);color:var(--orange-deep);
+  font-size:12.5px;font-weight:600;
+}
+
+/* ---------- Доставка и оплата ---------- */
+.d-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.d-card{
+  background:#fff;border:1px solid var(--line);border-radius:var(--r);
+  padding:24px;
+}
+.d-card h3{font-size:17px;margin:16px 0 8px;letter-spacing:-.01em}
+.d-card>p{font-size:14px;color:var(--gray);line-height:1.5}
+.d-list{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:8px;font-size:13.5px;color:var(--gray-2)}
+.d-list li{padding-left:18px;position:relative}
+.d-list li::before{
+  content:"";position:absolute;left:0;top:7px;
+  width:7px;height:7px;border-radius:50%;background:var(--orange);
+}
+.d-price{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:18px;padding-top:16px;border-top:1px solid var(--line-2);
+  font-size:13px;color:var(--muted);
+}
+.d-price b{font-size:15px;color:var(--ink);font-weight:600}
+.d-card--center{text-align:center;display:flex;flex-direction:column;align-items:center}
+.d-card--center .c-ico{margin:0 auto}
+
+.d-table-wrap{
+  overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);
+  background:#fff;
+}
+.d-table{width:100%;border-collapse:collapse;font-size:14.5px;white-space:nowrap}
+.d-table th{
+  text-align:left;padding:13px 22px;background:var(--ink);color:#fff;
+  font-size:12.5px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;
+}
+.d-table td{padding:13px 22px;border-top:1px solid var(--line-2);color:var(--gray-2)}
+.d-table tr:nth-child(odd) td{background:#FAFAFB}
+.d-table td b{color:var(--ink);font-weight:600}
+
+.d-note{
+  display:flex;gap:10px;margin-top:20px;padding:14px 18px;
+  background:#fff;border:1px solid var(--line);border-left:3px solid var(--orange);
+  border-radius:var(--r);font-size:14px;color:var(--gray-2);line-height:1.55;
+}
+.d-note b{color:var(--ink)}
+
+.d-docs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.d-doc{
+  display:flex;gap:12px;align-items:flex-start;
+  background:#fff;border:1px solid var(--line);border-radius:var(--r);
+  padding:16px 18px;
+}
+.d-doc svg{flex:none;margin-top:2px;color:var(--orange)}
+.d-doc b{display:block;font-size:14.5px;color:var(--ink)}
+.d-doc span{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.4}
+
+.d-cta{
+  display:flex;justify-content:space-between;align-items:center;gap:32px;
+  background:var(--ink);border-radius:var(--r);padding:36px 40px;
+}
+.d-cta h2{color:#fff;font-size:clamp(20px,2.4vw,26px);letter-spacing:-.02em}
+.d-cta p{color:#C8CCD0;margin-top:8px;font-size:14.5px;max-width:48ch}
+.d-cta__actions{display:flex;gap:12px;flex:none}
+
+@media(max-width:1000px){
+  .d-methods,.d-docs{grid-template-columns:1fr 1fr}
+  .d-cta{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:640px){
+  .d-methods,.d-docs{grid-template-columns:1fr}
+  .d-cta__actions{width:100%}
+  .d-cta__actions .btn{flex:1}
+}
 
 /* ---------- Контакты ---------- */
 .contact-grid{display:grid;grid-template-columns:1fr 420px;gap:48px;align-items:start;padding-top:44px}

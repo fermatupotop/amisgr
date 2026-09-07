@@ -262,3 +262,26 @@ img{max-width:100%;display:block}
 .crumbs .wrap{display:flex;gap:9px;align-items:center;flex-wrap:wrap;height:46px;font-size:13.5px;color:var(--gray-2)}
 .crumbs a:hover{color:var(--orange)}
 .crumbs span{color:var(--muted)}
+
+/* ---------- Мобильная панель действий (footer.php, все страницы) ---------- */
+.mobar{display:none}
+
+@media(max-width:640px){
+  body{padding-bottom:64px}
+  .mobar{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    position:fixed;left:0;right:0;bottom:0;z-index:70;
+    background:#fff;
+    border-top:1px solid var(--line);
+  }
+  .mobar a{
+    height:60px;
+    display:grid;
+    place-items:center;
+    font-weight:500;
+    font-size:15px;
+  }
+  .mobar a:first-child{border-right:1px solid var(--line);color:var(--ink)}
+  .mobar a:last-child{background:var(--orange);color:#fff}
+}

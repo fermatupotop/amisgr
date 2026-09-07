@@ -89,8 +89,8 @@ defined( 'ABSPATH' ) || exit;
 
 		<div class="hd-r">
 
-			<a class="phone" href="tel:+74957700497">
-				+7 (495) 770-04-97
+			<a class="phone" href="tel:+74953637709">
+				+7 (495) 363-77-09
 				<span><?php esc_html_e( 'Инженер на линии', 'amis' ); ?></span>
 			</a>
 

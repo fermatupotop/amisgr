@@ -225,3 +225,23 @@ img{max-width:100%;display:block}
 
 .foot-cta{margin-bottom:0}
 .footer{border-top:4px solid var(--orange)}
+
+/* ---------- Секции (общие для всех страниц) ---------- */
+.section{padding:72px 0}
+.section--panel{background:var(--panel)}
+.section--tight{padding-top:0}
+
+.s-head{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;margin-bottom:32px}
+.s-head h2{font-size:clamp(24px,2.8vw,32px);letter-spacing:-.028em}
+.s-head p{margin-top:12px;color:var(--gray);max-width:60ch;font-size:16px}
+.s-link{
+  color:var(--orange);font-weight:500;font-size:15px;white-space:nowrap;
+  border-bottom:1px solid rgba(217,103,60,.3);padding-bottom:2px;
+}
+.s-link:hover{border-bottom-color:var(--orange)}
+
+/* Хлебные крошки */
+.crumbs{border-bottom:1px solid var(--line);background:var(--panel)}
+.crumbs .wrap{display:flex;gap:9px;align-items:center;flex-wrap:wrap;height:46px;font-size:13.5px;color:var(--gray-2)}
+.crumbs a:hover{color:var(--orange)}
+.crumbs span{color:var(--muted)}

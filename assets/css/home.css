@@ -154,15 +154,7 @@ img{max-width:100%;display:block}
 .chip:hover{border-color:var(--orange);color:var(--orange)}
 .axis-out .go{margin-left:auto}
 
-/* ---------- SECTION ---------- */
-.section{padding:80px 0}
-.section--panel{background:var(--panel)}
-.section--tight{padding-top:0}
-.s-head{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;margin-bottom:34px}
-.s-head h2{font-size:clamp(25px,2.9vw,34px);letter-spacing:-.028em}
-.s-head p{margin-top:13px;color:var(--gray);max-width:60ch;font-size:16px}
-.s-link{color:var(--orange);font-weight:500;font-size:15px;white-space:nowrap;border-bottom:1px solid rgba(217,103,60,.3);padding-bottom:2px}
-.s-link:hover{border-bottom-color:var(--orange)}
+
 
 /* ---------- КАТЕГОРИИ ---------- */
 .cats{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}

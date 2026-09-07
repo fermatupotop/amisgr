@@ -75,7 +75,7 @@ defined( 'ABSPATH' ) || exit;
 						</svg>
 					</span>
 					<div>
-						<a class="f-phone" href="tel:+74957700497">+7 (495) 770-04-97</a>
+						<a class="f-phone" href="tel:+74953637709">+7 (495) 363-77-09</a>
 						<span class="f-note"><?php esc_html_e( 'Инженер ответит в рабочее время', 'amis' ); ?></span>
 					</div>
 				</div>
@@ -205,7 +205,7 @@ defined( 'ABSPATH' ) || exit;
 		<div class="f-bottom">
 			<div class="f-bottom__row">
 				<span>© 2022–<?php echo esc_html( gmdate( 'Y' ) ); ?> ООО «АМИС ГРУПП»</span>
-				<span>ИНН 7715001234 · ОГРН 1227700869440</span>
+				<span>ИНН 9715435990 · ОГРН 1227700869440</span>
 			</div>
 
 			<p class="f-legal">

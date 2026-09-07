@@ -17,6 +17,7 @@ require_once AMIS_DIR . '/inc/product-fields.php';
 require_once AMIS_DIR . '/inc/product-map.php';
 require_once AMIS_DIR . '/inc/product-docs.php';
 require_once AMIS_DIR . '/inc/product-package.php';
+require_once AMIS_DIR . '/inc/company.php';
 
 /**
  * Поддержка возможностей темы и регистрация меню.
@@ -114,7 +115,13 @@ function amis_enqueue_assets() {
 	);
 
 	wp_enqueue_style( 'amis-base', AMIS_URI . '/assets/css/base.css', array( 'amis-child' ), AMIS_VERSION );
+		// Стили обычных страниц: контакты, доставка, оплата и так далее.
+	if ( is_page() && ! amis_is_home_template() ) {
+		wp_enqueue_style( 'amis-page', AMIS_URI . '/assets/css/page.css', array( 'amis-base' ), AMIS_VERSION );
+	}
+
 	wp_enqueue_script( 'amis-base', AMIS_URI . '/assets/js/base.js', array(), AMIS_VERSION, true );
+	
 
 	if ( function_exists( 'is_product' ) && is_product() ) {
 		wp_enqueue_style( 'amis-product', AMIS_URI . '/assets/css/product.css', array( 'amis-base' ), AMIS_VERSION );
@@ -129,15 +136,26 @@ function amis_enqueue_assets() {
 add_action( 'wp_enqueue_scripts', 'amis_enqueue_assets', 15 );
 
 /**
- * Раскладка контента: снимаем флекс-контейнер Astra.
- *
- * @param string $layout Текущая раскладка.
- * @return string
+ * Свои шаблоны сами управляют шириной и отступами,
+ * контейнер Astra им только мешает.
  */
-function amis_home_content_layout( $layout ) {
-	return amis_is_home_template() ? 'page-builder' : $layout;
+function amis_page_builder_layout( $layout ) {
+
+	if ( amis_is_home_template() ) {
+		return 'page-builder';
+	}
+
+	if ( function_exists( 'is_product' ) && is_product() ) {
+		return 'page-builder';
+	}
+
+	if ( is_page_template( 'page-contact.php' ) || is_page( 'contact' ) ) {
+		return 'page-builder';
+	}
+
+	return $layout;
 }
-add_filter( 'astra_get_content_layout', 'amis_home_content_layout' );
+add_filter( 'astra_get_content_layout', 'amis_page_builder_layout' );
 
 /**
  * Без сайдбара.
@@ -183,3 +201,4 @@ add_filter( 'astra_get_content_layout', function ( $layout ) {
 add_filter( 'woocommerce_price_format', function () {
 	return '%1$s&nbsp;%2$s'; // Неразрывный пробел между числом и символом.
 }, 10 );
+

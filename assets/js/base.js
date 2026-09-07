@@ -25,3 +25,34 @@
 		}
 	} );
 })();
+
+/**
+ * Отложенная загрузка карты: iframe вставляется по клику.
+ */
+(function () {
+	'use strict';
+
+	var holder = document.getElementById( 'amis-map' );
+
+	if ( ! holder ) {
+		return;
+	}
+
+	var button = holder.querySelector( '.map-load' );
+
+	if ( ! button ) {
+		return;
+	}
+
+	button.addEventListener( 'click', function () {
+		var frame = document.createElement( 'iframe' );
+
+		frame.src = holder.dataset.src;
+		frame.loading = 'lazy';
+		frame.allowFullscreen = true;
+		frame.title = 'Карта проезда';
+
+		holder.innerHTML = '';
+		holder.appendChild( frame );
+	} );
+})();

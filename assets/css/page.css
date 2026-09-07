@@ -1,0 +1,191 @@
+/* Стили обычных страниц. Токены и базовое — в base.css */
+
+/* ---------- Шапка страницы ---------- */
+.section--head{padding-bottom:0}
+.section--head h1{font-size:clamp(28px,3.4vw,42px);letter-spacing:-.03em}
+.page-lead{margin-top:16px;font-size:17px;color:var(--gray);max-width:60ch}
+
+/* ---------- Контакты ---------- */
+.contact-grid{display:grid;grid-template-columns:1fr 420px;gap:48px;align-items:start;padding-top:44px}
+.contact-cards{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
+.c-card{background:#fff;padding:22px;display:flex;gap:14px}
+.c-ico{
+  width:40px;height:40px;flex:none;border-radius:var(--r);
+  display:grid;place-items:center;
+  background:var(--orange-soft);color:var(--orange);
+}
+.c-label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px}
+.c-value{display:block;font-size:18px;font-weight:600;color:var(--ink);letter-spacing:-.02em}
+.c-value--mono{font-family:"IBM Plex Mono",monospace;font-size:17px;letter-spacing:-.04em;white-space:nowrap}
+.c-value--sm{font-size:15px;font-weight:400;line-height:1.5}
+.c-value--sm strong{font-weight:600}
+a.c-value:hover{color:var(--orange)}
+.c-note{display:block;font-size:12.5px;color:var(--muted);margin-top:5px}
+
+.contact-text{margin-top:32px;color:var(--gray);max-width:68ch}
+.contact-text h2,.contact-text h3{color:var(--ink);margin:26px 0 10px}
+.contact-text p{margin-bottom:14px}
+
+.contact-form{
+  background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--r);padding:30px;position:sticky;top:20px;
+}
+.contact-form h2{font-size:21px}
+.form-lead{font-size:14.5px;color:var(--gray-2);margin:8px 0 20px}
+
+/* ---------- Менеджеры ---------- */
+.managers{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.manager{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:24px;display:flex;gap:16px}
+.manager:hover{border-color:var(--gray-2)}
+.manager__ava{
+  width:52px;height:52px;flex:none;border-radius:50%;
+  background:var(--graphite);color:#fff;
+  display:grid;place-items:center;
+  font-weight:600;font-size:17px;letter-spacing:.02em;
+}
+.manager__name{display:block;font-size:17px;font-weight:600}
+.manager__role{display:block;font-size:13.5px;color:var(--muted);margin-top:2px}
+.manager__area{display:block;font-size:14px;color:var(--gray);margin-top:10px;padding-top:10px;border-top:1px solid var(--line-2)}
+.manager__contacts{display:grid;gap:5px;margin-top:12px;font-size:14px}
+.manager__contacts a{color:var(--orange)}
+.manager__contacts a:hover{text-decoration:underline}
+.manager__ext{color:var(--muted);font-size:13px}
+
+/* ---------- Карта ---------- */
+.map-holder{
+  position:relative;aspect-ratio:21/9;
+  border:1px solid var(--line);border-radius:var(--r);
+  background:var(--panel);overflow:hidden;
+}
+.map-holder iframe{width:100%;height:100%;border:0;display:block}
+.map-load{
+  position:absolute;inset:0;width:100%;border:0;cursor:pointer;
+  background:var(--panel);color:var(--gray);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  font-family:inherit;transition:background .15s;
+}
+.map-load:hover{background:#EBECEE}
+.map-load svg{color:var(--orange)}
+.map-load span{font-size:16px;font-weight:500;color:var(--ink)}
+.map-load small{font-size:13px;color:var(--muted)}
+
+/* ---------- Реквизиты ---------- */
+.details{
+  margin:0;border:1px solid var(--line);border-radius:var(--r);
+  background:#fff;overflow:hidden;
+}
+.details__row{
+  display:grid;grid-template-columns:290px 1fr;gap:20px;
+  padding:14px 22px;border-bottom:1px solid var(--line-2);
+}
+.details__row:last-child{border-bottom:0}
+.details__row:nth-child(odd){background:#FAFAFB}
+.details dt{color:var(--gray-2);font-size:14.5px}
+.details dd{margin:0;font-size:14.5px;color:var(--ink)}
+
+@media(max-width:1000px){
+  .contact-grid{grid-template-columns:1fr;gap:32px}
+  .contact-form{position:static}
+  .managers{grid-template-columns:1fr}
+  .map-holder{aspect-ratio:4/3}
+}
+@media(max-width:640px){
+  .contact-cards{grid-template-columns:1fr}
+  .details__row{grid-template-columns:1fr;gap:4px}
+  .details dt{font-size:13px}
+}
+
+/* ---------- Contact Form 7 ---------- */
+.contact-form .wpcf7-form-control-wrap{display:block;width:100%}
+
+.contact-form .f-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.contact-form .f-row--one{grid-template-columns:1fr}
+
+.contact-form input[type="text"],
+.contact-form input[type="tel"],
+.contact-form input[type="email"],
+.contact-form textarea{
+  width:100%;
+  height:48px;
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  background:#fff;
+  font:inherit;
+  font-size:15px;
+  padding:0 15px;
+  color:var(--ink);
+}
+.contact-form textarea{height:120px;padding:13px 15px;resize:vertical}
+.contact-form input:focus,
+.contact-form textarea:focus{outline:none;border-color:var(--orange)}
+
+/* Файл */
+.contact-form .f-file{margin-top:14px}
+.contact-form .f-file__label{
+  display:block;cursor:pointer;
+  border:1px dashed var(--line);border-radius:var(--r);
+  background:#fff;padding:16px 18px;text-align:center;
+  transition:border-color .15s,background .15s;
+}
+.contact-form .f-file__label:hover{border-color:var(--orange);background:var(--orange-soft)}
+.contact-form input[type="file"]{
+  width:100%;margin-bottom:12px;font:inherit;font-size:13px;color:var(--gray-2);
+}
+.contact-form input[type="file"]::file-selector-button{
+  margin-right:10px;padding:7px 14px;
+  border:1px solid var(--line);border-radius:var(--r);
+  background:#fff;font:inherit;font-size:13px;color:var(--ink);cursor:pointer;
+}
+.contact-form input[type="file"]::file-selector-button:hover{border-color:var(--orange);color:var(--orange)}
+.contact-form .f-file__text{display:block;font-size:14.5px;font-weight:500;color:var(--ink)}
+.contact-form .f-file__note{display:block;font-size:12.5px;color:var(--muted);margin-top:3px}
+
+/* Согласие */
+.contact-form .consent{
+  display:flex;gap:10px;align-items:flex-start;
+  margin-top:16px;font-size:12.5px;color:var(--muted);line-height:1.5;
+}
+.contact-form .consent .wpcf7-form-control-wrap{width:auto;flex:none}
+.contact-form .consent input[type="checkbox"]{width:16px;height:16px;margin:2px 0 0;flex:none}
+.contact-form .wpcf7-list-item{margin:0}
+
+/* Кнопка */
+.contact-form .wpcf7-form input.wpcf7-submit,
+.contact-form .wpcf7-form input.wpcf7-submit:hover,
+.contact-form .wpcf7-form input.wpcf7-submit:focus{
+  width:100%;
+  height:52px;
+  padding:0;
+  margin-top:16px;
+  background:var(--orange);
+  border:0;
+  border-radius:var(--r);
+  color:#fff;
+  font-family:inherit;
+  font-size:15.5px;
+  font-weight:500;
+  line-height:52px;
+  cursor:pointer;
+  transition:background .15s;
+}
+.contact-form .wpcf7-form input.wpcf7-submit:hover{background:var(--orange-deep)}
+.contact-form .wpcf7-form input.wpcf7-submit:focus-visible{
+  outline:2px solid var(--orange);
+  outline-offset:2px;
+}
+.contact-form .wpcf7-form input.wpcf7-submit:disabled{opacity:.45;cursor:not-allowed}
+
+/* Сообщения */
+.contact-form .wpcf7-not-valid-tip{font-size:12.5px;color:var(--orange-deep);margin-top:5px}
+.contact-form .wpcf7-response-output{
+  margin:16px 0 0!important;padding:12px 15px!important;
+  border-radius:var(--r);font-size:14px;border-width:1px!important;
+}
+.contact-form .wpcf7-form.sent .wpcf7-response-output{border-color:var(--green)!important;color:var(--green)}
+.contact-form .wpcf7-form.invalid .wpcf7-response-output{border-color:var(--orange)!important;color:var(--orange-deep)}
+.contact-form .wpcf7-spinner{display:block;margin:10px auto 0}
+
+.contact-form .wpcf7-spinner{
+  display:block;
+  margin:12px auto 0;
+}

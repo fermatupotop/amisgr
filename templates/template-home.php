@@ -32,11 +32,11 @@ get_header();
 			</div>
 			<div class="hero-aside">
 				<p>
-					Нужно сначала попробовать? Отправим прибор в вашу лабораторию на две недели,
-					чтобы вы проверили его на реальных сигналах до покупки.
+					Нужной модели нет в наличии или сроки не устраивают? Подберём аналог
+					с сопоставимыми параметрами и назовём реальный срок поставки.
 				</p>
-				<a class="btn btn-ghost" href="<?php echo esc_url( home_url( '/demo/' ) ); ?>">
-					Заказать прибор на тест
+				<a class="btn btn-ghost" href="#contact">
+					Прислать спецификацию
 				</a>
 			</div>
 		</div>
@@ -299,7 +299,7 @@ get_header();
 				с ценами, сроками и обоснованием. Обычно отвечаем в тот же рабочий день.
 			</p>
 			<p style="margin-top:26px">
-				<a class="f-phone" href="tel:+74957700497" style="color:var(--ink);font-size:26px">+7 (495) 770-04-97</a>
+				<a class="f-phone" href="tel:+74953637709" style="color:var(--ink);font-size:26px">+7 (495) 363-77-09</a>
 				<a href="mailto:info@amisgr.ru" style="color:var(--gray)">info@amisgr.ru</a>
 			</p>
 		</div>

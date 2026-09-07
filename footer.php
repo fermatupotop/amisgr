@@ -171,6 +171,7 @@ defined( 'ABSPATH' ) || exit;
 					<ul class="f-links">
 						<li><a href="<?php echo esc_url( home_url( '/faq/' ) ); ?>"><?php esc_html_e( 'Вопросы и ответы', 'amis' ); ?></a></li>
 						<li><a href="<?php echo esc_url( home_url( '/articles/' ) ); ?>"><?php esc_html_e( 'База знаний', 'amis' ); ?></a></li>
+						<li><a href="<?php echo esc_url( home_url( '/vacancies/' ) ); ?>"><?php esc_html_e( 'Вакансии', 'amis' ); ?></a></li>
 						<li><a href="<?php echo esc_url( home_url( '/privacy/' ) ); ?>"><?php esc_html_e( 'Политика конфиденциальности', 'amis' ); ?></a></li>
 					</ul>
 				</div>

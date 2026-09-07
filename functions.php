@@ -141,15 +141,25 @@ add_action( 'wp_enqueue_scripts', 'amis_enqueue_assets', 15 );
  */
 function amis_page_builder_layout( $layout ) {
 
-	if ( amis_is_home_template() ) {
-		return 'page-builder';
-	}
-
 	if ( function_exists( 'is_product' ) && is_product() ) {
 		return 'page-builder';
 	}
 
 	if ( is_page_template( 'page-contact.php' ) || is_page( 'contact' ) ) {
+		return 'page-builder';
+	}
+
+	if ( is_page_template( 'page-payment.php' ) ) {
+		return 'page-builder';
+	}
+
+	/**
+	 * Любой шаблон из templates/template-*.php (главная, «О компании»,
+	 * «Вакансии», «Гарантия и сервис» и так далее) сам рисует секции
+	 * во всю ширину — контейнер и отступы Astra ему только мешают.
+	 */
+	$template = get_page_template_slug();
+	if ( $template && 0 === strpos( $template, 'templates/template-' ) ) {
 		return 'page-builder';
 	}
 

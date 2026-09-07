@@ -37,11 +37,11 @@ img{max-width:100%;display:block}
   border-radius:var(--r);border:1px solid transparent;font-family:inherit;font-weight:500;font-size:15px;
   cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
 .btn-primary{background:var(--orange);color:#fff}
-.btn-primary:hover{background:var(--orange-deep)}
+.btn-primary:hover{background:var(--orange-deep);color:#fff}
 .btn-ghost{background:#fff;color:var(--ink);border-color:var(--line)}
-.btn-ghost:hover{border-color:var(--gray-2)}
+.btn-ghost:hover{border-color:var(--gray-2);color:var(--ink)}
 .btn-dark{background:var(--ink);color:#fff}
-.btn-dark:hover{background:#000}
+.btn-dark:hover{background:#000;color:#fff}
 .btn-sm{height:40px;padding:0 16px;font-size:14px}
 
 /* ---------- TOPBAR ---------- */
@@ -70,7 +70,7 @@ img{max-width:100%;display:block}
 .logo b{display:block;font-size:22px;font-weight:600;letter-spacing:.15em;color:var(--gray);line-height:1}
 .logo span{display:block;font-size:10.5px;letter-spacing:.28em;color:var(--muted);margin-top:4px}
 .catbtn{display:flex;align-items:center;gap:10px;height:48px;padding:0 20px;background:var(--ink);color:#fff;border-radius:var(--r);font-weight:500;font-size:15px}
-.catbtn:hover{background:var(--orange)}
+.catbtn:hover{background:var(--orange);color:#fff}
 .search{flex:1;position:relative}
 .search input{width:100%;height:48px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);
   font:inherit;font-size:15px;padding:0 44px 0 15px;color:var(--ink)}

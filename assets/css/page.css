@@ -3,7 +3,7 @@
 /* ---------- Шапка страницы ---------- */
 .section--head{padding-bottom:0}
 .section--head h1{font-size:clamp(28px,3.4vw,42px);letter-spacing:-.03em;margin-top:14px}
-.page-lead{margin-top:16px;font-size:17px;color:var(--gray);max-width:60ch}
+.page-lead{margin-top:16px;font-size:17px;color:var(--gray);max-width:72ch}
 .eyebrow{
   display:inline-flex;align-items:center;gap:7px;
   height:28px;padding:0 12px;border-radius:20px;
@@ -273,7 +273,7 @@ a.c-value:hover{color:var(--orange)}
 .legal .legal-updated{display:inline-block;margin-top:10px;font-size:13.5px;color:var(--muted)}
 
 /* ---------- Вопросы и ответы (FAQ) ---------- */
-.faq-nav{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.faq-nav{display:flex;flex-wrap:wrap;gap:10px;margin:24px 0 40px}
 .faq-nav a{
   display:inline-flex;align-items:center;height:32px;padding:0 14px;
   border:1px solid var(--line);border-radius:20px;

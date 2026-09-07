@@ -207,7 +207,7 @@ get_header();
 </section>
 
 <!-- Реквизиты -->
-<section class="section">
+<section class="section" id="details">
 	<div class="wrap">
 		<div class="s-head">
 			<div>

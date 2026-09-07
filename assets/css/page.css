@@ -260,7 +260,7 @@ a.c-value:hover{color:var(--orange)}
 }
 
 /* ---------- Юридические тексты (политика, оферта) ---------- */
-.legal{max-width:78ch;color:var(--gray);font-size:15.5px;line-height:1.7}
+.legal{max-width:92ch;color:var(--gray);font-size:15.5px;line-height:1.7}
 .legal h2{color:var(--ink);font-size:21px;margin:40px 0 14px}
 .legal h2:first-child{margin-top:0}
 .legal h3{color:var(--ink);font-size:17px;margin:24px 0 10px}
@@ -271,6 +271,40 @@ a.c-value:hover{color:var(--orange)}
 .legal a:hover{text-decoration:underline}
 .legal strong{color:var(--ink)}
 .legal .legal-updated{display:inline-block;margin-top:10px;font-size:13.5px;color:var(--muted)}
+
+/* ---------- Вопросы и ответы (FAQ) ---------- */
+.faq-nav{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.faq-nav a{
+  display:inline-flex;align-items:center;height:32px;padding:0 14px;
+  border:1px solid var(--line);border-radius:20px;
+  font-size:13.5px;color:var(--gray);background:#fff;
+}
+.faq-nav a:hover{border-color:var(--orange);color:var(--orange-deep)}
+
+.faq-list{display:grid;gap:12px;max-width:840px}
+.faq-item{
+  background:#fff;border:1px solid var(--line);border-radius:var(--r);
+  padding:18px 22px;
+}
+.faq-item summary{
+  cursor:pointer;list-style:none;
+  display:flex;justify-content:space-between;align-items:center;gap:16px;
+  font-size:15.5px;font-weight:500;color:var(--ink);
+}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary::after{
+  content:"+";flex:none;width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;background:var(--orange-soft);color:var(--orange-deep);
+  font-size:16px;line-height:1;
+}
+.faq-item[open] summary::after{content:"–"}
+.faq-item p{margin:14px 0 0;font-size:14.5px;color:var(--gray);line-height:1.6}
+
+@media(max-width:640px){
+  .faq-item{padding:16px 18px}
+  .faq-item summary{font-size:14.5px}
+}
 
 /* ---------- Contact Form 7 ---------- */
 .contact-form .wpcf7-form-control-wrap{display:block;width:100%}

@@ -46,14 +46,7 @@ defined( 'ABSPATH' ) || exit;
 	<div class="wrap">
 
 		<a class="logo" href="<?php echo esc_url( home_url( '/' ) ); ?>">
-			<svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
-				<circle cx="32" cy="32" r="29" stroke="#D9673C" stroke-width="2.6"/>
-				<path d="M9 40c5-1 7-16 11-16s5 12 8 12 4-18 9-18 6 17 10 20" stroke="#D9673C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-			</svg>
-			<span>
-				<b><?php esc_html_e( 'АМИС', 'amis' ); ?></b>
-				<span><?php esc_html_e( 'групп', 'amis' ); ?></span>
-			</span>
+			<img src="<?php echo esc_url( AMIS_URI . '/assets/img/logo-amis.png' ); ?>" alt="<?php esc_attr_e( 'АМИС групп', 'amis' ); ?>">
 		</a>
 
 		<a class="catbtn" href="<?php echo esc_url( amis_shop_url() ); ?>">

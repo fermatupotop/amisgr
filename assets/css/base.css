@@ -65,10 +65,8 @@ img{max-width:100%;display:block}
 /* ---------- HEADER ---------- */
 .header{position:sticky;top:0;z-index:60;background:#fff;border-bottom:1px solid var(--line)}
 .header .wrap{display:flex;align-items:center;gap:22px;height:82px}
-.logo{display:flex;align-items:center;gap:11px;flex:none}
-.logo svg{width:42px;height:42px;flex:none}
-.logo b{display:block;font-size:22px;font-weight:600;letter-spacing:.15em;color:var(--gray);line-height:1}
-.logo span{display:block;font-size:10.5px;letter-spacing:.28em;color:var(--muted);margin-top:4px}
+.logo{display:flex;align-items:center;flex:none}
+.logo img{height:40px;width:auto;display:block}
 .catbtn{display:flex;align-items:center;gap:10px;height:48px;padding:0 20px;background:var(--ink);color:#fff;border-radius:var(--r);font-weight:500;font-size:15px}
 .catbtn:hover{background:var(--orange);color:#fff}
 .search{flex:1;position:relative}

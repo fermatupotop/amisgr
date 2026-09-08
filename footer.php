@@ -162,7 +162,6 @@ defined( 'ABSPATH' ) || exit;
 						<li><a href="<?php echo esc_url( home_url( '/demo/' ) ); ?>"><?php esc_html_e( 'Прибор на тест', 'amis' ); ?></a></li>
 						<li><a href="<?php echo esc_url( home_url( '/verification/' ) ); ?>"><?php esc_html_e( 'Поверка и калибровка', 'amis' ); ?></a></li>
 						<li><a href="<?php echo esc_url( home_url( '/rent/' ) ); ?>"><?php esc_html_e( 'Аренда приборов', 'amis' ); ?></a></li>
-						<li><a href="<?php echo esc_url( home_url( '/trade-in/' ) ); ?>"><?php esc_html_e( 'Trade-in старого парка', 'amis' ); ?></a></li>
 					</ul>
 				</div>
 

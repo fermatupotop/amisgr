@@ -306,6 +306,26 @@ a.c-value:hover{color:var(--orange)}
   .faq-item summary{font-size:14.5px}
 }
 
+/* ---------- Уставные документы ---------- */
+.doc-list{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.doc-card{
+  display:flex;align-items:center;gap:16px;
+  background:#fff;border:1px solid var(--line);border-radius:var(--r);
+  padding:18px 20px;
+}
+.doc-card__body{flex:1;min-width:0}
+.doc-card__body b{display:block;font-size:15px;color:var(--ink);letter-spacing:-.01em}
+.doc-card__body span{display:block;margin-top:4px;font-size:13px;color:var(--gray-2);line-height:1.4}
+.doc-card__dl{flex:none}
+
+@media(max-width:1000px){
+  .doc-list{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .doc-card{flex-wrap:wrap}
+  .doc-card__dl{width:100%}
+}
+
 /* ---------- Contact Form 7 ---------- */
 .contact-form .wpcf7-form-control-wrap{display:block;width:100%}
 

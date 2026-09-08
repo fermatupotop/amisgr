@@ -72,6 +72,10 @@ function amis_page_builder_layout( $layout ) {
 		return 'page-builder';
 	}
 
+	if ( is_page_template( 'page-documents.php' ) ) {
+		return 'page-builder';
+	}
+
 	/**
 	 * Любой шаблон из templates/template-*.php (главная, «О компании»,
 	 * «Вакансии», «Гарантия и сервис» и так далее) сам рисует секции

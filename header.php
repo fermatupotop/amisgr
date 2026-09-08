@@ -49,12 +49,36 @@ defined( 'ABSPATH' ) || exit;
 			<img src="<?php echo esc_url( AMIS_URI . '/assets/img/logo-amis.png' ); ?>" alt="<?php esc_attr_e( 'АМИС групп', 'amis' ); ?>">
 		</a>
 
-		<a class="catbtn" href="<?php echo esc_url( amis_shop_url() ); ?>">
-			<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-				<path d="M1 3h14M1 8h14M1 13h14"/>
-			</svg>
-			<span><?php esc_html_e( 'Каталог', 'amis' ); ?></span>
-		</a>
+		<div class="cat-drop">
+			<a class="catbtn" href="<?php echo esc_url( amis_shop_url() ); ?>">
+				<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+					<path d="M1 3h14M1 8h14M1 13h14"/>
+				</svg>
+				<span><?php esc_html_e( 'Каталог', 'amis' ); ?></span>
+			</a>
+
+			<?php
+			/**
+			 * Мега-меню категорий при наведении — только для десктопа
+			 * (см. .cat-panel в base.css). На мобильном кнопка остаётся
+			 * обычной ссылкой в каталог, без панели.
+			 */
+			$cat_panel_items = function_exists( 'amis_get_top_categories' ) ? amis_get_top_categories( 10 ) : array();
+			if ( $cat_panel_items ) :
+				?>
+				<div class="cat-panel">
+					<ul>
+						<?php foreach ( $cat_panel_items as $cat ) : ?>
+							<li><a href="<?php echo esc_url( get_term_link( $cat ) ); ?>"><?php echo esc_html( $cat->name ); ?></a></li>
+						<?php endforeach; ?>
+					</ul>
+					<a class="cat-panel__all" href="<?php echo esc_url( amis_shop_url() ); ?>">
+						<?php esc_html_e( 'Все категории', 'amis' ); ?>
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+					</a>
+				</div>
+			<?php endif; ?>
+		</div>
 
 		<?php
 		/**

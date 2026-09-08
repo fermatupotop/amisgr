@@ -69,6 +69,35 @@ img{max-width:100%;display:block}
 .logo img{height:40px;width:auto;display:block}
 .catbtn{display:flex;align-items:center;gap:10px;height:48px;padding:0 20px;background:var(--ink);color:#fff;border-radius:var(--r);font-weight:500;font-size:15px}
 .catbtn:hover{background:var(--orange);color:#fff}
+
+/* Мега-меню категорий каталога — только десктоп, см. media(max-width:1000px) ниже */
+.cat-drop{position:relative;flex:none}
+.cat-panel{
+  position:absolute;top:calc(100% + 10px);left:0;z-index:70;width:300px;
+  background:#fff;border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:0 16px 36px rgba(0,0,0,.12);
+  padding:10px;
+  opacity:0;visibility:hidden;transform:translateY(6px);
+  transition:opacity .15s,transform .15s;
+}
+.cat-drop:hover>.cat-panel,
+.cat-drop:focus-within>.cat-panel{
+  opacity:1;visibility:visible;transform:translateY(0);
+}
+.cat-panel ul{list-style:none;margin:0;padding:0;display:grid;gap:1px}
+.cat-panel a{display:flex;align-items:center;height:42px;padding:0 12px;border-radius:calc(var(--r) - 1px);font-size:14.5px;color:var(--gray)}
+.cat-panel a:hover{background:var(--panel);color:var(--orange)}
+.cat-panel a.cat-panel__all{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:6px;padding-top:12px;border-top:1px solid var(--line-2);
+  font-weight:500;color:var(--ink);
+}
+.cat-panel a.cat-panel__all:hover{color:var(--orange);background:none}
+
+@media(max-width:1000px){
+  .cat-panel{display:none}
+}
+
 .search{flex:1;position:relative}
 .search input{width:100%;height:48px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);
   font:inherit;font-size:15px;padding:0 44px 0 15px;color:var(--ink)}

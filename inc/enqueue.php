@@ -35,7 +35,9 @@ function amis_enqueue_assets() {
 
 	wp_enqueue_style( 'amis-base', AMIS_URI . '/assets/css/base.css', array( 'amis-child' ), AMIS_VERSION );
 		// Стили обычных страниц: контакты, доставка, оплата и так далее.
-	if ( is_page() && ! amis_is_home_template() ) {
+		// Одиночная запись и архив «Базы знаний» используют те же базовые
+		// компоненты (.section--head, .eyebrow, .crumbs и так далее).
+	if ( ( is_page() && ! amis_is_home_template() ) || is_singular( 'post' ) ) {
 		wp_enqueue_style( 'amis-page', AMIS_URI . '/assets/css/page.css', array( 'amis-base' ), AMIS_VERSION );
 	}
 
@@ -50,6 +52,11 @@ function amis_enqueue_assets() {
 	if ( amis_is_home_template() ) {
 		wp_enqueue_style( 'amis-home', AMIS_URI . '/assets/css/home.css', array( 'amis-base' ), AMIS_VERSION );
 		wp_enqueue_script( 'amis-home', AMIS_URI . '/assets/js/home.js', array(), AMIS_VERSION, true );
+	}
+
+	// «База знаний»: архив (templates/template-articles.php) и одиночная запись.
+	if ( is_singular( 'post' ) || is_page_template( 'templates/template-articles.php' ) ) {
+		wp_enqueue_style( 'amis-article', AMIS_URI . '/assets/css/article.css', array( 'amis-page' ), AMIS_VERSION );
 	}
 }
 add_action( 'wp_enqueue_scripts', 'amis_enqueue_assets', 15 );
@@ -77,6 +84,14 @@ function amis_page_builder_layout( $layout ) {
 	}
 
 	/**
+	 * Одиночная запись «Базы знаний» рисуется своим single.php —
+	 * контейнер Astra ей, как и остальным своим шаблонам, только мешает.
+	 */
+	if ( is_singular( 'post' ) ) {
+		return 'page-builder';
+	}
+
+	/**
 	 * Любой шаблон из templates/template-*.php (главная, «О компании»,
 	 * «Вакансии», «Гарантия и сервис» и так далее) сам рисует секции
 	 * во всю ширину — контейнер и отступы Astra ему только мешают.
@@ -91,9 +106,13 @@ function amis_page_builder_layout( $layout ) {
 add_filter( 'astra_get_content_layout', 'amis_page_builder_layout' );
 
 /**
- * Без сайдбара.
+ * Без сайдбара — на главной и на «Базе знаний» (архив и запись):
+ * там своя сетка колонок, сайдбар Astra в неё не встроен.
  */
-function amis_home_page_layout( $layout ) {
-	return amis_is_home_template() ? 'no-sidebar' : $layout;
+function amis_no_sidebar_layout( $layout ) {
+	if ( amis_is_home_template() || is_singular( 'post' ) || is_page_template( 'templates/template-articles.php' ) ) {
+		return 'no-sidebar';
+	}
+	return $layout;
 }
-add_filter( 'astra_page_layout', 'amis_home_page_layout' );
+add_filter( 'astra_page_layout', 'amis_no_sidebar_layout' );

@@ -90,6 +90,25 @@ img{max-width:100%;display:block}
 .nav a:hover{color:var(--orange)}
 .nav .last{margin-left:auto;color:var(--orange);padding-right:0;margin-right:0}
 
+/* Выпадающее подменю (Внешний вид → Меню, второй уровень вложенности).
+   Стрелку у пункта с подменю рисует сама Astra — свою здесь не добавляем. */
+.nav .menu-item-has-children{position:relative}
+.nav .sub-menu{
+  position:absolute;top:100%;left:0;z-index:70;min-width:240px;
+  margin:0;padding:8px;list-style:none;
+  background:#fff;border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:0 12px 28px rgba(0,0,0,.1);
+  opacity:0;visibility:hidden;transform:translateY(4px);
+  transition:opacity .15s,transform .15s;
+}
+.nav .menu-item-has-children:hover>.sub-menu,
+.nav .menu-item-has-children:focus-within>.sub-menu{
+  opacity:1;visibility:visible;transform:translateY(0);
+}
+.nav .sub-menu li{margin:0}
+.nav .sub-menu a{height:auto;margin:0;padding:10px 12px;border-radius:calc(var(--r) - 1px);font-size:14.5px}
+.nav .sub-menu a:hover{background:var(--panel);color:var(--orange)}
+
 /* ---------- FOOTER ---------- */
 .footer{background:var(--ink);color:#A8ACB0;padding:56px 0 0;font-size:14.5px;line-height:1.6}
 .f-grid{display:grid;grid-template-columns:1.5fr 1fr 1.1fr 1fr;gap:44px;padding-bottom:44px}
@@ -213,6 +232,14 @@ img{max-width:100%;display:block}
   .nav.is-open{display:block}
   .nav ul{flex-direction:column;padding:8px 0}
   .nav a{height:46px;margin-right:0}
+
+  /* На мобильном ховера нет — подменю просто всегда развёрнуто списком. */
+  .nav .sub-menu{
+    position:static;opacity:1;visibility:visible;transform:none;
+    min-width:0;margin:0;padding:0 0 4px 16px;
+    background:none;border:0;border-radius:0;box-shadow:none;
+  }
+  .nav .sub-menu a{height:40px;color:var(--gray-2)}
 }
 
 .ast-article-single figure,

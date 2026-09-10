@@ -17,6 +17,7 @@ require_once AMIS_DIR . '/inc/product-fields.php';
 require_once AMIS_DIR . '/inc/product-map.php';
 require_once AMIS_DIR . '/inc/product-docs.php';
 require_once AMIS_DIR . '/inc/product-package.php';
+require_once AMIS_DIR . '/inc/product-accessories.php';
 require_once AMIS_DIR . '/inc/company.php';
 require_once AMIS_DIR . '/inc/enqueue.php';
 

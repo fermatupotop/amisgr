@@ -35,6 +35,9 @@ $long_text = get_post_meta( $product_id, '_amis_long_text', true );
 // Характеристики.
 $key_specs = amis_key_specs( $product );
 $groups    = amis_grouped_specs( $product );
+
+// Пробники и аксессуары.
+$accessory_groups = amis_get_product_accessories( $product_id );
 $neighbors = amis_get_neighbors( $product );
 
 // Микроразметка товара для поисковиков.
@@ -86,8 +89,25 @@ if ( isset( WC()->structured_data ) ) {
 					<?php endif; ?>
 
 					<?php
-					// Производителя берём из глобального атрибута pa_brand, если он заполнен.
-					$brand = $product->get_attribute( 'pa_brand' );
+					/**
+					 * Производителя берём из штатной таксономии WooCommerce
+					 * «Бренды» (product_brand), если она включена и заполнена.
+					 * Резерв — старый способ через глобальный атрибут pa_brand,
+					 * на случай если у части товаров бренд заполнен только там.
+					 */
+					$brand = '';
+
+					if ( taxonomy_exists( 'product_brand' ) ) {
+						$brand_terms = get_the_terms( $product_id, 'product_brand' );
+						if ( $brand_terms && ! is_wp_error( $brand_terms ) ) {
+							$brand = reset( $brand_terms )->name;
+						}
+					}
+
+					if ( ! $brand ) {
+						$brand = $product->get_attribute( 'pa_brand' );
+					}
+
 					if ( $brand ) :
 						?>
 						<span><?php esc_html_e( 'Производитель:', 'amis' ); ?> <b><?php echo esc_html( $brand ); ?></b></span>
@@ -191,9 +211,11 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 				<a class="btn btn-ghost btn-block" href="<?php echo esc_url( home_url( '/request/?sku=' . rawurlencode( $product->get_sku() ) ) ); ?>">
 					<?php esc_html_e( 'Запросить счёт', 'amis' ); ?>
 				</a>
-				<a class="btn btn-ghost btn-block" href="<?php echo esc_url( home_url( '/demo/' ) ); ?>">
-					<?php esc_html_e( 'Взять на тест на 14 дней', 'amis' ); ?>
-				</a>
+				<?php if ( 'yes' === get_post_meta( $product_id, '_amis_demo_available', true ) ) : ?>
+					<a class="btn btn-ghost btn-block" href="<?php echo esc_url( home_url( '/demo/' ) ); ?>">
+						<?php esc_html_e( 'Взять на тест на 14 дней', 'amis' ); ?>
+					</a>
+				<?php endif; ?>
 			</div>
 
 			<div class="buy-list">
@@ -263,6 +285,16 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 		<div class="wrap">
 			<h2><?php esc_html_e( 'Комплект поставки', 'amis' ); ?></h2>
 			<?php amis_render_package( $package ); ?>
+		</div>
+	</section>
+<?php endif; ?>
+
+<!-- Пробники и аксессуары -->
+<?php if ( $accessory_groups ) : ?>
+	<section class="sec">
+		<div class="wrap">
+			<h2><?php esc_html_e( 'Пробники и аксессуары', 'amis' ); ?></h2>
+			<?php amis_render_accessories( $accessory_groups ); ?>
 		</div>
 	</section>
 <?php endif; ?>

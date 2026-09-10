@@ -67,6 +67,13 @@ function amis_product_data_panel() {
 				'desc_tip'    => true,
 				'description' => __( 'Показывается, когда товара нет на складе.', 'amis' ),
 			) );
+
+			woocommerce_wp_checkbox( array(
+				'id'          => '_amis_demo_available',
+				'label'       => __( 'Доступен на тест', 'amis' ),
+				'desc_tip'    => true,
+				'description' => __( 'Показывает кнопку «Взять на тест на 14 дней» на странице товара. Демо-фонд ограничен — включайте только для тех моделей, которые реально можно дать на тест.', 'amis' ),
+			) );
 			?>
 		</div>
 
@@ -108,6 +115,9 @@ function amis_save_product_fields( $post_id ) {
 	// Числовое поле сортировки.
 	$sort = isset( $_POST['_amis_sort_value'] ) ? wc_format_decimal( wp_unslash( $_POST['_amis_sort_value'] ) ) : '';
 	update_post_meta( $post_id, '_amis_sort_value', $sort );
+
+	// Чекбокс: при выключенном состоянии поле в $_POST вообще не приходит.
+	update_post_meta( $post_id, '_amis_demo_available', isset( $_POST['_amis_demo_available'] ) ? 'yes' : 'no' );
 
 	// Многострочные поля: переносы сохраняем, теги вырезаем.
 	$area_fields = array( '_amis_long_text' );

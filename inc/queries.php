@@ -42,10 +42,9 @@ function amis_get_instock_products( $limit = 4 ) {
  *
  * Полоса лежит в атрибуте pa_bandwidth как текст («100 МГц»), поэтому
  * сортировать по нему нельзя — «1 ГГц» окажется раньше «70 МГц».
- * Решение: числовое поле amis_bandwidth_mhz, куда пишем полосу в мегагерцах.
- * Без подчёркивания в начале имени намеренно — поле с подчёркивания
- * WordPress считает служебным и прячет из блока «Произвольные поля»
- * в админке, редактировать такое неудобно.
+ * Решение: поле «Значение для сортировки» (_amis_sort_value) из вкладки
+ * «Данные АМИС» в блоке товара, куда пишем полосу в мегагерцах —
+ * см. inc/product-fields.php.
  *
  * @param int $limit Количество строк таблицы.
  * @return WC_Product[]
@@ -60,7 +59,7 @@ function amis_get_scopes_by_bandwidth( $limit = 5 ) {
 		'status'     => 'publish',
 		'limit'      => $limit,
 		'category'   => array( 'oscilloscopes' ), // Слаг категории.
-		'meta_key'   => 'amis_bandwidth_mhz',
+		'meta_key'   => '_amis_sort_value',
 		'orderby'    => 'meta_value_num',
 		'order'      => 'ASC',
 	) );

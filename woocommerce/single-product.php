@@ -52,9 +52,17 @@ if ( isset( WC()->structured_data ) ) {
 		<a href="<?php echo esc_url( amis_shop_url() ); ?>"><?php esc_html_e( 'Каталог', 'amis' ); ?></a><span>/</span>
 		<?php
 		$cats = wp_get_post_terms( $product_id, 'product_cat' );
-		if ( ! is_wp_error( $cats ) && $cats ) :
+		// «Misc» — служебная категория по умолчанию, не показываем её в крошках.
+		$cats = is_wp_error( $cats ) ? array() : array_filter(
+			$cats,
+			static function ( $cat ) {
+				return 'misc' !== $cat->slug;
+			}
+		);
+		if ( $cats ) :
+			$crumb_cat = reset( $cats );
 			?>
-			<a href="<?php echo esc_url( get_term_link( $cats[0] ) ); ?>"><?php echo esc_html( $cats[0]->name ); ?></a><span>/</span>
+			<a href="<?php echo esc_url( get_term_link( $crumb_cat ) ); ?>"><?php echo esc_html( $crumb_cat->name ); ?></a><span>/</span>
 		<?php endif; ?>
 		<span><?php the_title(); ?></span>
 	</div>

@@ -128,12 +128,23 @@ function amis_stock_state( $product ) {
  */
 function amis_get_top_categories( $limit = 6 ) {
 
+	// «Misc» — служебная категория по умолчанию для товаров без темы,
+	// не настоящий раздел каталога. Исключаем до применения $limit,
+	// чтобы список не терял место под неё.
+	$exclude = array();
+	$misc    = get_term_by( 'slug', 'misc', 'product_cat' );
+
+	if ( $misc ) {
+		$exclude[] = $misc->term_id;
+	}
+
 	$terms = get_terms( array(
 		'taxonomy'   => 'product_cat',
 		'parent'     => 0,
 		'hide_empty' => false,
 		'number'     => $limit,
 		'orderby'    => 'menu_order',
+		'exclude'    => $exclude,
 	) );
 
 	return is_wp_error( $terms ) ? array() : $terms;

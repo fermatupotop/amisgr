@@ -149,7 +149,7 @@ defined( 'ABSPATH' ) || exit;
 					<h5 class="f-subtitle"><?php esc_html_e( 'Покупателям', 'amis' ); ?></h5>
 					<ul class="f-links">
 						<li><a href="<?php echo esc_url( home_url( '/how-to-order/' ) ); ?>"><?php esc_html_e( 'Как сделать заказ', 'amis' ); ?></a></li>
-						<li><a href="<?php echo esc_url( home_url( '/delivery/#delivery' ) ); ?>"><?php esc_html_e( 'Условия доставки', 'amis' ); ?></a></li>
+						<li><a href="<?php echo esc_url( home_url( '/payment/#delivery' ) ); ?>"><?php esc_html_e( 'Условия доставки', 'amis' ); ?></a></li>
 						<li><a href="<?php echo esc_url( home_url( '/payment/#payment' ) ); ?>"><?php esc_html_e( 'Оплата для юридических лиц', 'amis' ); ?></a></li>
 						<li><a href="<?php echo esc_url( home_url( '/warranty/' ) ); ?>"><?php esc_html_e( 'Гарантия и возврат', 'amis' ); ?></a></li>
 						<li><a href="<?php echo esc_url( home_url( '/tenders/' ) ); ?>"><?php esc_html_e( 'Работа по 44-ФЗ и 223-ФЗ', 'amis' ); ?></a></li>

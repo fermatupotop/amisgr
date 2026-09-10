@@ -37,6 +37,18 @@ if ( $current_cat ) {
 
 $articles   = new WP_Query( $query_args );
 $categories = get_categories( array( 'hide_empty' => true ) );
+
+/**
+ * «Misc» — служебная категория по умолчанию для записей без темы,
+ * не настоящая рубрика знаний. В фильтре и на карточках не показываем;
+ * сами записи под ней в архиве остаются видны.
+ */
+$categories = array_filter(
+	$categories,
+	static function ( $cat ) {
+		return 'misc' !== $cat->slug;
+	}
+);
 ?>
 
 <nav class="crumbs">

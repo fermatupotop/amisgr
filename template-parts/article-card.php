@@ -11,8 +11,14 @@
 
 defined( 'ABSPATH' ) || exit;
 
-$categories  = get_the_category();
-$primary_cat = $categories ? $categories[0] : null;
+// «Misc» — служебная категория по умолчанию, не показываем её как тему статьи.
+$categories  = array_filter(
+	get_the_category(),
+	static function ( $cat ) {
+		return 'misc' !== $cat->slug;
+	}
+);
+$primary_cat = $categories ? reset( $categories ) : null;
 ?>
 
 <article class="article-card">

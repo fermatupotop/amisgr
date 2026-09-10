@@ -167,7 +167,7 @@
   width:100%;height:50px;background:var(--orange);color:#fff;border:0;
   border-radius:var(--r);font-family:inherit;font-weight:500;font-size:15px;cursor:pointer;
 }
-.buy-acts button.single_add_to_cart_button:hover{background:var(--orange-deep)}
+.buy-acts button.single_add_to_cart_button:hover{background:var(--orange-deep);color:#fff}
 .stock--o{color:var(--gray-2)}
 .woocommerce-notices-wrapper .woocommerce-message{
   border-top-color:var(--orange);

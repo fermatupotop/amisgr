@@ -1,0 +1,80 @@
+/* Каталог (архив товаров WooCommerce): /shop/, категории, метки.
+   Подключается вместе с page.css — см. amis_enqueue_assets() в inc/enqueue.php. */
+
+/* ---------- Фильтр по категориям ---------- */
+.shop-filter{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+.shop-filter a{
+  display:inline-flex;align-items:center;height:34px;padding:0 16px;
+  border:1px solid var(--line);border-radius:20px;
+  font-size:13.5px;color:var(--gray);background:#fff;
+}
+.shop-filter a:hover{border-color:var(--gray-2);color:var(--ink)}
+.shop-filter a.is-active{background:var(--ink);border-color:var(--ink);color:#fff}
+
+/* ---------- Сетка карточек товара ---------- */
+.shop-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.shop-count{font-size:14.5px;color:var(--gray-2);margin-bottom:20px}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);display:flex;flex-direction:column;position:relative;transition:border-color .15s}
+.card:hover{border-color:var(--gray-2)}
+.tag{position:absolute;top:0;left:0;background:var(--orange);color:#fff;font-size:11.5px;padding:4px 10px;border-radius:var(--r) 0 var(--r) 0;letter-spacing:.02em}
+.tag--g{background:var(--graphite)}
+.card-img{
+  aspect-ratio:4/3;height:auto;
+  display:flex;align-items:center;justify-content:center;
+  padding:16px;background:#fff;border-bottom:1px solid var(--line-2);
+  overflow:hidden;
+}
+.card-img img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
+.card-b{padding:18px;display:flex;flex-direction:column;flex:1}
+.card-b .art{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--muted)}
+.card-b h3{font-size:16px;font-weight:600;margin-top:6px;line-height:1.32}
+.card-b h3 a:hover{color:var(--orange)}
+.spec{list-style:none;margin:14px 0 0;padding:0;font-size:13.5px}
+.spec li{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px dashed var(--line)}
+.spec li span{color:var(--muted)}
+.spec li b{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:500}
+.card-f{margin-top:auto;padding-top:16px;display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.card-f .p{font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:19px;letter-spacing:-.02em}
+.card-f .p small{display:block;font-family:"IBM Plex Sans",sans-serif;font-weight:400;font-size:12px;color:var(--muted)}
+.card-f .req{font-size:14.5px;font-weight:500;color:var(--gray)}
+.buy{
+  width:46px;height:46px;flex:none;
+  border:0;border-radius:var(--r);
+  background:var(--orange);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;
+  cursor:pointer;padding:0;line-height:0;
+  transition:background .15s;
+}
+.buy:hover{background:var(--orange-deep);color:#fff}
+.buy svg{display:block;width:19px;height:19px;transform:translate(-1px,1px)}
+.avail-row{margin-top:12px}
+
+/* ---------- Пустой каталог/категория ---------- */
+.shop-empty{
+  border:1px dashed var(--line);border-radius:var(--r);
+  padding:56px 24px;text-align:center;color:var(--gray-2);
+}
+.shop-empty p{max-width:44ch;margin:8px auto 0;font-size:14.5px}
+
+/* ---------- Пагинация ---------- */
+.shop-pagination{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:40px}
+.shop-pagination a,
+.shop-pagination span{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:38px;height:38px;padding:0 8px;
+  border:1px solid var(--line);border-radius:var(--r);
+  font-size:14px;color:var(--gray);
+}
+.shop-pagination a:hover{border-color:var(--gray-2);color:var(--ink)}
+.shop-pagination span.current{background:var(--ink);border-color:var(--ink);color:#fff}
+
+@media(max-width:1200px){
+  .shop-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:1000px){
+  .shop-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:640px){
+  .shop-grid{grid-template-columns:1fr}
+}

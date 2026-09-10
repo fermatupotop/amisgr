@@ -21,6 +21,7 @@ function amis_is_home_template() {
  *
  * base.css — шапка, меню, подвал: нужен на каждой странице.
  * home.css — секции главной: только на ней.
+ * shop.css — сетка и фильтр архива каталога (/shop/, категории, метки).
  */
 function amis_enqueue_assets() {
 
@@ -35,9 +36,11 @@ function amis_enqueue_assets() {
 
 	wp_enqueue_style( 'amis-base', AMIS_URI . '/assets/css/base.css', array( 'amis-child' ), AMIS_VERSION );
 		// Стили обычных страниц: контакты, доставка, оплата и так далее.
-		// Одиночная запись и архив «Базы знаний» используют те же базовые
-		// компоненты (.section--head, .eyebrow, .crumbs и так далее).
-	if ( ( is_page() && ! amis_is_home_template() ) || is_singular( 'post' ) ) {
+		// Одиночная запись, архив «Базы знаний» и архив каталога используют
+		// те же базовые компоненты (.section--head, .eyebrow, .crumbs и так далее).
+	$is_shop_archive = function_exists( 'is_shop' ) && ( is_shop() || is_product_taxonomy() );
+
+	if ( ( is_page() && ! amis_is_home_template() ) || is_singular( 'post' ) || $is_shop_archive ) {
 		wp_enqueue_style( 'amis-page', AMIS_URI . '/assets/css/page.css', array( 'amis-base' ), AMIS_VERSION );
 	}
 
@@ -47,6 +50,10 @@ function amis_enqueue_assets() {
 	if ( function_exists( 'is_product' ) && is_product() ) {
 		wp_enqueue_style( 'amis-product', AMIS_URI . '/assets/css/product.css', array( 'amis-base' ), AMIS_VERSION );
 		wp_enqueue_script( 'amis-product', AMIS_URI . '/assets/js/product.js', array(), AMIS_VERSION, true );
+	}
+
+	if ( $is_shop_archive ) {
+		wp_enqueue_style( 'amis-shop', AMIS_URI . '/assets/css/shop.css', array( 'amis-page' ), AMIS_VERSION );
 	}
 
 	if ( amis_is_home_template() ) {
@@ -68,6 +75,10 @@ add_action( 'wp_enqueue_scripts', 'amis_enqueue_assets', 15 );
 function amis_page_builder_layout( $layout ) {
 
 	if ( function_exists( 'is_product' ) && is_product() ) {
+		return 'page-builder';
+	}
+
+	if ( function_exists( 'is_shop' ) && ( is_shop() || is_product_taxonomy() ) ) {
 		return 'page-builder';
 	}
 
@@ -110,7 +121,12 @@ add_filter( 'astra_get_content_layout', 'amis_page_builder_layout' );
  * там своя сетка колонок, сайдбар Astra в неё не встроен.
  */
 function amis_no_sidebar_layout( $layout ) {
-	if ( amis_is_home_template() || is_singular( 'post' ) || is_page_template( 'templates/template-articles.php' ) ) {
+	if (
+		amis_is_home_template()
+		|| is_singular( 'post' )
+		|| is_page_template( 'templates/template-articles.php' )
+		|| ( function_exists( 'is_shop' ) && ( is_shop() || is_product_taxonomy() ) )
+	) {
 		return 'no-sidebar';
 	}
 	return $layout;

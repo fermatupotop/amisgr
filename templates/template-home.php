@@ -278,7 +278,7 @@ get_header();
 		</div>
 		<div class="brands">
 			<?php
-			$brands = array( 'АКИП', 'ПриСТ', 'RIGOL', 'SIGLENT', 'GW Instek', 'Keysight', 'Tektronix' );
+			$brands = array('МигТрейдинг', 'RIGOL', 'R&S', 'Emctestlab', 'Keysight', 'Tektronix', 'Ceyear' );
 
 			foreach ( $brands as $brand ) :
 				?>

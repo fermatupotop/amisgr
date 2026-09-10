@@ -172,7 +172,8 @@ body.lightbox-open{overflow:hidden}
 .alt-c.this{border-color:var(--orange);background:var(--orange-soft)}
 .alt-tag{font-size:12px;color:var(--muted);margin-bottom:9px}
 .alt-c.this .alt-tag{color:var(--orange-deep)}
-.alt-c h3{font-size:18px}
+.alt-c h3,
+.alt-c .alt-title{font-size:18px;font-weight:600;margin:0}
 .alt-c dl{display:grid;grid-template-columns:1fr auto;margin:14px 0 0;font-size:13.5px}
 .alt-c dt{padding:5px 0;color:var(--gray-2)}
 .alt-c dd{padding:5px 0;margin:0;text-align:right;font-family:"IBM Plex Mono";font-size:13px}

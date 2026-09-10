@@ -437,7 +437,11 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 						<?php endif; ?>
 
 							<span class="alt-tag"><?php echo esc_html( $tag ); ?></span>
-							<h3><?php echo esc_html( $item->get_name() ); ?></h3>
+							<?php if ( $is_current ) : ?>
+								<p class="alt-title"><?php echo esc_html( $item->get_name() ); ?></p>
+							<?php else : ?>
+								<h3><?php echo esc_html( $item->get_name() ); ?></h3>
+							<?php endif; ?>
 
 							<dl>
 								<?php foreach ( $item_specs as $spec ) : ?>

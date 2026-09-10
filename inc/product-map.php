@@ -20,6 +20,13 @@ defined( 'ABSPATH' ) || exit;
  *
  * Значения — слаги атрибутов без префикса pa_.
  *
+ * `series` (серия — «DS80000», «MSO8000» и т.п.) заведена во всех
+ * категориях приборов, кроме probes: серия имеет смысл только вместе
+ * с брендом, поэтому это атрибут, а не подкатегория — иначе один бренд
+ * распадался бы на несвязанные ветки дерева категорий в каждом типе
+ * прибора. Бренд — отдельно, через штатную таксономию WooCommerce
+ * «Бренды» (product_brand), не через атрибут.
+ *
  * @return array
  */
 function amis_spec_map() {
@@ -32,7 +39,7 @@ function amis_spec_map() {
 				'Вертикальный тракт'  => array( 'bandwidth', 'channels', 'adc-bits', 'sensitivity', 'input-impedance', 'max-input' ),
 				'Горизонтальный тракт' => array( 'sample-rate', 'memory', 'timebase', 'capture-rate' ),
 				'Запуск и анализ'      => array( 'trigger-types', 'bus-decode', 'math', 'measurements' ),
-				'Интерфейсы и общие'   => array( 'display', 'interfaces', 'power', 'dimensions', 'weight', 'calibration-interval' ),
+				'Интерфейсы и общие'   => array( 'series', 'display', 'interfaces', 'power', 'dimensions', 'weight', 'calibration-interval' ),
 			),
 		),
 
@@ -42,7 +49,7 @@ function amis_spec_map() {
 				'Частотные параметры' => array( 'freq-range', 'freq-accuracy', 'span', 'rbw', 'vbw' ),
 				'Амплитудные'          => array( 'danl', 'amp-accuracy', 'max-input', 'attenuator' ),
 				'Спектральная чистота' => array( 'phase-noise', 'spurious' ),
-				'Интерфейсы и общие'   => array( 'display', 'interfaces', 'power', 'dimensions', 'weight', 'calibration-interval' ),
+				'Интерфейсы и общие'   => array( 'series', 'display', 'interfaces', 'power', 'dimensions', 'weight', 'calibration-interval' ),
 			),
 		),
 
@@ -52,7 +59,7 @@ function amis_spec_map() {
 				'Выходной сигнал'    => array( 'freq-range', 'output-level', 'freq-resolution', 'channels' ),
 				'Модуляция'          => array( 'modulation', 'modulation-depth', 'internal-source' ),
 				'Форма сигнала'      => array( 'waveforms', 'dac-bits', 'sample-rate', 'memory' ),
-				'Интерфейсы и общие' => array( 'display', 'interfaces', 'power', 'dimensions', 'weight', 'calibration-interval' ),
+				'Интерфейсы и общие' => array( 'series', 'display', 'interfaces', 'power', 'dimensions', 'weight', 'calibration-interval' ),
 			),
 		),
 
@@ -61,7 +68,7 @@ function amis_spec_map() {
 			'groups' => array(
 				'Усилительный тракт' => array( 'output-power', 'freq-range', 'gain', 'amp-class', 'flatness' ),
 				'Нагрузка и защита'  => array( 'vswr', 'protection', 'cooling' ),
-				'Интерфейсы и общие' => array( 'interfaces', 'power', 'dimensions', 'weight', 'calibration-interval' ),
+				'Интерфейсы и общие' => array( 'series', 'interfaces', 'power', 'dimensions', 'weight', 'calibration-interval' ),
 			),
 		),
 
@@ -70,7 +77,7 @@ function amis_spec_map() {
 			'groups' => array(
 				'Выходные параметры' => array( 'voltage', 'current', 'power', 'channels' ),
 				'Точность и шум'     => array( 'resolution', 'accuracy', 'ripple', 'load-regulation' ),
-				'Интерфейсы и общие' => array( 'display', 'interfaces', 'dimensions', 'weight', 'calibration-interval' ),
+				'Интерфейсы и общие' => array( 'series', 'display', 'interfaces', 'dimensions', 'weight', 'calibration-interval' ),
 			),
 		),
 
@@ -80,7 +87,21 @@ function amis_spec_map() {
 				'Метрология'         => array( 'digits', 'basic-accuracy', 'resolution' ),
 				'Диапазоны'          => array( 'dc-voltage', 'ac-voltage', 'dc-current', 'resistance', 'capacitance', 'frequency' ),
 				'Функции'            => array( 'functions', 'measurement-rate' ),
-				'Интерфейсы и общие' => array( 'display', 'interfaces', 'power', 'dimensions', 'weight', 'calibration-interval' ),
+				'Интерфейсы и общие' => array( 'series', 'display', 'interfaces', 'power', 'dimensions', 'weight', 'calibration-interval' ),
+			),
+		),
+
+		/**
+		 * Пробники — не отдельный прибор, а аксессуар к осциллографу.
+		 * Набор нарочно короткий: только то, что подтверждено с сайта
+		 * RIGOL или необходимо для понимания совместимости — без полей
+		 * «на будущее», которые нечем заполнить.
+		 */
+		'probes' => array(
+			'key'    => array( 'bandwidth', 'probe-type', 'connector', 'compatible-series' ),
+			'groups' => array(
+				'Характеристики' => array( 'bandwidth', 'probe-type' ),
+				'Совместимость'  => array( 'connector', 'compatible-series' ),
 			),
 		),
 

@@ -11,9 +11,21 @@
 .shop-filter a:hover{border-color:var(--gray-2);color:var(--ink)}
 .shop-filter a.is-active{background:var(--ink);border-color:var(--ink);color:#fff}
 
+/* ---------- Панель над сеткой: счётчик + «В наличии» ---------- */
+.shop-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.shop-count{font-size:14.5px;color:var(--gray-2)}
+.shop-instock{
+  display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 14px;flex:none;
+  border:1px solid var(--line);border-radius:20px;
+  font-size:13.5px;color:var(--gray);background:#fff;
+}
+.shop-instock svg{color:var(--muted)}
+.shop-instock:hover{border-color:var(--gray-2);color:var(--ink)}
+.shop-instock.is-active{background:var(--ink);border-color:var(--ink);color:#fff}
+.shop-instock.is-active svg{color:#fff}
+
 /* ---------- Сетка карточек товара ---------- */
 .shop-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-.shop-count{font-size:14.5px;color:var(--gray-2);margin-bottom:20px}
 
 .card{background:#fff;border:1px solid var(--line);border-radius:var(--r);display:flex;flex-direction:column;position:relative;transition:border-color .15s}
 .card:hover{border-color:var(--gray-2)}

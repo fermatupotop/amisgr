@@ -51,6 +51,60 @@
   box-shadow:inset 0 0 0 1px var(--orange);
 }
 
+/* ---------- Скриншоты и фото экрана ---------- */
+/* Лента с горизонтальной прокруткой — сознательно не тот же компонент,
+   что главная галерея товара: это иллюстрации внутри описания,
+   не витринные фото, крупный просмотр не нужен, открывается по клику. */
+.screens{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch}
+.screens__item{
+  flex:none;height:180px;
+  border:1px solid var(--line);border-radius:var(--r);
+  overflow:hidden;background:var(--panel);
+  transition:border-color .15s;
+}
+.screens__item:hover{border-color:var(--gray-2)}
+.screens__item img{height:100%;width:auto;display:block;object-fit:cover}
+
+@media(max-width:640px){
+  .screens__item{height:140px}
+}
+
+/* ---------- Лайтбокс ---------- */
+body.lightbox-open{overflow:hidden}
+.lightbox{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(15,16,17,.92);
+  display:flex;align-items:center;justify-content:center;
+  padding:56px;
+}
+/* [hidden] — уровень автора (display:flex выше) перебивает базовый
+   UA-стиль браузера, иначе оверлей остаётся видимым несмотря на hidden. */
+.lightbox[hidden]{display:none}
+.lightbox__img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;border-radius:var(--r)}
+.lightbox__close,
+.lightbox__nav{
+  -webkit-appearance:none;appearance:none;
+  box-sizing:border-box;margin:0;padding:0;
+  position:absolute;border:0;background-color:rgba(20,21,22,.65);color:#fff;
+  font-family:inherit;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  border-radius:50%;transition:background-color .15s;
+}
+.lightbox__close:hover,
+.lightbox__nav:hover{background-color:rgba(20,21,22,.85)}
+.lightbox__close{top:28px;right:28px;width:40px;height:40px;font-size:22px;line-height:1}
+.lightbox__nav{top:50%;margin-top:-24px;width:48px;height:48px;font-size:30px;line-height:1}
+.lightbox__nav--prev{left:28px}
+.lightbox__nav--next{right:28px}
+
+@media(max-width:640px){
+  .lightbox{padding:20px}
+  .lightbox__close{top:14px;right:14px}
+  .lightbox__nav{width:40px;height:40px;font-size:24px}
+  .lightbox__nav--prev{left:8px}
+  .lightbox__nav--next{right:8px}
+}
+
 /* ключевые параметры под галереей */
 .key{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
   border:1px solid var(--line);margin-top:28px}

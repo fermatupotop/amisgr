@@ -176,6 +176,57 @@ function amis_get_related_accessories( $product_id, $meta_key ) {
 }
 
 /**
+ * Обратная связь: на странице пробника/аксессуара показываем, с какими
+ * приборами он связан. Отдельного поля на самом пробнике для этого нет —
+ * ищем среди всех товаров тех, у кого этот ID стоит в _amis_related_probes
+ * или _amis_related_acc, чтобы связь задавалась один раз и не расходилась.
+ *
+ * @param int $accessory_id ID пробника/аксессуара.
+ * @return WC_Product[]
+ */
+function amis_get_compatible_instruments( $accessory_id ) {
+
+	$found = array();
+
+	foreach ( array( '_amis_related_probes', '_amis_related_acc' ) as $meta_key ) {
+
+		$query = new WP_Query( array(
+			'post_type'      => 'product',
+			'post_status'    => 'publish',
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+			'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- связок мало, каталог не настолько большой, чтобы это было узким местом.
+				array(
+					'key'     => $meta_key,
+					'value'   => 'i:' . (int) $accessory_id . ';',
+					'compare' => 'LIKE',
+				),
+			),
+		) );
+
+		foreach ( $query->posts as $instrument_id ) {
+			$found[ $instrument_id ] = true;
+		}
+	}
+
+	if ( ! $found ) {
+		return array();
+	}
+
+	$products = array();
+
+	foreach ( array_keys( $found ) as $instrument_id ) {
+		$product = wc_get_product( $instrument_id );
+		if ( $product && $product->is_visible() ) {
+			$products[] = $product;
+		}
+	}
+
+	return $products;
+}
+
+/**
  * Пробники и аксессуары товара, разбитые на группы — по образцу
  * amis_get_product_package() в inc/product-package.php.
  *

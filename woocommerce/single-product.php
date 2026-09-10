@@ -36,9 +36,50 @@ $long_text = get_post_meta( $product_id, '_amis_long_text', true );
 $key_specs = amis_key_specs( $product );
 $groups    = amis_grouped_specs( $product );
 
+// Скриншоты и фото экрана.
+$screen_ids = amis_get_product_screens( $product_id );
+
 // Пробники и аксессуары.
 $accessory_groups = amis_get_product_accessories( $product_id );
+
+// Обратная связь: если этот товар сам — чей-то пробник/аксессуар.
+$compatible_with = amis_get_compatible_instruments( $product_id );
 $neighbors = amis_get_neighbors( $product );
+
+/**
+ * Бренд и серия — для хлебных крошек и шапки товара.
+ *
+ * Бренд берём из штатной таксономии WooCommerce «Бренды» (product_brand),
+ * если она включена и заполнена. Резерв — старый способ через глобальный
+ * атрибут pa_brand, на случай если у части товаров бренд заполнен только
+ * там.
+ *
+ * Серия (pa_series) ссылается на свой архив, только если архивы для
+ * этого атрибута реально включены (Товары → Атрибуты → «Использовать
+ * для архивов») — is_taxonomy_viewable() проверяет именно это. Если не
+ * включены, показываем просто текст: ссылка вела бы на несуществующую
+ * страницу.
+ */
+$brand_term = null;
+
+if ( taxonomy_exists( 'product_brand' ) ) {
+	$brand_terms = get_the_terms( $product_id, 'product_brand' );
+	if ( $brand_terms && ! is_wp_error( $brand_terms ) ) {
+		$brand_term = reset( $brand_terms );
+	}
+}
+
+$brand = $brand_term ? $brand_term->name : $product->get_attribute( 'pa_brand' );
+
+$series      = $product->get_attribute( 'pa_series' );
+$series_term = null;
+
+if ( taxonomy_exists( 'pa_series' ) && is_taxonomy_viewable( 'pa_series' ) ) {
+	$series_terms = wc_get_product_terms( $product_id, 'pa_series', array( 'fields' => 'all' ) );
+	if ( $series_terms && ! is_wp_error( $series_terms ) ) {
+		$series_term = reset( $series_terms );
+	}
+}
 
 // Микроразметка товара для поисковиков.
 if ( isset( WC()->structured_data ) ) {
@@ -67,6 +108,14 @@ if ( isset( WC()->structured_data ) ) {
 			?>
 			<a href="<?php echo esc_url( get_term_link( $crumb_cat ) ); ?>"><?php echo esc_html( $crumb_cat->name ); ?></a><span>/</span>
 		<?php endif; ?>
+		<?php if ( $brand_term ) : ?>
+			<a href="<?php echo esc_url( get_term_link( $brand_term ) ); ?>"><?php echo esc_html( $brand_term->name ); ?></a><span>/</span>
+		<?php endif; ?>
+		<?php if ( $series_term ) : ?>
+			<a href="<?php echo esc_url( get_term_link( $series_term ) ); ?>"><?php echo esc_html( $series_term->name ); ?></a><span>/</span>
+		<?php elseif ( $series ) : ?>
+			<span><?php echo esc_html( $series ); ?></span><span>/</span>
+		<?php endif; ?>
 		<span><?php the_title(); ?></span>
 	</div>
 </nav>
@@ -88,28 +137,7 @@ if ( isset( WC()->structured_data ) ) {
 						<span><?php esc_html_e( 'Артикул:', 'amis' ); ?> <b><?php echo esc_html( $product->get_sku() ); ?></b></span>
 					<?php endif; ?>
 
-					<?php
-					/**
-					 * Производителя берём из штатной таксономии WooCommerce
-					 * «Бренды» (product_brand), если она включена и заполнена.
-					 * Резерв — старый способ через глобальный атрибут pa_brand,
-					 * на случай если у части товаров бренд заполнен только там.
-					 */
-					$brand = '';
-
-					if ( taxonomy_exists( 'product_brand' ) ) {
-						$brand_terms = get_the_terms( $product_id, 'product_brand' );
-						if ( $brand_terms && ! is_wp_error( $brand_terms ) ) {
-							$brand = reset( $brand_terms )->name;
-						}
-					}
-
-					if ( ! $brand ) {
-						$brand = $product->get_attribute( 'pa_brand' );
-					}
-
-					if ( $brand ) :
-						?>
+					<?php if ( $brand ) : ?>
 						<span><?php esc_html_e( 'Производитель:', 'amis' ); ?> <b><?php echo esc_html( $brand ); ?></b></span>
 					<?php endif; ?>
 
@@ -256,6 +284,29 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 		</section>
 	<?php endif; ?>
 
+	<!-- Скриншоты и фото экрана -->
+	<?php if ( $screen_ids ) : ?>
+		<section class="sec">
+			<div class="wrap">
+				<h2><?php esc_html_e( 'Экран и интерфейс', 'amis' ); ?></h2>
+
+				<div class="screens">
+					<?php foreach ( $screen_ids as $image_id ) : ?>
+						<a
+							class="screens__item"
+							href="<?php echo esc_url( (string) wp_get_attachment_image_url( $image_id, 'full' ) ); ?>"
+							target="_blank"
+							rel="noopener"
+							data-lightbox="screens"
+						>
+							<?php echo wp_get_attachment_image( $image_id, 'medium_large' ); ?>
+						</a>
+					<?php endforeach; ?>
+				</div>
+			</div>
+		</section>
+	<?php endif; ?>
+
 	<!-- Характеристики -->
 	<?php if ( $groups ) : ?>
 		<section class="sec">
@@ -277,6 +328,16 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 			</div>
 		</section>
 	<?php endif; ?>
+
+<!-- Совместимость (обратная связь от пробников/аксессуаров к прибору) -->
+<?php if ( $compatible_with ) : ?>
+	<section class="sec">
+		<div class="wrap">
+			<h2><?php esc_html_e( 'Совместимо с приборами', 'amis' ); ?></h2>
+			<?php amis_render_accessories( array( array( 'title' => __( 'Подходит для', 'amis' ), 'items' => $compatible_with ) ) ); ?>
+		</div>
+	</section>
+<?php endif; ?>
 
 <!-- Комплект поставки -->
 <?php $package = amis_get_product_package( $product_id ); ?>

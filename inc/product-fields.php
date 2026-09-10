@@ -90,10 +90,132 @@ function amis_product_data_panel() {
 			?>
 		</div>
 
+		<div class="options_group">
+			<?php amis_screens_field_render( $post->ID ); ?>
+		</div>
+
 	</div>
 	<?php
 }
 add_action( 'woocommerce_product_data_panels', 'amis_product_data_panel' );
+
+/**
+ * Подключаем медиатеку WordPress только на странице редактирования
+ * товара — она не нужна на других экранах, тянуть её везде незачем.
+ */
+function amis_enqueue_media_for_products() {
+
+	$screen = get_current_screen();
+
+	if ( $screen && 'product' === $screen->id ) {
+		wp_enqueue_media();
+	}
+}
+add_action( 'admin_enqueue_scripts', 'amis_enqueue_media_for_products' );
+
+/**
+ * Поле «Скриншоты и фото экрана» — не сам прибор (для этого есть штатная
+ * галерея WooCommerce), а отдельные фото вроде показаний на экране,
+ * снимков интерфейса и так далее. Хранится как строка ID через запятую —
+ * тот же формат, что у штатного _product_image_gallery.
+ *
+ * @param int $post_id ID товара.
+ */
+function amis_screens_field_render( $post_id ) {
+
+	$ids = amis_get_product_screens( $post_id );
+	?>
+	<p class="form-field">
+		<label><?php esc_html_e( 'Скриншоты и фото экрана', 'amis' ); ?></label>
+	</p>
+	<p class="amis-screens-hint">
+		<?php esc_html_e( 'Не фото самого прибора (для этого есть основная галерея выше) — показания экрана, интерфейс, осциллограммы и т.п. Выводится отдельной галереей на странице товара, между описанием и характеристиками.', 'amis' ); ?>
+	</p>
+
+	<ul class="amis-screens-list" id="amis-screens-list">
+		<?php foreach ( $ids as $id ) : ?>
+			<?php $src = wp_get_attachment_image_src( $id, 'thumbnail' ); ?>
+			<?php if ( ! $src ) : continue; endif; ?>
+			<li data-id="<?php echo esc_attr( $id ); ?>">
+				<img src="<?php echo esc_url( $src[0] ); ?>" alt="">
+				<button type="button" class="amis-screens-remove" aria-label="<?php esc_attr_e( 'Убрать', 'amis' ); ?>">&times;</button>
+			</li>
+		<?php endforeach; ?>
+	</ul>
+
+	<button type="button" class="button" id="amis-screens-add"><?php esc_html_e( 'Добавить фото', 'amis' ); ?></button>
+	<input type="hidden" name="_amis_screens" id="amis-screens-input" value="<?php echo esc_attr( implode( ',', $ids ) ); ?>">
+
+	<style>
+		.amis-screens-hint{color:#646970;font-size:13px;margin:0 0 12px}
+		.amis-screens-list{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px;padding:0;list-style:none}
+		.amis-screens-list:empty{margin:0}
+		.amis-screens-list li{position:relative;width:64px;height:64px;border:1px solid #dcdcde;border-radius:2px;overflow:hidden}
+		.amis-screens-list img{width:100%;height:100%;object-fit:cover;display:block}
+		.amis-screens-remove{
+			position:absolute;top:2px;right:2px;width:18px;height:18px;line-height:16px;padding:0;
+			border:0;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:13px;cursor:pointer;
+		}
+	</style>
+
+	<script>
+	( function ( $ ) {
+		'use strict';
+
+		var frame,
+			$list  = $( '#amis-screens-list' ),
+			$input = $( '#amis-screens-input' );
+
+		function serialize() {
+			var ids = [];
+			$list.find( 'li' ).each( function () {
+				ids.push( $( this ).data( 'id' ) );
+			} );
+			$input.val( ids.join( ',' ) );
+		}
+
+		$( '#amis-screens-add' ).on( 'click', function ( e ) {
+			e.preventDefault();
+
+			if ( frame ) {
+				frame.open();
+				return;
+			}
+
+			frame = wp.media( {
+				title:    '<?php echo esc_js( __( 'Выберите изображения', 'amis' ) ); ?>',
+				button:   { text: '<?php echo esc_js( __( 'Добавить', 'amis' ) ); ?>' },
+				multiple: true,
+				library:  { type: 'image' },
+			} );
+
+			frame.on( 'select', function () {
+				frame.state().get( 'selection' ).each( function ( attachment ) {
+					var data  = attachment.toJSON(),
+						thumb = ( data.sizes && data.sizes.thumbnail ) ? data.sizes.thumbnail.url : data.url;
+
+					$list.append(
+						$( '<li>' ).attr( 'data-id', data.id ).append(
+							$( '<img>' ).attr( 'src', thumb ),
+							$( '<button>' ).attr( { type: 'button', 'aria-label': '<?php echo esc_js( __( 'Убрать', 'amis' ) ); ?>' } ).addClass( 'amis-screens-remove' ).html( '&times;' )
+						)
+					);
+				} );
+				serialize();
+			} );
+
+			frame.open();
+		} );
+
+		$list.on( 'click', '.amis-screens-remove', function ( e ) {
+			e.preventDefault();
+			$( this ).closest( 'li' ).remove();
+			serialize();
+		} );
+	} )( jQuery );
+	</script>
+	<?php
+}
 
 /**
  * Сохранение полей.
@@ -126,8 +248,30 @@ function amis_save_product_fields( $post_id ) {
 		$value = isset( $_POST[ $field ] ) ? sanitize_textarea_field( wp_unslash( $_POST[ $field ] ) ) : '';
 		update_post_meta( $post_id, $field, $value );
 	}
+
+	// Скриншоты: строка ID через запятую, собранная JS-виджетом в amis_screens_field_render().
+	$screens = isset( $_POST['_amis_screens'] ) ? sanitize_text_field( wp_unslash( $_POST['_amis_screens'] ) ) : '';
+	$ids     = array_filter( array_map( 'absint', explode( ',', $screens ) ) );
+	update_post_meta( $post_id, '_amis_screens', implode( ',', $ids ) );
 }
 add_action( 'woocommerce_process_product_meta', 'amis_save_product_fields' );
+
+/**
+ * ID скриншотов товара — распакованная строка _amis_screens.
+ *
+ * @param int $product_id ID товара.
+ * @return int[]
+ */
+function amis_get_product_screens( $product_id ) {
+
+	$raw = get_post_meta( $product_id, '_amis_screens', true );
+
+	if ( ! $raw ) {
+		return array();
+	}
+
+	return array_values( array_filter( array_map( 'absint', explode( ',', $raw ) ) ) );
+}
 
 
 /**

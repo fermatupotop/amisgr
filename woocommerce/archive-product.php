@@ -15,10 +15,25 @@ defined( 'ABSPATH' ) || exit;
 
 get_header();
 
-$queried_term = is_tax( array( 'product_cat', 'product_tag' ) ) ? get_queried_object() : null;
-$current_cat  = ( $queried_term && 'product_cat' === $queried_term->taxonomy ) ? $queried_term->term_id : 0;
-$top_cats     = function_exists( 'amis_get_top_categories' ) ? amis_get_top_categories( 10 ) : array();
-$paged        = max( 1, (int) get_query_var( 'paged' ) );
+/**
+ * is_product_taxonomy() — это не только product_cat/product_tag, но и
+ * любой атрибут с включённым архивом (например, серия — pa_series):
+ * такая страница работает через этот же шаблон и должна показывать
+ * своё название в заголовке и крошках так же, как обычная категория.
+ */
+$queried_term  = ( function_exists( 'is_product_taxonomy' ) && is_product_taxonomy() ) ? get_queried_object() : null;
+$current_cat   = ( $queried_term && 'product_cat' === $queried_term->taxonomy ) ? $queried_term->term_id : 0;
+$top_cats      = function_exists( 'amis_get_top_categories' ) ? amis_get_top_categories( 10 ) : array();
+$paged         = max( 1, (int) get_query_var( 'paged' ) );
+$in_stock_only = ! empty( $_GET['instock'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- обычный GET-фильтр витрины, без сохранения состояния.
+
+/**
+ * Ссылка с учётом текущего состояния фильтра «В наличии» — используется
+ * в ссылках категорий, чтобы переключение категории не сбрасывало фильтр.
+ */
+$with_stock = function ( $url ) use ( $in_stock_only ) {
+	return $in_stock_only ? add_query_arg( 'instock', '1', $url ) : $url;
+};
 ?>
 
 <nav class="crumbs">
@@ -43,19 +58,28 @@ $paged        = max( 1, (int) get_query_var( 'paged' ) );
 
 		<?php if ( $queried_term && $queried_term->description ) : ?>
 			<p class="page-lead"><?php echo wp_kses_post( $queried_term->description ); ?></p>
-		<?php else : ?>
+		<?php elseif ( ! $queried_term ) : ?>
 			<p class="page-lead">
 				<?php esc_html_e( 'Осциллографы, генераторы, анализаторы и лабораторные приборы RIGOL, Siglent, Keysight, Tektronix, АКИП, ПриСТ — в наличии и под заказ.', 'amis' ); ?>
 			</p>
 		<?php endif; ?>
 
-		<?php if ( $top_cats ) : ?>
+		<?php
+		/**
+		 * Кнопки категорий имеют смысл только на общем каталоге и на
+		 * самих страницах категорий — там это переключение «смотрю
+		 * похожее». На архиве атрибута (серия, бренд) они бы уводили
+		 * с текущего фильтра, а не дополняли его, поэтому скрываем.
+		 */
+		$show_cat_filter = ! $queried_term || 'product_cat' === $queried_term->taxonomy;
+		?>
+		<?php if ( $show_cat_filter && $top_cats ) : ?>
 			<div class="shop-filter">
-				<a href="<?php echo esc_url( amis_shop_url() ); ?>" class="<?php echo esc_attr( $current_cat ? '' : 'is-active' ); ?>">
+				<a href="<?php echo esc_url( $with_stock( amis_shop_url() ) ); ?>" class="<?php echo esc_attr( $current_cat ? '' : 'is-active' ); ?>">
 					<?php esc_html_e( 'Все категории', 'amis' ); ?>
 				</a>
 				<?php foreach ( $top_cats as $cat ) : ?>
-					<a href="<?php echo esc_url( get_term_link( $cat ) ); ?>" class="<?php echo esc_attr( $current_cat === $cat->term_id ? 'is-active' : '' ); ?>">
+					<a href="<?php echo esc_url( $with_stock( get_term_link( $cat ) ) ); ?>" class="<?php echo esc_attr( $current_cat === $cat->term_id ? 'is-active' : '' ); ?>">
 						<?php echo esc_html( $cat->name ); ?>
 					</a>
 				<?php endforeach; ?>
@@ -70,15 +94,25 @@ $paged        = max( 1, (int) get_query_var( 'paged' ) );
 
 		<?php if ( have_posts() ) : ?>
 
-			<p class="shop-count">
-				<?php
-				printf(
-					/* translators: %d — число товаров. */
-					esc_html( _n( '%d товар', '%d товаров', $GLOBALS['wp_query']->found_posts, 'amis' ) ),
-					(int) $GLOBALS['wp_query']->found_posts
-				);
-				?>
-			</p>
+			<div class="shop-toolbar">
+				<p class="shop-count">
+					<?php
+					printf(
+						/* translators: %d — число товаров. */
+						esc_html( _n( '%d товар', '%d товаров', $GLOBALS['wp_query']->found_posts, 'amis' ) ),
+						(int) $GLOBALS['wp_query']->found_posts
+					);
+					?>
+				</p>
+
+				<a
+					class="shop-instock <?php echo esc_attr( $in_stock_only ? 'is-active' : '' ); ?>"
+					href="<?php echo esc_url( $in_stock_only ? remove_query_arg( 'instock' ) : add_query_arg( 'instock', '1' ) ); ?>"
+				>
+					<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8.5l3 3 7-7"/></svg>
+					<?php esc_html_e( 'В наличии', 'amis' ); ?>
+				</a>
+			</div>
 
 			<div class="shop-grid">
 				<?php
@@ -107,8 +141,16 @@ $paged        = max( 1, (int) get_query_var( 'paged' ) );
 		<?php else : ?>
 
 			<div class="shop-empty">
-				<h3><?php esc_html_e( 'Здесь пока пусто', 'amis' ); ?></h3>
-				<p><?php esc_html_e( 'В этой категории пока нет товаров на сайте. Позвоните или напишите нам — подберём прибор и посчитаем цену вручную.', 'amis' ); ?></p>
+				<?php if ( $in_stock_only ) : ?>
+					<h3><?php esc_html_e( 'Нет товаров в наличии', 'amis' ); ?></h3>
+					<p>
+						<?php esc_html_e( 'В этой категории сейчас всё под заказ.', 'amis' ); ?>
+						<a href="<?php echo esc_url( remove_query_arg( 'instock' ) ); ?>"><?php esc_html_e( 'Показать все товары', 'amis' ); ?></a>
+					</p>
+				<?php else : ?>
+					<h3><?php esc_html_e( 'Здесь пока пусто', 'amis' ); ?></h3>
+					<p><?php esc_html_e( 'В этой категории пока нет товаров на сайте. Позвоните или напишите нам — подберём прибор и посчитаем цену вручную.', 'amis' ); ?></p>
+				<?php endif; ?>
 			</div>
 
 		<?php endif; ?>

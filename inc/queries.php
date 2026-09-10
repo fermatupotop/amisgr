@@ -12,6 +12,37 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Фильтр «В наличии» на архиве каталога (/shop/ и страницы категорий).
+ * Переключается ссылкой с ?instock=1 в woocommerce/archive-product.php —
+ * без формы и JS, поэтому правим сразу основной запрос архива.
+ *
+ * @param WP_Query $query Основной запрос страницы.
+ */
+function amis_shop_instock_filter( $query ) {
+
+	if ( is_admin() || ! $query->is_main_query() ) {
+		return;
+	}
+
+	if ( ! function_exists( 'is_shop' ) || ! ( is_shop() || is_product_taxonomy() ) ) {
+		return;
+	}
+
+	if ( empty( $_GET['instock'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- обычный GET-фильтр витрины, без сохранения состояния.
+		return;
+	}
+
+	$meta_query   = (array) $query->get( 'meta_query' );
+	$meta_query[] = array(
+		'key'   => '_stock_status',
+		'value' => 'instock',
+	);
+
+	$query->set( 'meta_query', $meta_query );
+}
+add_action( 'pre_get_posts', 'amis_shop_instock_filter' );
+
+/**
  * Товары в наличии на складе.
  *
  * WC_Product_Query — обёртка WooCommerce над WP_Query. Она понимает

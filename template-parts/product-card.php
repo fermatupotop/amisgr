@@ -85,7 +85,7 @@ $id    = $product->get_id();
 
 				<span class="p">
 					<?php echo wp_kses_post( $product->get_price_html() ); ?>
-					<small><?php esc_html_e( 'с НДС, с поверкой', 'amis' ); ?></small>
+					<small><?php esc_html_e( 'с НДС 22%', 'amis' ); ?></small>
 				</span>
 
 				<?php

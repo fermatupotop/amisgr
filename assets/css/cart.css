@@ -1,0 +1,237 @@
+/**
+ * Страница «Корзина» (/cart/).
+ *
+ * Вёрстку не переопределяем (см. inc/cart.php) — оформляем штатные классы
+ * WooCommerce: .woocommerce-cart-form, .cart-collaterals, .cart_totals
+ * и так далее. Эти классы стабильны и не меняются годами, поэтому
+ * достаточно CSS без риска сломать логику купонов/кросс-продаж.
+ */
+
+/**
+ * Astra сама оборачивает содержимое корзины в свой #ast-cart-wrapper
+ * (фича «липкий итог» темы) — это единственный прямой потомок .cart-page,
+ * а таблица товаров и .cart-collaterals лежат уже внутри него. Пробовали
+ * развести их в две колонки и потом уложить в одну через flex-direction —
+ * у Astra на этом же ID-селекторе достаточно жёсткие правила (судя по
+ * всему, тоже с !important), и flex-direction не пробивался. Поэтому
+ * просто отключаем flex-контекст целиком: без display:flex сам
+ * flex-direction ничего не решает, потомки идут обычным блочным потоком.
+ */
+#ast-cart-wrapper.flex{
+  display:block !important;
+}
+#ast-cart-wrapper .ast-cart-non-sticky{
+  width:100%;
+}
+#ast-cart-wrapper .cart-collaterals{
+  width:100%;
+  max-width:420px;
+  margin:28px 0 0 auto; /* справа — продолжает взглядом колонку цен в таблице выше */
+  position:static !important; /* sticky не нужен, когда колонка одна */
+}
+
+.cart-page .woocommerce-notices-wrapper:empty{display:none}
+.cart-page .woocommerce-notices-wrapper{margin-bottom:20px}
+.cart-page .woocommerce-message,
+.cart-page .woocommerce-error,
+.cart-page .woocommerce-info{
+  display:block;padding:14px 18px;margin-bottom:20px;
+  border:1px solid var(--line);border-radius:var(--r);
+  background:var(--panel);color:var(--ink);font-size:14px;list-style:none;
+}
+.cart-page .woocommerce-error{border-color:#E3B3A8;background:var(--orange-soft);color:var(--orange-deep)}
+
+/* ---------- Таблица товаров ---------- */
+.woocommerce-cart-form table.cart{width:100%;border-collapse:collapse}
+.woocommerce-cart-form thead th{
+  text-align:left;font-size:12px;font-weight:600;color:var(--gray-2);
+  text-transform:uppercase;letter-spacing:.04em;
+  padding:0 10px 14px;border-bottom:1px solid var(--line);
+}
+.woocommerce-cart-form thead .product-remove,
+.woocommerce-cart-form thead .product-thumbnail{width:1%}
+.woocommerce-cart-form th.product-price,
+.woocommerce-cart-form th.product-quantity,
+.woocommerce-cart-form th.product-subtotal,
+.woocommerce-cart-form td.product-price,
+.woocommerce-cart-form td.product-quantity,
+.woocommerce-cart-form td.product-subtotal{text-align:right}
+
+.woocommerce-cart-form tr.cart_item{border-bottom:1px solid var(--line-2)}
+.woocommerce-cart-form td{padding:18px 10px;vertical-align:middle}
+
+.woocommerce-cart-form td.product-remove{padding-right:0}
+.woocommerce-cart-form td.product-remove a.remove{
+  display:flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:50%;
+  color:var(--muted);font-size:19px;line-height:1;text-decoration:none;
+}
+.woocommerce-cart-form td.product-remove a.remove:hover{background:var(--orange-soft);color:var(--orange-deep)}
+
+.woocommerce-cart-form td.product-thumbnail img{
+  width:72px;height:72px;object-fit:contain;
+  border:1px solid var(--line);border-radius:var(--r);background:#fff;
+}
+
+.woocommerce-cart-form td.product-name a{
+  color:var(--ink);font-weight:600;font-size:14.5px;text-decoration:none;
+}
+.woocommerce-cart-form td.product-name a:hover{color:var(--orange-deep)}
+.woocommerce-cart-form td.product-name .backorder_notification{
+  margin-top:6px;font-size:12px;color:var(--orange-deep);
+}
+
+.woocommerce-cart-form td.product-price,
+.woocommerce-cart-form td.product-subtotal{
+  font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
+  white-space:nowrap;font-size:14px;
+}
+.woocommerce-cart-form td.product-subtotal{font-weight:600;color:var(--ink)}
+.woocommerce-cart-form td.product-price{color:var(--gray)}
+
+/* Количество: сам инпут — стрелки +/- уже добавляет Astra */
+.woocommerce-cart-form .quantity{display:inline-flex;align-items:center;justify-content:flex-end}
+.woocommerce-cart-form .quantity .qty{
+  width:44px;height:36px;border:1px solid var(--line);border-radius:var(--r);
+  text-align:center;font:inherit;font-family:"IBM Plex Mono",monospace;
+  color:var(--ink);background:#fff;
+}
+.woocommerce-cart-form .quantity .qty:focus{outline:none;border-color:var(--orange)}
+.woocommerce-cart-form .quantity .plus,
+.woocommerce-cart-form .quantity .minus{
+  width:28px;height:36px;border:1px solid var(--line);background:var(--panel);
+  color:var(--gray);cursor:pointer;font-size:15px;line-height:1;
+}
+.woocommerce-cart-form .quantity .minus{border-radius:var(--r) 0 0 var(--r);border-right:0}
+.woocommerce-cart-form .quantity .plus{border-radius:0 var(--r) var(--r) 0;border-left:0}
+.woocommerce-cart-form .quantity .plus:hover,
+.woocommerce-cart-form .quantity .minus:hover{background:var(--line-2);color:var(--ink)}
+
+/* ---------- Строка действий: купон / обновить корзину ---------- */
+.woocommerce-cart-form .actions{
+  padding-top:20px;margin-top:4px;border-top:1px solid var(--line);text-align:right;
+}
+.woocommerce-cart-form .coupon{
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px;
+}
+.woocommerce-cart-form .coupon label{display:none}
+.woocommerce-cart-form #coupon_code{
+  height:44px;padding:0 14px;border:1px solid var(--line);border-radius:var(--r);
+  font:inherit;font-size:14px;min-width:200px;background:var(--panel);color:var(--ink);
+}
+.woocommerce-cart-form #coupon_code:focus{outline:none;background:#fff;border-color:var(--orange)}
+.woocommerce-cart-form .coupon .button,
+.woocommerce-cart-form button[name="update_cart"]{
+  height:44px;padding:0 18px;border:1px solid var(--line);border-radius:var(--r);
+  background:#fff;color:var(--ink);font:inherit;font-weight:500;font-size:14px;cursor:pointer;
+}
+.woocommerce-cart-form .coupon .button:hover,
+.woocommerce-cart-form button[name="update_cart"]:hover{border-color:var(--gray-2);color:var(--ink)}
+.woocommerce-cart-form .coupon .button:disabled{opacity:.5;cursor:default}
+
+/* ---------- Итог корзины ---------- */
+.cart-collaterals{display:flex;flex-direction:column;gap:24px}
+/*
+ * body.woocommerce-cart добавлен ради специфичности: у Astra есть
+ * .woocommerce-cart .cart-collaterals .cart_totals{padding:0 20px;
+ * border-radius:0;...} — три класса против наших изначальных одного,
+ * наши отступы/скругление просто не применялись. body.* поднимает нас
+ * выше без !important.
+ */
+body.woocommerce-cart .cart_totals{
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  padding:26px;
+  /*
+   * Нашли вместе с пользователем настоящего виновника «блок не тянется»:
+   * это не Astra, а сам WooCommerce (woocommerce.css):
+   * .woocommerce .cart-collaterals .cart_totals,
+   * .woocommerce-page .cart-collaterals .cart_totals{float:right;width:48%}
+   * Три класса — специфичность выше, чем у body.woocommerce-cart .cart_totals
+   * (два класса + тег), поэтому здесь без !important не обойтись.
+   */
+  float:none !important;
+  width:100% !important;
+}
+.cart_totals h2{font-size:19px;margin:0 0 18px}
+.cart_totals table{width:100%;border-collapse:collapse}
+.cart_totals tr{border-bottom:1px solid var(--line-2)}
+.cart_totals tr:last-child{border-bottom:0}
+.cart_totals th,
+.cart_totals td{padding:11px 0;text-align:left;font-size:14px;color:var(--gray)}
+.cart_totals td{text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;color:var(--ink)}
+.cart_totals tr.order-total th,
+.cart_totals tr.order-total td{
+  font-size:18px;font-weight:700;color:var(--ink);padding-top:16px;
+}
+
+.wc-proceed-to-checkout{margin-top:18px}
+/*
+ * a.checkout-button + body.woocommerce-cart — специфичность. У WooCommerce
+ * есть .woocommerce a.button{...} (класс+класс+тег), которое было точнее
+ * нашего .wc-proceed-to-checkout .checkout-button (класс+класс) и
+ * перебивало и цвет, и скругление — кнопка выходила дефолтным
+ * прямоугольником Astra вместо нашей.
+ */
+body.woocommerce-cart .wc-proceed-to-checkout a.checkout-button{
+  display:flex;align-items:center;justify-content:center;
+  width:100%;height:52px;border-radius:var(--r);border:0;box-shadow:none;
+  background:var(--orange);color:#fff;
+  font-weight:600;font-size:15px;text-decoration:none;
+}
+body.woocommerce-cart .wc-proceed-to-checkout a.checkout-button:hover{
+  background:var(--orange-deep);color:#fff;
+}
+
+/*
+ * ---------- Сопутствующие товары ----------
+ * Живут внутри той же .cart-collaterals, что и «Сумма корзины» (WooCommerce
+ * вешает оба блока на хук woocommerce_cart_collaterals) — то есть тоже
+ * в узкой колонке 380px, а не на всю ширину страницы. Поэтому список
+ * в один столбец, без сетки под широкий блок.
+ */
+.cross-sells{margin-top:8px}
+.cross-sells h2{font-size:19px;margin-bottom:18px}
+.cross-sells ul.products{
+  list-style:none;margin:0;padding:0;
+  display:grid;gap:16px;
+}
+.cross-sells li.product{border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.cross-sells li.product img{width:100%;aspect-ratio:1;object-fit:contain;margin-bottom:12px}
+.cross-sells li.product .woocommerce-loop-product__title{font-size:14px;font-weight:600;margin:0 0 6px}
+.cross-sells li.product .price{font-family:"IBM Plex Mono",monospace;color:var(--ink);font-weight:600}
+.cross-sells li.product a.button{
+  display:block;margin-top:10px;text-align:center;height:38px;line-height:38px;
+  border:1px solid var(--line);border-radius:var(--r);color:var(--ink);font-size:13.5px;text-decoration:none;
+}
+.cross-sells li.product a.button:hover{border-color:var(--orange);color:var(--orange-deep)}
+
+/* ---------- Пустая корзина ---------- */
+.cart-page .cart-empty{
+  text-align:center;padding:60px 20px 8px;
+  font-size:16px;color:var(--gray);list-style:none;
+}
+.cart-page .return-to-shop{text-align:center;padding-bottom:40px}
+.cart-page .return-to-shop .button{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:48px;padding:0 24px;border-radius:var(--r);
+  background:var(--orange);color:#fff;font-weight:500;font-size:15px;text-decoration:none;
+}
+.cart-page .return-to-shop .button:hover{background:var(--orange-deep);color:#fff}
+
+/* ---------- Мобильная адаптация ---------- */
+@media (max-width:640px){
+  .woocommerce-cart-form thead{display:none}
+  .woocommerce-cart-form tr.cart_item{
+    display:grid;grid-template-columns:auto 1fr auto;gap:8px 12px;
+    padding:16px 0;position:relative;
+  }
+  .woocommerce-cart-form td{padding:0;border:none}
+  .woocommerce-cart-form td.product-remove{grid-column:3;grid-row:1;justify-self:end}
+  .woocommerce-cart-form td.product-thumbnail{grid-column:1;grid-row:1/3}
+  .woocommerce-cart-form td.product-name{grid-column:2;grid-row:1}
+  .woocommerce-cart-form td.product-price{display:none}
+  .woocommerce-cart-form td.product-quantity{grid-column:2;grid-row:2;justify-self:start}
+  .woocommerce-cart-form td.product-subtotal{grid-column:3;grid-row:2;justify-self:end;align-self:end}
+  .woocommerce-cart-form .coupon{flex-direction:column;align-items:stretch}
+  .woocommerce-cart-form #coupon_code{min-width:0}
+}

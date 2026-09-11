@@ -38,9 +38,11 @@ function amis_enqueue_assets() {
 		// Стили обычных страниц: контакты, доставка, оплата и так далее.
 		// Одиночная запись, архив «Базы знаний» и архив каталога используют
 		// те же базовые компоненты (.section--head, .eyebrow, .crumbs и так далее).
-	$is_shop_archive = function_exists( 'is_shop' ) && ( is_shop() || is_product_taxonomy() );
+	$is_shop_archive  = function_exists( 'is_shop' ) && ( is_shop() || is_product_taxonomy() );
+	$is_cart_page     = function_exists( 'is_cart' ) && is_cart();
+	$is_checkout_page = function_exists( 'is_checkout' ) && is_checkout();
 
-	if ( ( is_page() && ! amis_is_home_template() ) || is_singular( 'post' ) || $is_shop_archive ) {
+	if ( ( is_page() && ! amis_is_home_template() ) || is_singular( 'post' ) || $is_shop_archive || $is_cart_page || $is_checkout_page ) {
 		wp_enqueue_style( 'amis-page', AMIS_URI . '/assets/css/page.css', array( 'amis-base' ), AMIS_VERSION );
 	}
 
@@ -54,6 +56,14 @@ function amis_enqueue_assets() {
 
 	if ( $is_shop_archive ) {
 		wp_enqueue_style( 'amis-shop', AMIS_URI . '/assets/css/shop.css', array( 'amis-page' ), AMIS_VERSION );
+	}
+
+	if ( $is_cart_page ) {
+		wp_enqueue_style( 'amis-cart', AMIS_URI . '/assets/css/cart.css', array( 'amis-page' ), AMIS_VERSION );
+	}
+
+	if ( $is_checkout_page ) {
+		wp_enqueue_style( 'amis-checkout', AMIS_URI . '/assets/css/checkout.css', array( 'amis-page' ), AMIS_VERSION );
 	}
 
 	if ( amis_is_home_template() ) {
@@ -79,6 +89,14 @@ function amis_page_builder_layout( $layout ) {
 	}
 
 	if ( function_exists( 'is_shop' ) && ( is_shop() || is_product_taxonomy() ) ) {
+		return 'page-builder';
+	}
+
+	if ( function_exists( 'is_cart' ) && is_cart() ) {
+		return 'page-builder';
+	}
+
+	if ( function_exists( 'is_checkout' ) && is_checkout() ) {
 		return 'page-builder';
 	}
 
@@ -126,6 +144,8 @@ function amis_no_sidebar_layout( $layout ) {
 		|| is_singular( 'post' )
 		|| is_page_template( 'templates/template-articles.php' )
 		|| ( function_exists( 'is_shop' ) && ( is_shop() || is_product_taxonomy() ) )
+		|| ( function_exists( 'is_cart' ) && is_cart() )
+		|| ( function_exists( 'is_checkout' ) && is_checkout() )
 	) {
 		return 'no-sidebar';
 	}

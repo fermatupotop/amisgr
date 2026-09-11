@@ -1,0 +1,195 @@
+/**
+ * Страница «Оформление заказа» (/checkout/).
+ *
+ * Шорткод [woocommerce_checkout], шаблон не переопределяем — то же
+ * решение, что и в cart.css: там nonce, расчёт доставки/налогов и
+ * логика платёжных шлюзов, вместо переписывания оформляем стабильные
+ * классы, которые отдаёт сама WooCommerce (.form-row, #order_review,
+ * .wc_payment_methods, #place_order и так далее). Обёртка страницы —
+ * inc/checkout.php, хуки woocommerce_before_checkout_form/after.
+ *
+ * Раскладка на самом деле уже двухколоночная из коробки: WooCommerce/
+ * Astra сами float'ят #customer_details.col2-set (55%) слева и
+ * #order_review справа (см. правило с min-width:922px, которое нашёл
+ * пользователь в инспекторе) — это не то же самое, что #ast-cart-wrapper
+ * на корзине, тут ничего разводить по колонкам не нужно, только не мешать
+ * существующему float и не зажимать общую ширину контейнера искусственно
+ * (первая версия файла ставила .checkout-page{max-width:640px} — это и
+ * душило обе колонки, отсюда «криво»).
+ */
+
+.checkout-page .woocommerce-notices-wrapper:empty{display:none}
+.checkout-page .woocommerce-info,
+.checkout-page .woocommerce-message,
+.checkout-page .woocommerce-error{
+  display:block;padding:14px 18px;margin-bottom:20px;
+  border:1px solid var(--line);border-radius:var(--r);
+  background:var(--panel);color:var(--ink);font-size:14px;list-style:none;
+}
+.checkout-page .woocommerce-error{border-color:#E3B3A8;background:var(--orange-soft);color:var(--orange-deep)}
+.checkout-page .woocommerce-error li{margin:0}
+
+/* ---------- Заголовки секций ---------- */
+.woocommerce-checkout h3{font-size:19px;font-weight:600;margin:0 0 20px}
+
+/*
+ * #order_review_heading («Ваш заказ») — отдельный элемент ДО #order_review,
+ * не внутри него, поэтому его нельзя покрасить просто как часть карточки
+ * ниже (см. #order_review). Сшиваем визуально в одну карточку: заголовок —
+ * верхняя часть с закруглением и без нижней границы, #order_review —
+ * нижняя часть без верхней границы и верхнего закругления, без зазора
+ * между ними.
+ */
+#order_review_heading{
+  font-size:19px;font-weight:600;margin:0;
+  background:var(--panel);border:1px solid var(--line);border-bottom:0;
+  border-radius:var(--r) var(--r) 0 0;
+  padding:20px 24px 14px;
+}
+
+/* ---------- Левая колонка: данные покупателя ---------- */
+#customer_details{padding-right:8px} /* небольшой отступ перед правой колонкой поверх margin-right ядра */
+
+.woocommerce-checkout .form-row{margin-bottom:16px;clear:both}
+.woocommerce-checkout .form-row label{
+  display:block;font-size:13px;color:var(--gray);margin-bottom:6px;
+}
+.woocommerce-checkout .form-row label .required{color:var(--orange-deep);text-decoration:none}
+.woocommerce-checkout .form-row label .optional{color:var(--muted)}
+
+/*
+ * Пары «Имя/Фамилия» и т.п. — ядро WooCommerce само разводит
+ * .form-row-first/.form-row-last через float:left/right и ширину в %.
+ * Переопределяем только ширину/отступ под свою сетку, float не трогаем —
+ * лишний display:grid здесь же раньше спорил с float у родительского
+ * #customer_details.col2-set и ломал всю колонку.
+ */
+.woocommerce-checkout .form-row-first,
+.woocommerce-checkout .form-row-last{
+  width:calc(50% - 10px) !important;
+  clear:none;
+}
+.woocommerce-checkout .form-row-last{float:right}
+.woocommerce-checkout .form-row-wide{clear:both;width:100%}
+
+.woocommerce-checkout input.input-text,
+.woocommerce-checkout textarea,
+.woocommerce-checkout .select2-container .select2-selection--single{
+  width:100%;height:48px;padding:0 14px;
+  border:1px solid var(--line) !important;border-radius:var(--r);
+  background:#fff;color:var(--ink);font:inherit;font-size:14.5px;
+  box-shadow:none;
+}
+.woocommerce-checkout textarea{height:auto;min-height:96px;padding:12px 14px;resize:vertical}
+.woocommerce-checkout input.input-text:focus,
+.woocommerce-checkout textarea:focus{
+  outline:none;border-color:var(--orange) !important;background:#fff;
+}
+.woocommerce-checkout ::placeholder{color:var(--muted)}
+
+/* Некорректно заполненное поле — подсветка ошибки */
+.woocommerce-checkout .woocommerce-invalid input.input-text{
+  border-color:var(--orange-deep) !important;background:var(--orange-soft);
+}
+
+/* Select2 (страна/область) — подгоняем под высоту и вид обычного инпута */
+.woocommerce-checkout .select2-container{width:100% !important}
+.woocommerce-checkout .select2-container .select2-selection--single{display:flex;align-items:center}
+.woocommerce-checkout .select2-container .select2-selection__rendered{
+  padding:0;line-height:normal;color:var(--ink);
+}
+.woocommerce-checkout .select2-container .select2-selection__arrow{height:46px}
+.woocommerce-checkout .select2-container--focus .select2-selection--single,
+.woocommerce-checkout .select2-container--open .select2-selection--single{
+  border-color:var(--orange) !important;
+}
+
+.woocommerce-additional-fields{margin-top:8px;clear:both}
+
+/* ---------- Правая колонка: заказ + оплата, одна карточка целиком ---------- */
+#order_review{
+  background:var(--panel);border:1px solid var(--line);border-top:0;
+  border-radius:0 0 var(--r) var(--r);
+  padding:0 24px 24px;
+}
+
+.woocommerce-checkout-review-order-table{
+  width:100%;border-collapse:collapse;margin-bottom:0;
+}
+.woocommerce-checkout-review-order-table thead th{
+  text-align:left;font-size:12px;font-weight:600;color:var(--gray-2);
+  text-transform:uppercase;letter-spacing:.04em;
+  padding:0 0 12px;border-bottom:1px solid var(--line);
+}
+.woocommerce-checkout-review-order-table thead .product-total{text-align:right}
+.woocommerce-checkout-review-order-table td,
+.woocommerce-checkout-review-order-table th{
+  padding:12px 0;border-bottom:1px solid var(--line);font-size:14px;
+}
+.woocommerce-checkout-review-order-table .cart_item td.product-total,
+.woocommerce-checkout-review-order-table .cart-subtotal td,
+.woocommerce-checkout-review-order-table .order-total td{
+  text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
+}
+.woocommerce-checkout-review-order-table .product-name{color:var(--ink)}
+.woocommerce-checkout-review-order-table .product-name .product-quantity{color:var(--gray-2);font-weight:400}
+.woocommerce-checkout-review-order-table .cart-subtotal td{color:var(--gray)}
+.woocommerce-checkout-review-order-table .order-total{border-bottom:0}
+.woocommerce-checkout-review-order-table .order-total th,
+.woocommerce-checkout-review-order-table .order-total td{
+  font-size:18px;font-weight:700;color:var(--ink);padding-top:16px;
+}
+
+/* Способы оплаты — уже внутри карточки #order_review, поэтому не отдельный
+   панельный блок, а просто следующая секция с разделителем сверху. */
+.woocommerce-checkout-payment,
+#payment{
+  background:transparent;border:0;border-radius:0;
+  padding:20px 0 0;margin-top:20px;border-top:1px solid var(--line);
+}
+.wc_payment_methods{list-style:none;margin:0;padding:0}
+.wc_payment_method{
+  border:1px solid var(--line);border-radius:var(--r);
+  padding:14px 16px;margin-bottom:10px;background:#fff;
+}
+.wc_payment_method:last-child{margin-bottom:0}
+.wc_payment_method > label{font-size:14.5px;font-weight:500;color:var(--ink);cursor:pointer}
+.wc_payment_method input[type="radio"]{margin-right:10px;accent-color:var(--orange)}
+.wc_payment_method .payment_box{
+  margin:12px 0 0;padding:12px 14px 0;border-top:1px solid var(--line-2);
+  font-size:13.5px;color:var(--gray);
+}
+.wc_payment_method .payment_box p{margin:0}
+
+/* ---------- Согласие с условиями ---------- */
+.woocommerce-terms-and-conditions-wrapper{margin-top:20px}
+.woocommerce-form__label-for-checkbox{
+  display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:var(--gray);cursor:pointer;
+}
+.woocommerce-form__input-checkbox{margin-top:3px;accent-color:var(--orange)}
+.woocommerce-terms-and-conditions-wrapper a{
+  color:var(--orange-deep);text-decoration:underline;text-underline-offset:2px;
+}
+.woocommerce-terms-and-conditions-wrapper a:hover{color:var(--orange)}
+.required-field-notice-wrapper{font-size:12.5px;color:var(--gray-2);margin-top:10px}
+
+/* ---------- Кнопка «Оформить заказ» ---------- */
+body.woocommerce-checkout #place_order{
+  display:flex;align-items:center;justify-content:center;
+  width:100%;height:52px;margin-top:20px;border:0;border-radius:var(--r);
+  background:var(--orange);color:#fff;
+  font-weight:600;font-size:15px;cursor:pointer;box-shadow:none;
+}
+body.woocommerce-checkout #place_order:hover{background:var(--orange-deep);color:#fff}
+
+/* ---------- Мобильная адаптация ---------- */
+@media (max-width:922px){
+  /* Ниже этой ширины ядро WooCommerce само снимает float с #customer_details
+     и #order_review (см. @media min-width:922px, который нашёл пользователь) —
+     здесь только досводим внутренние пары полей в один столбец. */
+  .woocommerce-checkout .form-row-first,
+  .woocommerce-checkout .form-row-last{
+    width:100% !important;float:none;
+  }
+  #order_review_heading{margin-top:32px}
+}

@@ -33,6 +33,37 @@ img{max-width:100%;display:block}
 :focus-visible{outline:2px solid var(--orange);outline-offset:2px}
 .num{font-family:"IBM Plex Mono",monospace;font-feature-settings:"tnum"}
 
+/**
+ * Уведомления WooCommerce («Добавлено в корзину», ошибки форм и т.д.) —
+ * глобально, а не по конкретной странице: WooCommerce печатает их в самых
+ * разных местах, иногда раньше собственных обёрток страницы (например,
+ * на /cart/ — до хука woocommerce_before_cart, поэтому cart.css с его
+ * .cart-page .woocommerce-message их не видит). Здесь — общий безопасный
+ * вид на случай, когда более специфичное правило страницы не сработало.
+ */
+.woocommerce-message,
+.woocommerce-error,
+.woocommerce-info{
+  display:flex;flex-wrap:wrap;align-items:center;gap:14px;justify-content:space-between;
+  padding:16px 20px;margin:0 0 20px;
+  border:1px solid var(--line);border-radius:var(--r);border-top:3px solid var(--orange);
+  background:var(--panel);color:var(--ink);font-size:14.5px;list-style:none;
+}
+.woocommerce-error{border-top-color:var(--orange-deep);background:var(--orange-soft);color:var(--orange-deep)}
+
+.woocommerce-message a.button,
+.woocommerce-error a.button,
+.woocommerce-info a.button{
+  flex:none;order:2;
+  display:inline-flex;align-items:center;justify-content:center;
+  height:40px;padding:0 18px;border-radius:var(--r);
+  background:var(--ink);color:#fff;font-weight:500;font-size:14px;
+  white-space:nowrap;text-decoration:none;
+}
+.woocommerce-message a.button:hover,
+.woocommerce-error a.button:hover,
+.woocommerce-info a.button:hover{background:#000;color:#fff}
+
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;height:48px;padding:0 22px;
   border-radius:var(--r);border:1px solid transparent;font-family:inherit;font-weight:500;font-size:15px;
   cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}

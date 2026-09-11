@@ -26,14 +26,40 @@ $current_cat   = ( $queried_term && 'product_cat' === $queried_term->taxonomy ) 
 $top_cats      = function_exists( 'amis_get_top_categories' ) ? amis_get_top_categories( 10 ) : array();
 $paged         = max( 1, (int) get_query_var( 'paged' ) );
 $in_stock_only = ! empty( $_GET['instock'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- обычный GET-фильтр витрины, без сохранения состояния.
+$current_brand = isset( $_GET['brand'] ) ? sanitize_title( wp_unslash( $_GET['brand'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+$current_series = isset( $_GET['series'] ) ? sanitize_title( wp_unslash( $_GET['series'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 /**
- * Ссылка с учётом текущего состояния фильтра «В наличии» — используется
- * в ссылках категорий, чтобы переключение категории не сбрасывало фильтр.
+ * Ссылка с учётом состояния ВСЕХ активных фильтров сразу — используется
+ * в ссылках категорий/бренда/серии, чтобы переключение одного фильтра
+ * не сбрасывало остальные уже выбранные.
  */
-$with_stock = function ( $url ) use ( $in_stock_only ) {
-	return $in_stock_only ? add_query_arg( 'instock', '1', $url ) : $url;
+$with_filters = function ( $url ) use ( $in_stock_only, $current_brand, $current_series ) {
+	if ( $in_stock_only ) {
+		$url = add_query_arg( 'instock', '1', $url );
+	}
+	if ( $current_brand ) {
+		$url = add_query_arg( 'brand', $current_brand, $url );
+	}
+	if ( $current_series ) {
+		$url = add_query_arg( 'series', $current_series, $url );
+	}
+	return $url;
 };
+
+// Оставлено под старым именем — так уже вызывается в разметке категорий ниже.
+$with_stock = $with_filters;
+
+/**
+ * Бренд и серия имеют смысл только там, где под ними реально бывает
+ * несколько разных значений: на /shop/ и на страницах категорий/меток.
+ * На странице конкретного бренда/серии эти же фильтры уводили бы с
+ * текущего выбора, а не дополняли его — там их не показываем (та же
+ * логика, что и у $show_cat_filter ниже).
+ */
+$show_facets   = ! $queried_term || in_array( $queried_term->taxonomy, array( 'product_cat', 'product_tag' ), true );
+$brand_terms   = $show_facets ? amis_get_archive_facet_terms( 'product_brand' ) : array();
+$series_terms  = $show_facets ? amis_get_archive_facet_terms( 'pa_series' ) : array();
 ?>
 
 <nav class="crumbs">
@@ -83,6 +109,68 @@ $with_stock = function ( $url ) use ( $in_stock_only ) {
 						<?php echo esc_html( $cat->name ); ?>
 					</a>
 				<?php endforeach; ?>
+			</div>
+		<?php endif; ?>
+
+		<?php if ( $show_facets && ( $brand_terms || $series_terms ) ) : ?>
+			<?php
+			$base_url = $queried_term ? get_term_link( $queried_term ) : amis_shop_url();
+
+			/**
+			 * Строит ссылку фильтра с учётом остальных активных фильтров:
+			 * $overrides задаёт, что поставить/убрать в ЭТОМ ряду фильтров
+			 * (пустая строка — убрать), остальные (instock) добавляются как есть.
+			 */
+			$build_facet_url = function ( $overrides ) use ( $base_url, $in_stock_only ) {
+				$url = $base_url;
+				foreach ( $overrides as $key => $value ) {
+					$url = '' === $value ? remove_query_arg( $key, $url ) : add_query_arg( $key, $value, $url );
+				}
+				return $in_stock_only ? add_query_arg( 'instock', '1', $url ) : $url;
+			};
+			?>
+
+			<div class="shop-facets">
+
+			<?php if ( $brand_terms ) : ?>
+				<div class="shop-facet">
+					<span class="shop-facet__label"><?php esc_html_e( 'Бренд', 'amis' ); ?></span>
+					<div class="shop-filter">
+						<a href="<?php echo esc_url( $build_facet_url( array( 'brand' => '', 'series' => $current_series ) ) ); ?>" class="<?php echo esc_attr( '' === $current_brand ? 'is-active' : '' ); ?>">
+							<?php esc_html_e( 'Все бренды', 'amis' ); ?>
+						</a>
+						<?php foreach ( $brand_terms as $term ) : ?>
+							<a href="<?php echo esc_url( $build_facet_url( array( 'brand' => $term->slug, 'series' => $current_series ) ) ); ?>" class="<?php echo esc_attr( $current_brand === $term->slug ? 'is-active' : '' ); ?>">
+								<?php echo esc_html( $term->name ); ?>
+							</a>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( $series_terms ) : ?>
+				<div class="shop-facet">
+					<span class="shop-facet__label"><?php esc_html_e( 'Серия', 'amis' ); ?></span>
+					<div class="shop-filter">
+						<a href="<?php echo esc_url( $build_facet_url( array( 'series' => '', 'brand' => $current_brand ) ) ); ?>" class="<?php echo esc_attr( '' === $current_series ? 'is-active' : '' ); ?>">
+							<?php esc_html_e( 'Все серии', 'amis' ); ?>
+						</a>
+						<?php foreach ( $series_terms as $term ) : ?>
+							<a href="<?php echo esc_url( $build_facet_url( array( 'series' => $term->slug, 'brand' => $current_brand ) ) ); ?>" class="<?php echo esc_attr( $current_series === $term->slug ? 'is-active' : '' ); ?>">
+								<?php echo esc_html( $term->name ); ?>
+							</a>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( $in_stock_only || $current_brand || $current_series ) : ?>
+				<a class="shop-reset" href="<?php echo esc_url( $base_url ); ?>">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+					<?php esc_html_e( 'Сбросить все фильтры', 'amis' ); ?>
+				</a>
+			<?php endif; ?>
+
 			</div>
 		<?php endif; ?>
 	</div>

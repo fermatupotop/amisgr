@@ -152,3 +152,62 @@ function amis_no_sidebar_layout( $layout ) {
 	return $layout;
 }
 add_filter( 'astra_page_layout', 'amis_no_sidebar_layout' );
+
+/**
+ * Служебные варианты страницы каталога — не отдельная ценная страница
+ * для выдачи, а то же самое содержимое под другим URL: пагинация
+ * (/shop/page/2/) и фильтры (?instock=1, ?brand=, ?series=), в любых
+ * сочетаниях. noindex, но НЕ через robots.txt: страницу всё равно нужно
+ * обходить роботу, чтобы он доходил по ссылкам до самих товаров —
+ * noindex,follow убирает её из результатов поиска, не блокируя обход.
+ * wp_robots — фильтр самого WordPress (с 5.7), работает независимо от
+ * того, что дополнительно настроено в Yoast.
+ */
+function amis_noindex_filtered_shop( $robots ) {
+
+	if ( ! function_exists( 'is_shop' ) || ! ( is_shop() || is_product_taxonomy() ) ) {
+		return $robots;
+	}
+
+	$is_filtered = is_paged()
+		|| ! empty( $_GET['instock'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- обычный GET-фильтр витрины, только для решения о noindex, ничего не сохраняем и не выводим.
+		|| ! empty( $_GET['brand'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		|| ! empty( $_GET['series'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+	if ( $is_filtered ) {
+		$robots['noindex'] = true;
+		$robots['follow']  = true;
+	}
+
+	return $robots;
+}
+add_filter( 'wp_robots', 'amis_noindex_filtered_shop' );
+
+/**
+ * Канонический адрес для отфильтрованного каталога — указывает на ту же
+ * страницу без ?instock=/?brand=/?series=, чтобы вес ссылок не размывался
+ * по кучке практически дублирующих друг друга адресов. Пагинацию
+ * (/page/2/) не трогаем — у неё канонический адрес должен указывать на
+ * саму себя, это отдельно уже решает noindex,follow выше.
+ *
+ * Два фильтра на одну и ту же логику: wpseo_canonical — если стоит Yoast
+ * (сейчас так), get_canonical_url — штатный хук самого WordPress на
+ * случай, если Yoast когда-нибудь отключат.
+ *
+ * @param string $canonical Канонический адрес по умолчанию.
+ * @return string
+ */
+function amis_canonical_strip_shop_filters( $canonical ) {
+
+	if ( ! function_exists( 'is_shop' ) || ! ( is_shop() || is_product_taxonomy() ) ) {
+		return $canonical;
+	}
+
+	if ( empty( $_GET['instock'] ) && empty( $_GET['brand'] ) && empty( $_GET['series'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- обычный GET-фильтр витрины, только для решения о canonical.
+		return $canonical;
+	}
+
+	return remove_query_arg( array( 'instock', 'brand', 'series' ), $canonical );
+}
+add_filter( 'wpseo_canonical', 'amis_canonical_strip_shop_filters' );
+add_filter( 'get_canonical_url', 'amis_canonical_strip_shop_filters' );

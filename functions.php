@@ -20,6 +20,8 @@ require_once AMIS_DIR . '/inc/product-package.php';
 require_once AMIS_DIR . '/inc/product-accessories.php';
 require_once AMIS_DIR . '/inc/cart.php';
 require_once AMIS_DIR . '/inc/checkout.php';
+require_once AMIS_DIR . '/inc/price-import.php';
+require_once AMIS_DIR . '/inc/accessories-import.php';
 require_once AMIS_DIR . '/inc/company.php';
 require_once AMIS_DIR . '/inc/enqueue.php';
 

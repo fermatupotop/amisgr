@@ -43,6 +43,118 @@ function amis_shop_instock_filter( $query ) {
 add_action( 'pre_get_posts', 'amis_shop_instock_filter' );
 
 /**
+ * Фильтры «Бренд» и «Серия» на архиве каталога — тот же приём, что и
+ * «В наличии»: обычные ссылки с ?brand=/?series=, без формы и JS,
+ * правим основной запрос напрямую через tax_query.
+ *
+ * @param WP_Query $query Основной запрос страницы.
+ */
+function amis_shop_facet_filter( $query ) {
+
+	if ( is_admin() || ! $query->is_main_query() ) {
+		return;
+	}
+
+	if ( ! function_exists( 'is_shop' ) || ! ( is_shop() || is_product_taxonomy() ) ) {
+		return;
+	}
+
+	$tax_query = (array) $query->get( 'tax_query' );
+	$added     = false;
+
+	$brand = isset( $_GET['brand'] ) ? sanitize_title( wp_unslash( $_GET['brand'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- обычный GET-фильтр витрины, без сохранения состояния.
+
+	if ( $brand && taxonomy_exists( 'product_brand' ) ) {
+		$tax_query[] = array(
+			'taxonomy' => 'product_brand',
+			'field'    => 'slug',
+			'terms'    => $brand,
+		);
+		$added       = true;
+	}
+
+	$series = isset( $_GET['series'] ) ? sanitize_title( wp_unslash( $_GET['series'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- обычный GET-фильтр витрины, без сохранения состояния.
+
+	if ( $series && taxonomy_exists( 'pa_series' ) ) {
+		$tax_query[] = array(
+			'taxonomy' => 'pa_series',
+			'field'    => 'slug',
+			'terms'    => $series,
+		);
+		$added       = true;
+	}
+
+	if ( ! $added ) {
+		return;
+	}
+
+	if ( count( $tax_query ) > 1 && empty( $tax_query['relation'] ) ) {
+		$tax_query['relation'] = 'AND';
+	}
+
+	$query->set( 'tax_query', $tax_query );
+}
+add_action( 'pre_get_posts', 'amis_shop_facet_filter' );
+
+/**
+ * Значения таксономии (бренд/серия), которые реально встречаются у
+ * товаров текущей категории — а не все бренды/серии сайта. На /shop/
+ * (без категории) берём по всему каталогу.
+ *
+ * @param string $taxonomy Слаг таксономии ('product_brand' или 'pa_series').
+ * @return WP_Term[]
+ */
+function amis_get_archive_facet_terms( $taxonomy ) {
+
+	if ( ! taxonomy_exists( $taxonomy ) ) {
+		return array();
+	}
+
+	$args = array(
+		'post_type'      => 'product',
+		'post_status'    => 'publish',
+		'posts_per_page' => -1,
+		'fields'         => 'ids',
+		'no_found_rows'  => true,
+	);
+
+	if ( function_exists( 'is_product_category' ) && ( is_product_category() || is_product_tag() ) ) {
+		$queried             = get_queried_object();
+		$args['tax_query'][] = array(
+			'taxonomy' => $queried->taxonomy,
+			'field'    => 'term_id',
+			'terms'    => $queried->term_id,
+		);
+	}
+
+	$product_ids = get_posts( $args );
+
+	if ( ! $product_ids ) {
+		return array();
+	}
+
+	$terms = wp_get_object_terms( $product_ids, $taxonomy );
+
+	if ( is_wp_error( $terms ) || ! $terms ) {
+		return array();
+	}
+
+	$unique = array();
+	foreach ( $terms as $term ) {
+		$unique[ $term->term_id ] = $term;
+	}
+
+	usort(
+		$unique,
+		static function ( $a, $b ) {
+			return strcasecmp( $a->name, $b->name );
+		}
+	);
+
+	return array_values( $unique );
+}
+
+/**
  * Товары в наличии на складе.
  *
  * WC_Product_Query — обёртка WooCommerce над WP_Query. Она понимает

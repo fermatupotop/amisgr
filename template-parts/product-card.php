@@ -76,9 +76,21 @@ $id    = $product->get_id();
 			<?php endforeach; ?>
 		</ul>
 
-		<div class="<?php echo esc_attr( $stock['class'] ); ?> avail-row">
-			<i></i> <?php echo esc_html( $stock['label'] ); ?>
-		</div>
+		<?php
+		/**
+		 * Лента в углу карточки уже показывает «Под заказ», когда товар
+		 * не в наличии и не «Хит продаж» (см. разметку ленты выше) — эта
+		 * строка тогда повторяла бы то же самое без новой информации.
+		 * Не прячем её, если товар «Хит продаж»: там лента говорит про
+		 * другое, и нижняя строка — единственное место, где видно наличие.
+		 */
+		$repeats_ribbon = ! $product->is_featured() && ! $product->is_in_stock();
+		?>
+		<?php if ( ! $repeats_ribbon ) : ?>
+			<div class="<?php echo esc_attr( $stock['class'] ); ?> avail-row">
+				<i></i> <?php echo esc_html( $stock['label'] ); ?>
+			</div>
+		<?php endif; ?>
 
 		<div class="card-f">
 			<?php if ( $product->get_price() ) : ?>

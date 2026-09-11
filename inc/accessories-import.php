@@ -282,8 +282,53 @@ function amis_acc_import_parse_price( $raw ) {
 }
 
 /**
+ * Снимает привязку аксессуара со ВСЕХ приборов, где он сейчас стоит —
+ * и в _amis_related_probes, и в _amis_related_acc (на случай, если тип
+ * товара при повторной загрузке определился иначе). Нужно для того,
+ * чтобы повторная загрузка исправленного CSV пересчитывала связи с
+ * нуля, а не только добавляла новые поверх старых, неправильных.
+ *
+ * @param int $accessory_id ID аксессуара.
+ */
+function amis_acc_import_unlink_everywhere( $accessory_id ) {
+
+	foreach ( array( '_amis_related_probes', '_amis_related_acc' ) as $meta_key ) {
+
+		$query = new WP_Query( array(
+			'post_type'      => 'product',
+			'post_status'    => 'publish',
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+			'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- то же обоснование, что и в amis_get_compatible_instruments() (inc/product-accessories.php): связок мало.
+				array(
+					'key'     => $meta_key,
+					'value'   => 'i:' . (int) $accessory_id . ';',
+					'compare' => 'LIKE',
+				),
+			),
+		) );
+
+		foreach ( $query->posts as $target_id ) {
+
+			$linked = array_map( 'absint', (array) get_post_meta( $target_id, $meta_key, true ) );
+			$linked = array_values( array_diff( $linked, array( (int) $accessory_id ) ) );
+
+			if ( $linked ) {
+				update_post_meta( $target_id, $meta_key, $linked );
+			} else {
+				delete_post_meta( $target_id, $meta_key );
+			}
+		}
+	}
+}
+
+/**
  * Разбор одной строки CSV: создаёт товар (если такого SKU ещё нет) и
- * привязывает его к найденным приборам.
+ * привязывает его к найденным приборам. Перед привязкой снимает все
+ * старые связи этого аксессуара (см. amis_acc_import_unlink_everywhere) —
+ * повторная загрузка исправленного файла пересчитывает связи с нуля,
+ * а не наслаивает новые поверх неправильных старых.
  *
  * @param array $row Ассоц. массив 'sku','description','compat','price'.
  * @return array Данные строки для отчёта.
@@ -335,6 +380,8 @@ function amis_acc_import_process_row( $row ) {
 		$report['unmatched_reason'] = 'не удалось сохранить товар';
 		return $report;
 	}
+
+	amis_acc_import_unlink_everywhere( $accessory_id );
 
 	$resolved = amis_acc_import_resolve_targets( $row['compat'] );
 

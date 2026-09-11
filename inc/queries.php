@@ -266,6 +266,16 @@ function amis_stock_state( $product ) {
 }
 
 /**
+ * На карточке товара `woocommerce_template_single_add_to_cart()`
+ * (woocommerce/single-product.php) сама выводит штатный блок
+ * `.stock.out-of-stock` («Нет на складе») — прямо под нашим собственным
+ * блоком наличия чуть выше, где уже есть «Под заказ» и срок поставки
+ * из _amis_lead_time. Отключаем штатный, чтобы не дублировать и не
+ * показывать сухую формулировку рядом с более информативной своей.
+ */
+add_filter( 'woocommerce_get_stock_html', '__return_empty_string' );
+
+/**
  * Категории верхнего уровня каталога.
  *
  * @param int $limit Сколько категорий вывести.

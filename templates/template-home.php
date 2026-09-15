@@ -344,6 +344,15 @@ $posts_query = new WP_Query( array(
 			<?php while ( $posts_query->have_posts() ) : ?>
 				<?php $posts_query->the_post(); ?>
 				<a class="post" href="<?php the_permalink(); ?>">
+					<div class="post__img<?php echo has_post_thumbnail() ? '' : ' post__img--empty'; ?>">
+						<?php if ( has_post_thumbnail() ) : ?>
+							<?php the_post_thumbnail( 'medium_large' ); ?>
+						<?php else : ?>
+							<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>
+							</svg>
+						<?php endif; ?>
+					</div>
 					<div class="meta"><?php echo esc_html( get_the_date( 'd.m.Y' ) ); ?></div>
 					<h3><?php the_title(); ?></h3>
 					<p><?php echo esc_html( get_the_excerpt() ); ?></p>

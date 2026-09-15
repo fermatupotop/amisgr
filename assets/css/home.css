@@ -283,8 +283,15 @@ td.price small{display:block;font-family:"IBM Plex Sans";font-weight:400;font-si
 
 /* ---------- БЛОГ ---------- */
 .posts{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.post{display:flex;flex-direction:column;border-top:2px solid var(--ink);padding-top:18px}
-.post:hover{border-top-color:var(--orange)}
+.post{display:flex;flex-direction:column}
+.post__img{
+  aspect-ratio:16/10;border-radius:var(--r);overflow:hidden;
+  background:var(--panel);margin-bottom:16px;
+  display:flex;align-items:center;justify-content:center;
+}
+.post__img img{width:100%;height:100%;object-fit:cover;transition:transform .25s}
+.post:hover .post__img img{transform:scale(1.04)}
+.post__img--empty{color:var(--muted)}
 .post .meta{font-family:"IBM Plex Mono";font-size:12.5px;color:var(--muted)}
 .post h3{font-size:19px;margin-top:12px;line-height:1.3}
 .post:hover h3{color:var(--orange)}

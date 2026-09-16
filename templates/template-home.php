@@ -59,7 +59,15 @@ get_header();
 	<div class="wrap">
 		<div>
 			<b><?php echo esc_html( wp_count_posts( 'product' )->publish ); ?></b>
-			<span>приборов в каталоге, из них 214 на складе</span>
+			<span>
+				<?php
+				printf(
+					/* translators: %d — количество товаров в наличии. */
+					esc_html__( 'приборов в каталоге, из них %d на складе', 'amis' ),
+					(int) amis_count_instock_products()
+				);
+				?>
+			</span>
 		</div>
 		<div>
 			<b>24 ч</b>
@@ -111,6 +119,20 @@ get_header();
 					 */
 					$labels = array_filter( explode( '|', (string) get_term_meta( $cat->term_id, 'amis_spec_label', true ) ) );
 					$values = array_filter( explode( '|', (string) get_term_meta( $cat->term_id, 'amis_spec_value', true ) ) );
+
+					/**
+					 * Для части категорий первое значение можно посчитать по
+					 * факту (amis_category_sort_range(), inc/queries.php) —
+					 * реальный диапазон _amis_sort_value среди товаров,
+					 * вместо текста, вписанного руками и стареющего по мере
+					 * пополнения каталога (см. случай с «214 на складе»).
+					 * Если для категории такого счёта нет — остаётся ручной
+					 * текст термина, как раньше.
+					 */
+					$computed_range = amis_category_sort_range( $cat );
+					if ( $computed_range ) {
+						$values[0] = $computed_range;
+					}
 					?>
 
 					<?php if ( $labels ) : ?>

@@ -181,6 +181,125 @@ function amis_get_instock_products( $limit = 4 ) {
 }
 
 /**
+ * Сколько опубликованных товаров сейчас в наличии — для цифры на главной
+ * («N приборов в каталоге, из них M на складе»). Раньше M было вписано
+ * в тексте вручную и расходилось с реальным складом; здесь — реальный счёт.
+ *
+ * @return int
+ */
+function amis_count_instock_products() {
+
+	if ( ! function_exists( 'wc_get_products' ) ) {
+		return 0; // WooCommerce выключен — не роняем сайт.
+	}
+
+	$ids = wc_get_products( array(
+		'status'       => 'publish',
+		'limit'        => -1,
+		'stock_status' => 'instock',
+		'return'       => 'ids',
+	) );
+
+	return count( $ids );
+}
+
+/**
+ * Число из _amis_sort_value в читаемую строку с единицей — единицы разные
+ * по категориям (у осциллографов это МГц полосы, см. описание поля в
+ * inc/product-fields.php), поэтому форматтер свой на каждую категорию,
+ * см. amis_category_sort_range_config().
+ *
+ * @param float $mhz Значение в мегагерцах.
+ * @return string
+ */
+function amis_format_mhz_range_value( $mhz ) {
+
+	if ( $mhz >= 1000 ) {
+		$ghz = $mhz / 1000;
+		$ghz = floor( $ghz ) === $ghz ? (string) (int) $ghz : (string) round( $ghz, 1 );
+		return str_replace( '.', ',', $ghz ) . ' ГГц';
+	}
+
+	return ( (int) $mhz ) . ' МГц';
+}
+
+/**
+ * Категории, у которых «Ключевой параметр» на карточке (главная,
+ * amis_spec_label/amis_spec_value) можно считать по факту — из
+ * _amis_sort_value реальных товаров, а не держать текстом руками.
+ * Слаг категории => функция форматирования одного числа в строку.
+ *
+ * Добавить категорию сюда можно, только если _amis_sort_value у её
+ * товаров заполняется в одной и той же единице (это уже требование поля
+ * само по себе — см. его описание в inc/product-fields.php).
+ *
+ * @return array
+ */
+function amis_category_sort_range_config() {
+	return array(
+		'oscilloscopes' => 'amis_format_mhz_range_value',
+	);
+}
+
+/**
+ * Диапазон «мин – макс» по _amis_sort_value среди опубликованных товаров
+ * категории. Пустая строка, если для категории нет форматтера или ни у
+ * одного товара поле не заполнено — тогда вызывающий код должен остаться
+ * на прежнем ручном тексте термина, а не показать пустоту.
+ *
+ * @param WP_Term $term Категория.
+ * @return string
+ */
+function amis_category_sort_range( $term ) {
+
+	$config = amis_category_sort_range_config();
+
+	if ( ! isset( $config[ $term->slug ] ) || ! is_callable( $config[ $term->slug ] ) ) {
+		return '';
+	}
+
+	$ids = get_posts( array(
+		'post_type'      => 'product',
+		'post_status'    => 'publish',
+		'posts_per_page' => -1,
+		'fields'         => 'ids',
+		'no_found_rows'  => true,
+		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- одна категория, раз в загрузку главной, не архив с пагинацией.
+			array(
+				'taxonomy' => 'product_cat',
+				'field'    => 'term_id',
+				'terms'    => $term->term_id,
+			),
+		),
+	) );
+
+	$values = array();
+
+	foreach ( $ids as $id ) {
+		$raw = get_post_meta( $id, '_amis_sort_value', true );
+		if ( '' !== $raw && is_numeric( $raw ) ) {
+			$values[] = (float) $raw;
+		}
+	}
+
+	if ( ! $values ) {
+		return '';
+	}
+
+	sort( $values );
+
+	$format = $config[ $term->slug ];
+	$min    = reset( $values );
+	$max    = end( $values );
+
+	if ( $min === $max ) {
+		return call_user_func( $format, $min );
+	}
+
+	return call_user_func( $format, $min ) . ' – ' . call_user_func( $format, $max );
+}
+
+/**
  * Осциллографы для сравнительной таблицы, по возрастанию полосы пропускания.
  *
  * Полоса лежит в атрибуте pa_bandwidth как текст («100 МГц»), поэтому

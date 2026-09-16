@@ -50,31 +50,28 @@ $id    = $product->get_id();
 			</a>
 		</h3>
 
-		<ul class="spec">
-			<?php
-			/**
-			 * Три ключевые характеристики. Какие именно — зависит от категории,
-			 * поэтому список слагов атрибутов держим здесь одним массивом:
-			 * поменять набор можно в одном месте.
-			 */
-			$specs = array(
-				'bandwidth'  => __( 'Полоса', 'amis' ),
-				'channels'   => __( 'Каналы', 'amis' ),
-				'sample-rate' => __( 'Дискретизация', 'amis' ),
-			);
-
-			foreach ( $specs as $slug => $label ) :
-				$value = $product->get_attribute( 'pa_' . $slug );
-				if ( ! $value ) {
-					$value = $product->get_attribute( $slug );
-				}
-				?>
-				<li>
-					<span><?php echo esc_html( $label ); ?></span>
-					<b><?php echo esc_html( $value ); ?></b>
-				</li>
-			<?php endforeach; ?>
-		</ul>
+		<?php
+		/**
+		 * Три ключевые характеристики — по карте категории (amis_key_specs(),
+		 * inc/product-map.php), той же, что уже используется в блоке
+		 * «Соседние модели» на странице товара. У каждой категории свой
+		 * набор (у осциллографов — полоса/каналы/дискретизация, у
+		 * анализаторов спектра — свой и т.д.), поэтому захардкоженный
+		 * список из трёх осциллографных полей раньше показывал пустые
+		 * значения в остальных категориях.
+		 */
+		$specs = array_slice( amis_key_specs( $product ), 0, 3, true );
+		?>
+		<?php if ( $specs ) : ?>
+			<ul class="spec">
+				<?php foreach ( $specs as $spec ) : ?>
+					<li>
+						<span><?php echo esc_html( $spec['label'] ); ?></span>
+						<b><?php echo esc_html( $spec['value'] ); ?></b>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		<?php endif; ?>
 
 		<?php
 		/**

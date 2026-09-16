@@ -112,21 +112,46 @@
   background-repeat:no-repeat;background-position:center;background-size:10px;
 }
 
-/* Галерея — штатный шорткод [gallery] классического редактора */
+/*
+ * Галерея — шорткод [gallery]. С WP 5.9 gallery_shortcode() рендерит
+ * блочную разметку (.wp-block-gallery/.wp-block-image), не старые
+ * .gallery/.gallery-item — стилизуем обе на всякий случай. WordPress
+ * догружает свой wp-block-library CSS позже темы, поэтому на всех
+ * layout-критичных свойствах — !important, иначе побеждает то core-стиль,
+ * то дефолтные ширина/высота из HTML-атрибутов <img>.
+ * Две колонки — по месту: для новостей на сайте это лучше смотрится,
+ * чем три мелких кадра в ряд.
+ */
+.article-body .wp-block-gallery,
 .article-body .gallery{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
+  display:grid !important;
+  grid-template-columns:repeat(2,1fr) !important;
+  gap:14px !important;
   list-style:none;padding:0;margin:0;
 }
-.article-body .gallery-item{margin:0}
-.article-body .gallery-icon{aspect-ratio:4/3;border-radius:var(--r);overflow:hidden;background:var(--panel)}
-.article-body .gallery-icon img{
-  width:100%;height:100%;object-fit:cover;border-radius:0;
+.article-body .wp-block-gallery .wp-block-image,
+.article-body .gallery-item{
+  margin:0 !important;
+  width:100% !important;max-width:none !important;
+  flex:none !important;flex-basis:auto !important;
 }
+.article-body .wp-block-gallery figure.wp-block-image,
+.article-body .gallery-icon{
+  aspect-ratio:3/2;border-radius:var(--r);overflow:hidden;background:var(--panel);
+  margin:0 !important;width:100% !important;max-width:none !important;
+}
+.article-body .wp-block-gallery .wp-block-image img,
+.article-body .gallery-icon img{
+  width:100% !important;height:100% !important;max-width:none !important;
+  object-fit:cover;border-radius:0;display:block;
+}
+.article-body .wp-block-gallery figcaption,
 .article-body .gallery-caption{
   margin-top:8px;font-size:12.5px;color:var(--gray-2);text-align:center;
 }
 @media(max-width:640px){
-  .article-body .gallery{grid-template-columns:repeat(2,1fr)}
+  .article-body .wp-block-gallery,
+  .article-body .gallery{grid-template-columns:1fr !important}
   .article-body .stat-row{grid-template-columns:1fr}
 }
 

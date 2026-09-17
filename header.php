@@ -33,7 +33,12 @@ defined( 'ABSPATH' ) || exit;
 		<span class="live"><i></i> <?php esc_html_e( 'Пн–Пт 09:00–18:00', 'amis' ); ?></span>
 		<span><?php esc_html_e( 'Москва, Алтуфьевское ш., 48к1', 'amis' ); ?></span>
 		<div class="tb-r">
-			<?php echo amis_phone_link( 'msk' ); // phpcs:ignore WordPress.Security.EscapeOutput — экранирование внутри функции. ?>
+			<span class="tb-phone">
+				<svg width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<path d="M4 3h3l2 5-2.5 1.5a11 11 0 0 0 5 5L13 12l5 2v3a1.5 1.5 0 0 1-1.6 1.5A16 16 0 0 1 2.5 4.6 1.5 1.5 0 0 1 4 3Z"/>
+				</svg>
+				<?php echo amis_phone_link( 'msk' ); // phpcs:ignore WordPress.Security.EscapeOutput — экранирование внутри функции. ?>
+			</span>
 			<a href="<?php echo esc_url( home_url( '/verification/' ) ); ?>"><?php esc_html_e( 'Поверка и калибровка', 'amis' ); ?></a>
 			<a href="<?php echo esc_url( home_url( '/rent/' ) ); ?>"><?php esc_html_e( 'Аренда приборов', 'amis' ); ?></a>
 			<a href="<?php echo esc_url( home_url( '/payment/' ) ); ?>"><?php esc_html_e( 'Оплата для юрлиц', 'amis' ); ?></a>
@@ -154,6 +159,28 @@ defined( 'ABSPATH' ) || exit;
 			'depth'          => 2,
 		) );
 		?>
+
+		<?php if ( class_exists( 'WooCommerce' ) ) : ?>
+			<?php
+			/**
+			 * Дублирует иконку корзины из шапки — та скрыта на мобильном
+			 * (max-width:640px, base.css), иначе шапка не помещалась в
+			 * ширину экрана. Видна только в мобильном меню (.nav-cart
+			 * в base.css: display:none на десктопе, flex — в разделе
+			 * max-width:1000px, там же, где раскрывается это меню).
+			 */
+			$nav_cart_count = amis_cart_count();
+			?>
+			<a class="nav-cart" href="<?php echo esc_url( wc_get_cart_url() ); ?>">
+				<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+					<path d="M3 4h2l2 9h8l2-6H6"/><circle cx="8.5" cy="16" r="1.2"/><circle cx="14.5" cy="16" r="1.2"/>
+				</svg>
+				<?php esc_html_e( 'Корзина', 'amis' ); ?>
+				<?php if ( $nav_cart_count ) : ?>
+					<span class="badge"><?php echo esc_html( $nav_cart_count ); ?></span>
+				<?php endif; ?>
+			</a>
+		<?php endif; ?>
 	</div>
 </nav>
 

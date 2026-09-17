@@ -16,9 +16,19 @@
   --wrap: 1360px;
   --wrap-wide: 1600px;
   --r:3px;
+  --header-h:82px; /* высота .header — единственного sticky-элемента шапки, topbar и .nav в поток не прилипают */
+}
+@media(max-width:640px){
+  :root{--header-h:68px} /* см. .header .wrap{height:68px} ниже, в media(max-width:1000px) */
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
+/**
+ * Якорные ссылки (#contact, #write, #details и т.д.) без этого прыгают
+ * ровно под верхний край прилипающей шапки — цель прокрутки пряталась
+ * под .header, выглядело так, будто клик ничего не делает.
+ */
+[id]{scroll-margin-top:calc(var(--header-h) + 16px)}
 body{
   margin:0;background:#fff;color:var(--ink);
   font-family:"IBM Plex Sans",-apple-system,Segoe UI,Roboto,sans-serif;
@@ -64,15 +74,43 @@ img{max-width:100%;display:block}
 .woocommerce-error a.button:hover,
 .woocommerce-info a.button:hover{background:#000;color:#fff}
 
+/*
+ * «Вернуться в магазин» (.wc-backward) — штатная кнопка WooCommerce,
+ * появляется в разных местах (пустая корзина, пустая корзина на
+ * оформлении заказа) не только там, где подключён cart.css. Без своих
+ * стилей на такой странице показывался дефолтный вид WooCommerce/Astra —
+ * красная кнопка с тёмным текстом и полностью скруглёнными углами,
+ * выбивается из общего стиля кнопок сайта. Здесь — на всех страницах
+ * сразу, тем же приёмом, что и .woocommerce-message/.woocommerce-error
+ * выше.
+ */
+.woocommerce a.button.wc-backward,
+.woocommerce a.button.wc-backward:hover,
+.woocommerce a.button.wc-backward:focus,
+.woocommerce a.button.wc-backward:active{
+  display:inline-flex;align-items:center;justify-content:center;
+  height:48px;padding:0 24px;border-radius:var(--r);
+  background:var(--orange);color:#fff;font-weight:500;font-size:15px;text-decoration:none;
+}
+.woocommerce a.button.wc-backward:hover,
+.woocommerce a.button.wc-backward:focus,
+.woocommerce a.button.wc-backward:active{background:var(--orange-deep)}
+
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;height:48px;padding:0 22px;
   border-radius:var(--r);border:1px solid transparent;font-family:inherit;font-weight:500;font-size:15px;
   cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
 .btn-primary{background:var(--orange);color:#fff}
-.btn-primary:hover{background:var(--orange-deep);color:#fff}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active{background:var(--orange-deep);color:#fff}
 .btn-ghost{background:#fff;color:var(--ink);border-color:var(--line)}
-.btn-ghost:hover{border-color:var(--gray-2);color:var(--ink)}
+.btn-ghost:hover,
+.btn-ghost:focus,
+.btn-ghost:active{border-color:var(--gray-2);color:var(--ink)}
 .btn-dark{background:var(--ink);color:#fff}
-.btn-dark:hover{background:#000;color:#fff}
+.btn-dark:hover,
+.btn-dark:focus,
+.btn-dark:active{background:#000;color:#fff}
 .btn-sm{height:40px;padding:0 16px;font-size:14px}
 
 /* ---------- TOPBAR ---------- */
@@ -82,6 +120,8 @@ img{max-width:100%;display:block}
 .tb-r{margin-left:auto;display:flex;gap:22px}
 .live{display:inline-flex;align-items:center;gap:7px}
 .live i{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.tb-phone{display:inline-flex;align-items:center;gap:6px;color:var(--ink)}
+.tb-phone svg{flex:none}
 .topbar .tb-r a[href^="tel:"]{
   font-family:"IBM Plex Mono",monospace;
   font-size:13px;
@@ -92,6 +132,7 @@ img{max-width:100%;display:block}
   white-space:nowrap;
 }
 .topbar .tb-r a[href^="tel:"]:hover{color:var(--orange)}
+.tb-phone:hover{color:var(--orange)}
 
 /* ---------- HEADER ---------- */
 .header{position:sticky;top:0;z-index:60;background:#fff;border-bottom:1px solid var(--line)}
@@ -99,7 +140,9 @@ img{max-width:100%;display:block}
 .logo{display:flex;align-items:center;flex:none}
 .logo img{height:40px;width:auto;display:block}
 .catbtn{display:flex;align-items:center;gap:10px;height:48px;padding:0 20px;background:var(--ink);color:#fff;border-radius:var(--r);font-weight:500;font-size:15px}
-.catbtn:hover{background:var(--orange);color:#fff}
+.catbtn:hover,
+.catbtn:focus,
+.catbtn:active{background:var(--orange);color:#fff}
 
 /* Мега-меню категорий каталога — только десктоп, см. media(max-width:1000px) ниже */
 .cat-drop{position:relative;flex:none}
@@ -134,7 +177,7 @@ img{max-width:100%;display:block}
   font:inherit;font-size:15px;padding:0 44px 0 15px;color:var(--ink)}
 .search input::placeholder{color:var(--muted)}
 .search input:focus{outline:none;background:#fff;border-color:var(--orange)}
-.search button{position:absolute;right:5px;top:5px;width:38px;height:38px;border:0;background:none;cursor:pointer;color:var(--gray-2)}
+.search button{position:absolute;right:5px;top:5px;width:38px;height:38px;border:0;background:none;cursor:pointer;color:var(--gray-2);display:flex;align-items:center;justify-content:center;padding:0}
 .hd-r{display:flex;align-items:center;gap:12px;flex:none}
 .phone{font-size:18px;font-weight:600;white-space:nowrap;letter-spacing:-.01em}
 .phone span{display:block;font-size:12px;font-weight:400;color:var(--muted);letter-spacing:0}
@@ -150,9 +193,45 @@ img{max-width:100%;display:block}
 .nav a:hover{color:var(--orange)}
 .nav .last{margin-left:auto;color:var(--orange);padding-right:0;margin-right:0}
 
-/* Выпадающее подменю (Внешний вид → Меню, второй уровень вложенности).
-   Стрелку у пункта с подменю рисует сама Astra — свою здесь не добавляем. */
+/*
+ * Ссылка на корзину внутри мобильного меню — на мобильном иконка корзины
+ * из шапки (.hd-r .ico) скрыта (см. media(max-width:640px) ниже), чтобы
+ * шапка не растягивалась горизонтально: телефон, значок корзины и бургер
+ * все сразу не помещались на узком экране. Без замены доступ к корзине
+ * с телефона вообще бы пропал, поэтому продублирована здесь; на десктопе
+ * не нужна — там корзина и так видна в шапке.
+ * Селектор специально `.nav .nav-cart`, а не просто `.nav-cart` — у
+ * более общего `.nav a{display:flex}` выше специфичность класс+тег
+ * (0,1,1) против одного класса (0,1,0), и на десктопе он перебивал
+ * display:none, ссылка на корзину вылезала в обычном меню.
+ */
+.nav .nav-cart{
+  display:none;align-items:center;gap:8px;height:50px;
+  border-top:1px solid var(--line);color:var(--ink);font-weight:500;font-size:17px;
+}
+.nav-cart:hover{color:var(--orange)}
+.nav-cart .badge{position:static;margin-left:2px}
+
+/*
+ * Выпадающее подменю (Внешний вид → Меню, второй уровень вложенности).
+ * Стрелку раньше рисовала сама Astra (.ast-icon.icon-arrow) — шрифтовая
+ * иконка, по начертанию не похожая на тонкие инлайн-SVG остального сайта
+ * (см. design-принцип в шапке файла), да ещё и вылезала у всех пунктов
+ * подряд, не только с подменю. Прячем её и рисуем свою — чистым CSS
+ * (две грани border, повёрнутые на 45°), без картинок/SVG, только у
+ * пунктов, где подменю действительно есть.
+ */
+.nav .ast-icon.icon-arrow{display:none}
 .nav .menu-item-has-children{position:relative}
+.nav .menu-item-has-children > a::after{
+  content:"";
+  width:6px;height:6px;
+  margin-left:6px;
+  border-right:1.6px solid var(--gray-2);
+  border-bottom:1.6px solid var(--gray-2);
+  transform:rotate(45deg);
+  flex:none;
+}
 .nav .sub-menu{
   position:absolute;top:100%;left:0;z-index:70;min-width:240px;
   margin:0;padding:8px;list-style:none;
@@ -285,13 +364,72 @@ img{max-width:100%;display:block}
 .burger{display:none;width:48px;height:48px;border:1px solid var(--line);border-radius:var(--r);
   background:#fff;cursor:pointer;flex-direction:column;gap:4px;align-items:center;justify-content:center}
 .burger span{display:block;width:18px;height:2px;background:var(--gray)}
+/*
+ * Тот же приём, что и у остальных кнопок (см. «Грабли с Astra» выше) —
+ * без явных цветов во всех трёх состояниях Astra красит :active сама
+ * (была найдена в ярко-красный). Раз уж переопределяем — заодно даём
+ * кнопке собственную, фирменную реакцию на нажатие вместо простого
+ * «остаётся белой»: hover/focus — оранжевая рамка (как у .ico), active
+ * (нажатие/тап) — заливка оранжевым с белыми полосками, как обратная
+ * связь по тапу на сенсорном экране.
+ */
+.burger:hover,
+.burger:focus{background:#fff;border-color:var(--orange)}
+.burger:hover span,
+.burger:focus span{background:var(--orange)}
+.burger:active{background:var(--orange);border-color:var(--orange)}
+.burger:active span{background:#fff}
 
 @media(max-width:1000px){
+  /*
+   * Раньше это сужение шапки (скрыть topbar/поиск, убрать подпись под
+   * телефоном и текст «Каталог») жило только в home.css — на остальных
+   * страницах на мобильном шапка не сужалась вообще и вместе с ней ехал
+   * горизонтальный скролл. Перенесено сюда, в base.css, чтобы работало
+   * везде, раз шапка (header.php) общая для всего сайта.
+   */
+  .topbar,.search{display:none}
+  .header .wrap{height:68px;gap:12px}
+  .phone span{display:none}
+  .cat-drop{display:none}
+  .nav .nav-cart{display:flex}
+
+  /*
+   * .search обычно flex:1 и растягивается, прижимая .hd-r к правому
+   * краю — на мобильном .search скрыт (выше), спейсер пропадает, и
+   * .hd-r (сейчас там только бургер, телефон/корзина тоже скрыты)
+   * повисает сразу после лого слева. margin-left:auto возвращает его
+   * к правому краю без .search.
+   */
+  .hd-r{margin-left:auto}
+
   .burger{display:flex}
   .nav{display:none}
-  .nav.is-open{display:block}
+  /*
+   * .header — position:sticky, остаётся прибитым к верху при скролле.
+   * .nav же — обычный элемент в потоке страницы сразу под шапкой: при
+   * скролле вниз уезжал вместе с контентом и пропадал из вида (виден
+   * был только в самом начале страницы, до первого скролла). Раскрытое
+   * меню теперь само position:fixed на весь экран под шапкой — остаётся
+   * на месте независимо от скролла, со своей прокруткой на случай, если
+   * список не помещается по высоте. top:68px — высота .header на этой
+   * ширине (задана чуть выше, .header .wrap{height:68px}).
+   */
+  .nav.is-open{
+    display:block;position:fixed;top:68px;left:0;right:0;bottom:0;
+    overflow-y:auto;z-index:75;background:#fff;
+  }
   .nav ul{flex-direction:column;padding:8px 0}
-  .nav a{height:46px;margin-right:0}
+  /*
+   * На узкой панели пункты меню сливались с текстом страницы — 15px и
+   * var(--gray) (тот же серый, что у обычного текста) недостаточно
+   * выделялись. На мобильном пункты крупнее и темнее, подпункты чуть
+   * мельче основных, но тоже темнее прежнего блёклого gray-2.
+   */
+  .nav a{height:50px;margin-right:0;font-size:17px;font-weight:500;color:var(--ink)}
+  /* На мобильном строка на всю ширину — стрелку логично прижать к правому
+     краю, а не оставлять сразу после текста (там это было для десктопа). */
+  .nav .menu-item-has-children > a::after{margin-left:auto}
 
   /* На мобильном ховера нет — подменю просто всегда развёрнуто списком. */
   .nav .sub-menu{
@@ -299,7 +437,7 @@ img{max-width:100%;display:block}
     min-width:0;margin:0;padding:0 0 4px 16px;
     background:none;border:0;border-radius:0;box-shadow:none;
   }
-  .nav .sub-menu a{height:40px;color:var(--gray-2)}
+  .nav .sub-menu a{height:42px;font-size:15.5px;font-weight:400;color:var(--gray)}
 }
 
 .ast-article-single figure,
@@ -352,7 +490,15 @@ img{max-width:100%;display:block}
 .mobar{display:none}
 
 @media(max-width:640px){
-  body{padding-bottom:64px}
+  body{padding-bottom:54px}
+  /*
+   * Телефон и иконка корзины убраны из шапки — на узких экранах вместе
+   * с логотипом, кнопкой «Каталог» и бургером они не помещались в одну
+   * строку, шапка растягивалась и появлялся горизонтальный скролл.
+   * Звонок уже дублирован нижней панелью .mobar («Позвонить»/«Написать»),
+   * а корзина — ссылкой .nav-cart в мобильном меню (см. header.php).
+   */
+  .phone,.hd-r .ico{display:none}
   .mobar{
     display:grid;
     grid-template-columns:1fr 1fr;
@@ -361,7 +507,7 @@ img{max-width:100%;display:block}
     border-top:1px solid var(--line);
   }
   .mobar a{
-    height:60px;
+    height:50px;
     display:grid;
     place-items:center;
     font-weight:500;
@@ -369,6 +515,14 @@ img{max-width:100%;display:block}
   }
   .mobar a:first-child{border-right:1px solid var(--line);color:var(--ink)}
   .mobar a:last-child{background:var(--orange);color:#fff}
+
+  /*
+   * «Наверх» — родная кнопка Astra (.ast-scroll-to-top-right, вне нашей
+   * вёрстки, из родительской темы), position:fixed внизу справа. На
+   * мобильном под ней теперь ещё и .mobar (51px + бордер) — без сдвига
+   * стрелка на него налезала.
+   */
+  .ast-scroll-to-top-right{bottom:62px !important}
 }
 
 /* ---------- Уведомление о cookie (footer.php, все страницы) ---------- */
@@ -389,3 +543,63 @@ img{max-width:100%;display:block}
 @media(max-width:640px){
   .cookie-notice{left:12px;right:12px;bottom:76px;max-width:none}
 }
+
+/**
+ * ---------- Модалка «Запросить счёт» (footer.php, все страницы) ----------
+ * Стили полей формы задаются здесь своим классом, а не переиспользуют
+ * .contact-form (assets/css/page.css) — тот не грузится на странице
+ * товара, а именно оттуда модалку и открывают чаще всего.
+ */
+.quote-modal{
+  display:none;position:fixed;inset:0;z-index:90;
+}
+.quote-modal.is-open{display:block}
+.quote-modal__backdrop{
+  position:absolute;inset:0;background:rgba(35,38,41,.5);
+}
+.quote-modal__box{
+  position:relative;z-index:1;
+  max-width:480px;margin:8vh auto 0;
+  background:#fff;border-radius:var(--r);
+  padding:32px 32px 28px;
+  max-height:84vh;overflow-y:auto;
+}
+.quote-modal__close{
+  position:absolute;top:18px;right:18px;
+  width:32px;height:32px;border:0;background:none;color:var(--gray-2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;border-radius:var(--r);
+}
+.quote-modal__close:hover{background:var(--panel);color:var(--ink)}
+.quote-modal h2{font-size:21px;padding-right:32px}
+.quote-modal .form-lead{font-size:14px;color:var(--gray);margin:8px 0 20px}
+
+.quote-modal .wpcf7-form-control-wrap{display:block;width:100%}
+.quote-modal .wpcf7-form p{margin:0 0 14px}
+.quote-modal input[type="text"],
+.quote-modal input[type="tel"],
+.quote-modal input[type="email"],
+.quote-modal textarea{
+  width:100%;height:46px;padding:0 14px;
+  border:1px solid var(--line);border-radius:var(--r);
+  font:inherit;font-size:14.5px;color:var(--ink);background:#fff;
+}
+.quote-modal textarea{height:110px;padding:12px 14px;resize:vertical}
+.quote-modal input:focus,
+.quote-modal textarea:focus{outline:none;border-color:var(--orange)}
+.quote-modal .wpcf7-not-valid-tip{font-size:12.5px;color:var(--orange-deep);margin-top:5px}
+.quote-modal .wpcf7-form input.wpcf7-submit{
+  width:100%;height:48px;margin-top:6px;padding:0;border:0;border-radius:var(--r);
+  line-height:48px;text-align:center;
+  background:var(--orange);color:#fff;font:inherit;font-weight:500;font-size:15px;cursor:pointer;
+}
+.quote-modal .wpcf7-form input.wpcf7-submit:hover,
+.quote-modal .wpcf7-form input.wpcf7-submit:focus,
+.quote-modal .wpcf7-form input.wpcf7-submit:active{background:var(--orange-deep);color:#fff;border-color:var(--orange-deep)}
+.quote-modal .wpcf7-form input.wpcf7-submit:disabled{opacity:.45;cursor:not-allowed}
+.quote-modal .wpcf7-spinner{margin:8px auto 0;display:block}
+
+@media(max-width:640px){
+  .quote-modal__box{margin:0;max-width:none;height:100%;max-height:none;border-radius:0;padding:26px 20px}
+}
+
+body.no-scroll{overflow:hidden}

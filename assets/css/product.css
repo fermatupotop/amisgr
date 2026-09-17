@@ -13,9 +13,22 @@
 .subtitle{font-size:17.5px;color:var(--gray);margin-top:12px;max-width:52ch}
 .head-meta{display:flex;gap:22px;flex-wrap:wrap;margin-top:14px;font-size:14px;color:var(--gray-2)}
 .head-meta b{font-family:"IBM Plex Mono";font-weight:500;color:var(--ink)}
-.reg{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:var(--r);
-  padding:10px 15px;font-size:13.5px;color:var(--gray);background:#fff}
+.reg{
+  display:inline-flex;align-items:center;gap:8px;border-radius:var(--r);
+  padding:10px 15px;font-size:13.5px;font-weight:600;color:var(--ink);
+  background:#EEF8F1;border:1px solid #BFE3CB;
+}
 .reg svg{color:var(--green);flex:none}
+
+.stock-updated{margin-left:8px;font-weight:400;color:var(--gray-2)}
+
+.promo{
+  display:flex;align-items:flex-start;gap:10px;margin-top:14px;
+  padding:12px 14px;border-radius:var(--r);
+  background:var(--orange-soft);border:1px solid #EFCBB3;
+  font-size:13.5px;font-weight:500;color:var(--orange-deep);
+}
+.promo svg{flex:none;margin-top:1px}
 
 /* ---------- ГЛАВНЫЙ ЭКРАН ---------- */
 .main{display:grid;grid-template-columns:1fr 400px;gap:44px;align-items:start;padding-bottom:60px}
@@ -223,7 +236,18 @@ body.lightbox-open{overflow:hidden}
   width:100%;height:50px;background:var(--orange);color:#fff;border:0;
   border-radius:var(--r);font-family:inherit;font-weight:500;font-size:15px;cursor:pointer;
 }
-.buy-acts button.single_add_to_cart_button:hover{background:var(--orange-deep);color:#fff}
+.buy-acts button.single_add_to_cart_button:hover,
+.buy-acts button.single_add_to_cart_button:focus,
+.buy-acts button.single_add_to_cart_button:active{background:var(--orange-deep);color:#fff}
+
+/* Та же причина, что и у single_add_to_cart_button выше: это <button>,
+   не <a>, и глобальный hover WooCommerce для button побеждает базовый
+   .btn-ghost:hover по специфичности — красим явно и специфичнее. */
+.buy-acts button.btn-ghost.js-quote-open:hover,
+.buy-acts button.btn-ghost.js-quote-open:focus,
+.buy-acts button.btn-ghost.js-quote-open:active{
+  background:#fff;color:var(--ink);border-color:var(--gray-2);
+}
 .stock--o{color:var(--gray-2)}
 .woocommerce-notices-wrapper .woocommerce-message{
   border-top-color:var(--orange);

@@ -210,13 +210,10 @@ body.woocommerce-cart .wc-proceed-to-checkout a.checkout-button:hover{
   text-align:center;padding:60px 20px 8px;
   font-size:16px;color:var(--gray);list-style:none;
 }
+/* Кнопка .return-to-shop .button (она же .wc-backward) — стиль теперь
+   общий для всего сайта, см. base.css, чтобы не терялся на страницах
+   без cart.css. */
 .cart-page .return-to-shop{text-align:center;padding-bottom:40px}
-.cart-page .return-to-shop .button{
-  display:inline-flex;align-items:center;justify-content:center;
-  height:48px;padding:0 24px;border-radius:var(--r);
-  background:var(--orange);color:#fff;font-weight:500;font-size:15px;text-decoration:none;
-}
-.cart-page .return-to-shop .button:hover{background:var(--orange-deep);color:#fff}
 
 /* ---------- Мобильная адаптация ---------- */
 @media (max-width:640px){

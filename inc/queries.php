@@ -84,6 +84,24 @@ function amis_shop_facet_filter( $query ) {
 		$added       = true;
 	}
 
+	/**
+	 * Шкала «Диапазон частот» с главной (шорткод amis_freq_axis) ссылается
+	 * на /shop/?filter_frequency-range=slug — тот же query-var, что у штатного
+	 * layered-nav виджета WooCommerce, но у атрибута выключены «Архивы» и
+	 * сам виджет на сайте не используется, поэтому core его не фильтрует —
+	 * без этого блока ссылка «Открыть подборку» показывала пустой каталог.
+	 */
+	$freq_range = isset( $_GET['filter_frequency-range'] ) ? sanitize_title( wp_unslash( $_GET['filter_frequency-range'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- обычный GET-фильтр витрины, без сохранения состояния.
+
+	if ( $freq_range && taxonomy_exists( 'pa_frequency-range' ) ) {
+		$tax_query[] = array(
+			'taxonomy' => 'pa_frequency-range',
+			'field'    => 'slug',
+			'terms'    => $freq_range,
+		);
+		$added       = true;
+	}
+
 	if ( ! $added ) {
 		return;
 	}
@@ -204,10 +222,34 @@ function amis_count_instock_products() {
 }
 
 /**
- * Число из _amis_sort_value в читаемую строку с единицей — единицы разные
- * по категориям (у осциллографов это МГц полосы, см. описание поля в
- * inc/product-fields.php), поэтому форматтер свой на каждую категорию,
- * см. amis_category_sort_range_config().
+ * Текст вида «100 МГц»/«13 ГГц» → число в МГц, для сравнения диапазонов.
+ * null, если распознать не удалось (пусто, другой формат и т.п.) —
+ * такой товар просто не участвует в подсчёте минимума/максимума.
+ *
+ * @param string $text Значение атрибута как есть.
+ * @return float|null
+ */
+function amis_parse_mhz_text( $text ) {
+
+	$text = trim( (string) $text );
+
+	if ( '' === $text || ! preg_match( '/([\d]+(?:[.,]\d+)?)\s*(ГГц|МГц|GHz|MHz)/iu', $text, $m ) ) {
+		return null;
+	}
+
+	$number = (float) str_replace( ',', '.', $m[1] );
+	$unit   = mb_strtolower( $m[2] );
+
+	if ( in_array( $unit, array( 'ггц', 'ghz' ), true ) ) {
+		$number *= 1000;
+	}
+
+	return $number;
+}
+
+/**
+ * Число в МГц → читаемая строка («100 МГц»/«13 ГГц») — обратная операция
+ * к amis_parse_mhz_text().
  *
  * @param float $mhz Значение в мегагерцах.
  * @return string
@@ -224,79 +266,164 @@ function amis_format_mhz_range_value( $mhz ) {
 }
 
 /**
- * Категории, у которых «Ключевой параметр» на карточке (главная,
- * amis_spec_label/amis_spec_value) можно считать по факту — из
- * _amis_sort_value реальных товаров, а не держать текстом руками.
- * Слаг категории => функция форматирования одного числа в строку.
+ * Просто число из текста, без единицы («4», «2 канала», «8» → 4/2/8).
+ * Для атрибутов без единиц измерения (каналы, порты и т.п.) — пара
+ * к amis_parse_mhz_text() для тех, что с единицами.
  *
- * Добавить категорию сюда можно, только если _amis_sort_value у её
- * товаров заполняется в одной и той же единице (это уже требование поля
- * само по себе — см. его описание в inc/product-fields.php).
+ * @param string $text Значение атрибута как есть.
+ * @return float|null
+ */
+function amis_parse_number_text( $text ) {
+
+	$text = trim( (string) $text );
+
+	if ( '' === $text || ! preg_match( '/([\d]+(?:[.,]\d+)?)/u', $text, $m ) ) {
+		return null;
+	}
+
+	return (float) str_replace( ',', '.', $m[1] );
+}
+
+/**
+ * Число → строка, без единицы — обратная операция к amis_parse_number_text().
+ *
+ * @param float $number Значение.
+ * @return string
+ */
+function amis_format_number_range_value( $number ) {
+
+	return floor( $number ) === $number
+		? (string) (int) $number
+		: str_replace( '.', ',', (string) $number );
+}
+
+/**
+ * Категории, у которых часть «Ключевых параметров» на карточке (главная,
+ * amis_spec_label/amis_spec_value, значения через «|») можно посчитать по
+ * факту — по реальным атрибутам товаров, а не держать текстом руками (тот
+ * устаревает по мере пополнения каталога, как было с «214 на складе»).
+ *
+ * Слаг категории => [индекс в $values (0 — первая пара label/value и т.д.)
+ * => [слаг атрибута без pa_, функция «текст → число», функция «число →
+ * текст»]]. Единица получается из парсера, поэтому в одну настройку можно
+ * объединять только атрибуты в одних и тех же единицах по всему каталогу.
  *
  * @return array
  */
 function amis_category_sort_range_config() {
 	return array(
-		'oscilloscopes' => 'amis_format_mhz_range_value',
+		'oscilloscopes' => array(
+			0 => array( // Первая пара термина — «Полоса».
+				'attribute' => 'bandwidth',
+				'parse'     => 'amis_parse_mhz_text',
+				'format'    => 'amis_format_mhz_range_value',
+			),
+			1 => array( // Вторая пара термина — «Каналы».
+				'attribute' => 'channels',
+				'parse'     => 'amis_parse_number_text',
+				'format'    => 'amis_format_number_range_value',
+			),
+		),
 	);
 }
 
 /**
- * Диапазон «мин – макс» по _amis_sort_value среди опубликованных товаров
- * категории. Пустая строка, если для категории нет форматтера или ни у
- * одного товара поле не заполнено — тогда вызывающий код должен остаться
- * на прежнем ручном тексте термина, а не показать пустоту.
+ * Диапазоны «мин – макс» по ключевым атрибутам категории (см.
+ * amis_category_sort_range_config()) — по индексу в $values термина.
+ * Пустой массив, если для категории нет настройки; отдельный индекс
+ * просто отсутствует в результате, если ни один товар не распознался —
+ * тогда вызывающий код должен оставить на этом месте прежний ручной
+ * текст термина, а не показать пустоту.
  *
  * @param WP_Term $term Категория.
- * @return string
+ * @return array Индекс => готовая строка диапазона.
  */
-function amis_category_sort_range( $term ) {
+function amis_category_sort_ranges( $term ) {
 
 	$config = amis_category_sort_range_config();
 
-	if ( ! isset( $config[ $term->slug ] ) || ! is_callable( $config[ $term->slug ] ) ) {
-		return '';
+	if ( ! isset( $config[ $term->slug ] ) || ! function_exists( 'wc_get_products' ) ) {
+		return array();
 	}
 
-	$ids = get_posts( array(
-		'post_type'      => 'product',
-		'post_status'    => 'publish',
-		'posts_per_page' => -1,
-		'fields'         => 'ids',
-		'no_found_rows'  => true,
-		'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- одна категория, раз в загрузку главной, не архив с пагинацией.
-			array(
-				'taxonomy' => 'product_cat',
-				'field'    => 'term_id',
-				'terms'    => $term->term_id,
-			),
-		),
+	$products = wc_get_products( array(
+		'status'   => 'publish',
+		'limit'    => -1,
+		'category' => array( $term->slug ),
 	) );
 
-	$values = array();
+	if ( ! $products ) {
+		return array();
+	}
 
-	foreach ( $ids as $id ) {
-		$raw = get_post_meta( $id, '_amis_sort_value', true );
-		if ( '' !== $raw && is_numeric( $raw ) ) {
-			$values[] = (float) $raw;
+	$results = array();
+
+	foreach ( $config[ $term->slug ] as $index => $setup ) {
+
+		if ( ! is_callable( $setup['parse'] ) || ! is_callable( $setup['format'] ) ) {
+			continue;
 		}
+
+		$values = array();
+
+		foreach ( $products as $product ) {
+
+			$raw = $product->get_attribute( 'pa_' . $setup['attribute'] );
+
+			if ( ! $raw ) {
+				$raw = $product->get_attribute( $setup['attribute'] );
+			}
+
+			$parsed = call_user_func( $setup['parse'], $raw );
+
+			if ( null !== $parsed ) {
+				$values[] = $parsed;
+			}
+		}
+
+		if ( ! $values ) {
+			continue;
+		}
+
+		sort( $values );
+
+		$format = $setup['format'];
+		$min    = reset( $values );
+		$max    = end( $values );
+
+		$results[ $index ] = ( $min === $max )
+			? call_user_func( $format, $min )
+			: call_user_func( $format, $min ) . ' – ' . call_user_func( $format, $max );
 	}
 
-	if ( ! $values ) {
-		return '';
+	return $results;
+}
+
+/**
+ * Дата последнего изменения среди опубликованных записей — для строки
+ * «Обновлено: ДД.ММ.ГГГГ» под заголовком «База знаний» на главной.
+ * Реальная дата, не вписанная руками (та же логика, что и у количества
+ * товаров на складе).
+ *
+ * @return string|null Дата в формате d.m.Y, null — если записей ещё нет.
+ */
+function amis_latest_post_update_date() {
+
+	$posts = get_posts( array(
+		'post_type'      => 'post',
+		'post_status'    => 'publish',
+		'posts_per_page' => 1,
+		'orderby'        => 'modified',
+		'order'          => 'DESC',
+		'fields'         => 'ids',
+		'no_found_rows'  => true,
+	) );
+
+	if ( ! $posts ) {
+		return null;
 	}
 
-	sort( $values );
-
-	$format = $config[ $term->slug ];
-	$min    = reset( $values );
-	$max    = end( $values );
-
-	if ( $min === $max ) {
-		return call_user_func( $format, $min );
-	}
-
-	return call_user_func( $format, $min ) . ' – ' . call_user_func( $format, $max );
+	return get_the_modified_date( 'd.m.Y', $posts[0] );
 }
 
 /**

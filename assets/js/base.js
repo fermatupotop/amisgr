@@ -92,3 +92,71 @@
 		}
 	} );
 })();
+
+/**
+ * Модалка «Запросить счёт» (разметка — footer.php, #amis-quote-modal).
+ * Открывается любой кнопкой с классом .js-quote-open и data-sku.
+ *
+ * Артикул подставляется прямо в поле «Запрашиваемый товар» формы
+ * (CF7, id="367ce20" — своя форма именно под этот сценарий, поле
+ * name="your-product"), без угадывания — имя поля тут под контролем,
+ * форма собрана специально под модалку.
+ */
+(function () {
+	'use strict';
+
+	var modal = document.getElementById( 'amis-quote-modal' );
+
+	if ( ! modal ) {
+		return;
+	}
+
+	var openers = document.querySelectorAll( '.js-quote-open' );
+	var closers = modal.querySelectorAll( '[data-quote-close]' );
+	var lastFocus = null;
+
+	function open( sku ) {
+
+		var field = modal.querySelector( 'input[name="your-product"]' );
+
+		if ( field && sku ) {
+			field.value = sku;
+		}
+
+		lastFocus = document.activeElement;
+		modal.classList.add( 'is-open' );
+		modal.setAttribute( 'aria-hidden', 'false' );
+		document.body.classList.add( 'no-scroll' );
+
+		var firstField = modal.querySelector( 'input, textarea' );
+		if ( firstField ) {
+			firstField.focus();
+		}
+	}
+
+	function close() {
+		modal.classList.remove( 'is-open' );
+		modal.setAttribute( 'aria-hidden', 'true' );
+		document.body.classList.remove( 'no-scroll' );
+
+		if ( lastFocus ) {
+			lastFocus.focus();
+		}
+	}
+
+	openers.forEach( function ( btn ) {
+		btn.addEventListener( 'click', function () {
+			open( btn.dataset.sku || '' );
+		} );
+	} );
+
+	closers.forEach( function ( el ) {
+		el.addEventListener( 'click', close );
+	} );
+
+	document.addEventListener( 'keydown', function ( e ) {
+		if ( 'Escape' === e.key && modal.classList.contains( 'is-open' ) ) {
+			close();
+		}
+	} );
+})();

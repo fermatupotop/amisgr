@@ -61,7 +61,9 @@ img{max-width:100%;display:block}
 .logo b{display:block;font-size:22px;font-weight:600;letter-spacing:.15em;color:var(--gray);line-height:1}
 .logo span{display:block;font-size:10.5px;letter-spacing:.28em;color:var(--muted);margin-top:4px}
 .catbtn{display:flex;align-items:center;gap:10px;height:48px;padding:0 20px;background:var(--ink);color:#fff;border-radius:var(--r);font-weight:500;font-size:15px}
-.catbtn:hover{background:var(--orange);color:#fff}
+.catbtn:hover,
+.catbtn:focus,
+.catbtn:active{background:var(--orange);color:#fff}
 .search{flex:1;position:relative}
 .search input{width:100%;height:48px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);
   font:inherit;font-size:15px;padding:0 44px 0 15px;color:var(--ink)}
@@ -85,12 +87,11 @@ img{max-width:100%;display:block}
 
 /* ---------- HERO ---------- */
 .hero{padding:56px 0 0}
-.hero-top{display:grid;grid-template-columns:1.25fr .75fr;gap:56px;align-items:end;padding-bottom:44px}
+.hero-top{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:end;padding-bottom:44px}
 .hero h1{font-size:clamp(32px,3.9vw,50px);font-weight:600;letter-spacing:-.032em;max-width:17ch}
 .hero-lead{margin-top:20px;font-size:17px;color:var(--gray);max-width:56ch}
-.hero-aside{border-left:2px solid var(--orange);padding-left:20px}
-.hero-aside p{font-size:14.5px;color:var(--gray)}
-.hero-aside .btn{margin-top:16px}
+.hero-media{border-radius:14px;overflow:hidden;box-shadow:0 18px 40px -18px rgb(35 38 41 / .35)}
+.hero-media img{display:block;width:100%;height:100%;object-fit:cover}
 
 /* ---- ЧАСТОТНАЯ ШКАЛА ---- */
 /* ---------- Волна над шкалой ---------- */
@@ -158,8 +159,11 @@ img{max-width:100%;display:block}
 
 /* ---------- КАТЕГОРИИ ---------- */
 .cats{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.cat{border:1px solid var(--line);border-radius:var(--r);padding:24px 24px 20px;background:#fff;display:flex;flex-direction:column;transition:border-color .15s}
+.cat{border:1px solid var(--line);border-radius:var(--r);padding:24px 24px 20px;background:#fff;display:flex;flex-direction:column;transition:border-color .15s;overflow:hidden}
 .cat:hover{border-color:var(--orange)}
+.cat-media{margin:-24px -24px 16px;height:200px;background:#fff;border-bottom:1px solid var(--line-2);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cat-media img{display:block;max-width:88%;max-height:88%;width:auto;height:auto;object-fit:contain}
+.cat-media--empty{color:var(--muted);background:var(--panel)}
 .cat-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
 .cat h3{font-size:19px}
 .cat-ico{color:var(--orange);flex:none}
@@ -231,13 +235,31 @@ td.price small{display:block;font-family:"IBM Plex Sans";font-weight:400;font-si
   cursor:pointer;padding:0;line-height:0;
   transition:background .15s;
 }
-.buy:hover{background:var(--orange-deep);color:#fff}
+.buy:hover,
+.buy:focus,
+.buy:active{background:var(--orange-deep);color:#fff}
 .buy svg{
   display:block;
   width:19px;height:19px;
   transform:translate(-1px,1px); /* компенсация смещённого центра фигуры */
 }
 .avail-row{margin-top:12px}
+
+/* ---------- О КОМПАНИИ ---------- */
+.about-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.about-card{
+  background:#fff;border-radius:var(--r);padding:24px 26px;
+}
+.about-card h3{
+  font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--gray-2);margin:0 0 14px;padding-left:11px;position:relative;
+}
+.about-card h3::before{
+  content:"";position:absolute;left:0;top:1px;bottom:1px;
+  width:3px;background:var(--orange);border-radius:2px;
+}
+.about-card p{font-size:14.5px;color:var(--gray);line-height:1.6}
+.about-card p b{color:var(--ink);font-weight:600}
 
 /* ---------- УСЛУГИ ---------- */
 .serv{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
@@ -282,6 +304,9 @@ td.price small{display:block;font-family:"IBM Plex Sans";font-weight:400;font-si
 .form small a{border-bottom:1px solid var(--line)}
 
 /* ---------- БЛОГ ---------- */
+.blog-meta{display:flex;flex-wrap:wrap;gap:18px;margin-top:14px}
+.blog-meta span{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--gray-2)}
+.blog-meta svg{flex:none;color:var(--muted)}
 .posts{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
 .post{display:flex;flex-direction:column}
 .post__img{
@@ -331,14 +356,11 @@ td.price small{display:block;font-family:"IBM Plex Sans";font-weight:400;font-si
   .trust .wrap{grid-template-columns:1fr 1fr;gap:28px}
   .posts{grid-template-columns:1fr}
   .serv{grid-template-columns:1fr}
-  .topbar,.nav,.search{display:none}
-  .header .wrap{height:68px;gap:12px}
-  .phone span{display:none}
-  .catbtn span{display:none}
 }
 @media(max-width:640px){
   .section{padding:52px 0}
   .cats,.grid4{grid-template-columns:1fr}
+  .about-cards{grid-template-columns:1fr}
   .bands{grid-template-columns:repeat(2,1fr)}
   .brands{grid-template-columns:repeat(2,1fr)}
   .s-head{flex-direction:column;align-items:flex-start;gap:14px}

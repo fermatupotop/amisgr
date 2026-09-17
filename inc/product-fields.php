@@ -68,6 +68,22 @@ function amis_product_data_panel() {
 				'description' => __( 'Показывается, когда товара нет на складе.', 'amis' ),
 			) );
 
+			woocommerce_wp_text_input( array(
+				'id'          => '_amis_promo_text',
+				'label'       => __( 'Акция: что дарим', 'amis' ),
+				'placeholder' => 'Опции PA, EMI, B40, AMK',
+				'desc_tip'    => true,
+				'description' => __( 'Короткий список того, что идёт бесплатно. Блок на странице появляется, только если заполнено и это, и дата ниже.', 'amis' ),
+			) );
+
+			woocommerce_wp_text_input( array(
+				'id'          => '_amis_promo_until',
+				'label'       => __( 'Акция действует до', 'amis' ),
+				'type'        => 'date',
+				'desc_tip'    => true,
+				'description' => __( 'После этой даты блок с акцией на странице сам перестанет показываться — не нужно потом убирать вручную.', 'amis' ),
+			) );
+
 			woocommerce_wp_checkbox( array(
 				'id'          => '_amis_demo_available',
 				'label'       => __( 'Доступен на тест', 'amis' ),
@@ -227,7 +243,7 @@ function amis_screens_field_render( $post_id ) {
  */
 function amis_save_product_fields( $post_id ) {
 
-	$text_fields = array( '_amis_gosreestr', '_amis_lead_time' );
+	$text_fields = array( '_amis_gosreestr', '_amis_lead_time', '_amis_promo_text' );
 
 	foreach ( $text_fields as $field ) {
 		$value = isset( $_POST[ $field ] ) ? sanitize_text_field( wp_unslash( $_POST[ $field ] ) ) : '';
@@ -237,6 +253,10 @@ function amis_save_product_fields( $post_id ) {
 	// Числовое поле сортировки.
 	$sort = isset( $_POST['_amis_sort_value'] ) ? wc_format_decimal( wp_unslash( $_POST['_amis_sort_value'] ) ) : '';
 	update_post_meta( $post_id, '_amis_sort_value', $sort );
+
+	// Дата окончания акции — input[type=date] отдаёт готовый Y-m-d, доверяем формату браузера.
+	$promo_until = isset( $_POST['_amis_promo_until'] ) ? sanitize_text_field( wp_unslash( $_POST['_amis_promo_until'] ) ) : '';
+	update_post_meta( $post_id, '_amis_promo_until', $promo_until );
 
 	// Чекбокс: при выключенном состоянии поле в $_POST вообще не приходит.
 	update_post_meta( $post_id, '_amis_demo_available', isset( $_POST['_amis_demo_available'] ) ? 'yes' : 'no' );

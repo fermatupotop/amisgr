@@ -11,5 +11,6 @@ node_modules/
 # Кэш и временные файлы
 cache/
 temp/
+tmp/
 Thumbs.db
 .DS_Store

@@ -14,23 +14,34 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Колонка CSV → слаг глобального атрибута (без префикса pa_).
+ * Колонка CSV → слаг глобального атрибута (без префикса pa_) + режим.
  * Дополнить массив — единственное, что нужно, если появятся новые
  * колонки/атрибуты для массового заполнения.
+ *
+ * 'strict' => true — термин должен уже существовать в таксономии,
+ * новый НЕ создаётся, несовпадение считается ошибкой. Нужно для
+ * атрибутов с фиксированным набором терминов, завязанных на что-то
+ * ещё в коде — сейчас это только 'frequency-range' (ровно 6 терминов,
+ * подписи шкалы в hero, README «Шаг 3»; opечатка в CSV создала бы
+ * 7-й «сиротский» термин, не подключённый к виджету шкалы).
+ * Для остальных полей — свободный текст, отсутствующий термин
+ * создаётся сам (это и есть основная причина существования инструмента).
  */
 function amis_attr_import_supported_fields() {
 	return array(
-		'bandwidth'   => 'bandwidth',
-		'channels'    => 'channels',
-		'sample-rate' => 'sample-rate',
-		'sample_rate' => 'sample-rate', // на случай, если в CSV подчёркивание вместо дефиса.
-		'memory'      => 'memory',
-		'series'      => 'series',
+		'bandwidth'       => array( 'attribute' => 'bandwidth', 'strict' => false ),
+		'channels'        => array( 'attribute' => 'channels', 'strict' => false ),
+		'sample-rate'     => array( 'attribute' => 'sample-rate', 'strict' => false ),
+		'sample_rate'     => array( 'attribute' => 'sample-rate', 'strict' => false ), // на случай, если в CSV подчёркивание вместо дефиса.
+		'memory'          => array( 'attribute' => 'memory', 'strict' => false ),
+		'series'          => array( 'attribute' => 'series', 'strict' => false ),
 		// Анализаторы спектра (inc/product-map.php, категория spectrum-analyzers).
-		'freq-range'  => 'freq-range',
-		'rbw'         => 'rbw',
-		'danl'        => 'danl',
-		'phase-noise' => 'phase-noise',
+		'freq-range'      => array( 'attribute' => 'freq-range', 'strict' => false ),
+		'rbw'             => array( 'attribute' => 'rbw', 'strict' => false ),
+		'danl'            => array( 'attribute' => 'danl', 'strict' => false ),
+		'phase-noise'     => array( 'attribute' => 'phase-noise', 'strict' => false ),
+		// Шкала на главной (README «Шаг 3») — строго один из 6 готовых терминов.
+		'frequency-range' => array( 'attribute' => 'frequency-range', 'strict' => true ),
 	);
 }
 
@@ -53,8 +64,9 @@ add_action( 'admin_menu', 'amis_attr_import_menu' );
 /**
  * Ставит одно значение глобального атрибута товару: находит термин по
  * названию в нужной таксономии (создаёт, если такого значения ещё не
- * было) и регистрирует таксономию в _product_attributes, иначе
- * WooCommerce не покажет атрибут как «включённый» на товаре.
+ * было и не включён строгий режим) и регистрирует таксономию в
+ * _product_attributes, иначе WooCommerce не покажет атрибут как
+ * «включённый» на товаре.
  *
  * Заменяет прежнее значение этого атрибута, а не добавляет к нему —
  * это характеристики-одиночки («Полоса: 100 МГц»), не список тегов.
@@ -62,9 +74,11 @@ add_action( 'admin_menu', 'amis_attr_import_menu' );
  * @param int    $product_id ID товара.
  * @param string $taxonomy   Например, 'pa_bandwidth'.
  * @param string $value      Значение, как в ячейке CSV.
- * @return bool
+ * @param bool   $strict     true — термин должен уже существовать,
+ *                           новый не создаётся (см. amis_attr_import_supported_fields()).
+ * @return bool|string true — успех, 'not_found' — строгий режим и термина нет, false — прочая ошибка.
  */
-function amis_attr_import_set_value( $product_id, $taxonomy, $value ) {
+function amis_attr_import_set_value( $product_id, $taxonomy, $value, $strict = false ) {
 
 	$value = trim( (string) $value );
 
@@ -75,6 +89,11 @@ function amis_attr_import_set_value( $product_id, $taxonomy, $value ) {
 	$term = get_term_by( 'name', $value, $taxonomy );
 
 	if ( ! $term ) {
+
+		if ( $strict ) {
+			return 'not_found';
+		}
+
 		$inserted = wp_insert_term( $value, $taxonomy );
 		if ( is_wp_error( $inserted ) ) {
 			return false;
@@ -164,17 +183,20 @@ function amis_attr_import_process( $tmp_path ) {
 	}
 
 	// Какие из поддерживаемых колонок реально есть в этом файле.
-	$field_cols = array(); // slug атрибута => номер колонки.
+	$field_cols = array(); // slug атрибута => ['col' => номер колонки, 'strict' => bool].
 
-	foreach ( amis_attr_import_supported_fields() as $col_name => $attr_slug ) {
+	foreach ( amis_attr_import_supported_fields() as $col_name => $config ) {
 		$idx = array_search( $col_name, $header, true );
 		if ( false !== $idx ) {
-			$field_cols[ $attr_slug ] = $idx;
+			$field_cols[ $config['attribute'] ] = array(
+				'col'    => $idx,
+				'strict' => $config['strict'],
+			);
 		}
 	}
 
 	if ( ! $field_cols ) {
-		$result['errors'][] = __( 'Не нашлось ни одной колонки из поддерживаемых: bandwidth, channels, sample-rate, memory, series, freq-range, rbw, danl, phase-noise.', 'amis' );
+		$result['errors'][] = __( 'Не нашлось ни одной колонки из поддерживаемых: bandwidth, channels, sample-rate, memory, series, freq-range, rbw, danl, phase-noise, frequency-range.', 'amis' );
 		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
 		return $result;
 	}
@@ -196,18 +218,27 @@ function amis_attr_import_process( $tmp_path ) {
 
 		$set_fields = array();
 
-		foreach ( $field_cols as $attr_slug => $col_idx ) {
+		foreach ( $field_cols as $attr_slug => $col ) {
 
-			$value = isset( $row[ $col_idx ] ) ? $row[ $col_idx ] : '';
+			$value = isset( $row[ $col['col'] ] ) ? $row[ $col['col'] ] : '';
+			$value = trim( (string) $value );
 
-			if ( '' === trim( (string) $value ) ) {
+			if ( '' === $value ) {
 				continue; // Пустая ячейка — не трогаем то, что уже стоит на товаре.
 			}
 
-			$ok = amis_attr_import_set_value( $product_id, 'pa_' . $attr_slug, $value );
+			$outcome = amis_attr_import_set_value( $product_id, 'pa_' . $attr_slug, $value, $col['strict'] );
 
-			if ( $ok ) {
-				$set_fields[] = $attr_slug . ': ' . trim( (string) $value );
+			if ( true === $outcome ) {
+				$set_fields[] = $attr_slug . ': ' . $value;
+			} elseif ( 'not_found' === $outcome ) {
+				$result['errors'][] = sprintf(
+					/* translators: 1: артикул, 2: слаг атрибута, 3: значение из CSV. */
+					__( '%1$s: для «%2$s» нет термина «%3$s» — строгий режим, новый не создан. Проверьте написание или заведите термин в Товары → Атрибуты сами.', 'amis' ),
+					$sku,
+					$attr_slug,
+					$value
+				);
 			}
 		}
 
@@ -266,7 +297,7 @@ function amis_attr_import_page() {
 		<h1><?php esc_html_e( 'Импорт характеристик по SKU', 'amis' ); ?></h1>
 
 		<p>
-			<?php esc_html_e( 'Загрузите CSV с колонкой «sku» и любыми из: bandwidth, channels, sample-rate (или sample_rate), memory, series, freq-range, rbw, danl, phase-noise. Заполняются только те колонки, что реально есть в файле, и только непустые ячейки — то, что уже стоит на товаре и не упомянуто в файле, не трогается. Значений, которых ещё не было среди терминов атрибута, — создаются автоматически.', 'amis' ); ?>
+			<?php esc_html_e( 'Загрузите CSV с колонкой «sku» и любыми из: bandwidth, channels, sample-rate (или sample_rate), memory, series, freq-range, rbw, danl, phase-noise, frequency-range. Заполняются только те колонки, что реально есть в файле, и только непустые ячейки — то, что уже стоит на товаре и не упомянуто в файле, не трогается. Значений, которых ещё не было среди терминов атрибута, — создаются автоматически, КРОМЕ frequency-range: там ровно 6 готовых терминов шкалы на главной, новый не создастся — при несовпадении строка попадёт в «Ошибки», проверьте написание.', 'amis' ); ?>
 		</p>
 
 		<form method="post" enctype="multipart/form-data">

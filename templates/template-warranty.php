@@ -29,7 +29,7 @@ get_header();
 		<span class="eyebrow"><?php esc_html_e( 'Гарантия и сервис', 'amis' ); ?></span>
 		<h1><?php the_title(); ?></h1>
 		<p class="page-lead">
-			<?php esc_html_e( 'ООО «АМИС ГРУПП» — гарантийный сервис по всем брендам каталога: RIGOL, Siglent, Keysight, Tektronix, АКИП и ПриСТ. Обеспечиваем гарантийную и постгарантийную поддержку всего поставленного оборудования.', 'amis' ); ?>
+			<?php esc_html_e( 'ООО «АМИС ГРУПП» — гарантийный сервис по всем брендам каталога: RIGOL, МигТрейдинг, R&S, Tektronix, Keysight, Ceyear и Emctestlab. Обеспечиваем гарантийную и постгарантийную поддержку всего поставленного оборудования.', 'amis' ); ?>
 		</p>
 	</div>
 </section>
@@ -222,7 +222,7 @@ get_header();
 				<ul class="cover-list cover-list--yes">
 					<?php
 					$why_service = array(
-						__( 'Работаем с оборудованием RIGOL, Siglent, Keysight, Tektronix, АКИП и ПриСТ', 'amis' ),
+						__( 'Работаем с оборудованием RIGOL, МигТрейдинг, R&S, Tektronix, Keysight, Ceyear и Emctestlab', 'amis' ),
 						__( 'Используем сертифицированные комплектующие производителей', 'amis' ),
 						__( 'Собственные стенды для диагностики и проверки характеристик', 'amis' ),
 						__( 'Называем срок ремонта сразу после диагностики, без ожидания «на потом»', 'amis' ),

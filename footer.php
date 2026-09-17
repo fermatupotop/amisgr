@@ -48,7 +48,7 @@ defined( 'ABSPATH' ) || exit;
 				</div>
 
 				<div class="f-actions">
-					<a class="f-btn f-btn--primary" href="<?php echo esc_url( home_url( '/documents/rekvizity.pdf' ) ); ?>" download>
+					<a class="f-btn f-btn--primary" href="<?php echo esc_url( home_url( '/wp-content/uploads/2026/09/rekvizity.pdf' ) ); ?>" download>
 						<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
 							<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
 							<polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
@@ -239,6 +239,30 @@ defined( 'ABSPATH' ) || exit;
 <div class="mobar">
 	<a href="tel:<?php echo esc_attr( amis_phone( 'free' )['href'] ); ?>"><?php esc_html_e( 'Позвонить', 'amis' ); ?></a>
 	<a href="<?php echo esc_url( home_url( '/contact/#write' ) ); ?>"><?php esc_html_e( 'Написать', 'amis' ); ?></a>
+</div>
+
+<?php
+/**
+ * Модалка «Запросить счёт» — единая для всего сайта, живёт в футере,
+ * открывается с любой страницы кнопкой с классом .js-quote-open (сейчас
+ * это кнопка «Запросить счёт» на странице товара, см.
+ * woocommerce/single-product.php). Своя форма, отдельная от той, что на
+ * /contact/#write ([contact-form-7 id="791225d"], там — общий «Запрос КП»
+ * с файлом/сообщением; тут — короткая, специально под запрос по товару:
+ * имя, контакт, компания, поле «Запрашиваемый товар» name="your-product",
+ * которое подставляет артикул assets/js/base.js).
+ */
+?>
+<div class="quote-modal" id="amis-quote-modal" aria-hidden="true">
+	<div class="quote-modal__backdrop" data-quote-close></div>
+	<div class="quote-modal__box" role="dialog" aria-modal="true" aria-labelledby="amis-quote-title">
+		<button type="button" class="quote-modal__close" data-quote-close aria-label="<?php esc_attr_e( 'Закрыть', 'amis' ); ?>">
+			<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+		</button>
+		<h2 id="amis-quote-title"><?php esc_html_e( 'Запросить счёт', 'amis' ); ?></h2>
+		<p class="form-lead"><?php esc_html_e( 'Оставьте контакты — менеджер свяжется в тот же рабочий день.', 'amis' ); ?></p>
+		<?php echo do_shortcode( '[contact-form-7 id="367ce20" title="Запрос товара"]' ); ?>
+	</div>
 </div>
 
 <div class="cookie-notice" id="amis-cookie-notice" role="region" aria-label="<?php esc_attr_e( 'Уведомление о cookie', 'amis' ); ?>">

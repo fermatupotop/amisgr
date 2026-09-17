@@ -30,14 +30,8 @@ get_header();
 					закрыть требования входного контроля.
 				</p>
 			</div>
-			<div class="hero-aside">
-				<p>
-					Нужной модели нет в наличии или сроки не устраивают? Подберём аналог
-					с сопоставимыми параметрами и назовём реальный срок поставки.
-				</p>
-				<a class="btn btn-ghost" href="#contact">
-					Прислать спецификацию
-				</a>
+			<div class="hero-media">
+				<img src="<?php echo esc_url( AMIS_URI . '/assets/img/hero-oscilloscope.webp' ); ?>" alt="<?php esc_attr_e( 'Цифровой осциллограф на столе лаборатории', 'amis' ); ?>">
 			</div>
 		</div>
 	</div>
@@ -84,6 +78,38 @@ get_header();
 	</div>
 </section>
 
+<!-- ===== О КОМПАНИИ ===== -->
+<section class="section section--panel">
+	<div class="wrap">
+		<div class="s-head">
+			<div>
+				<h2>Надёжный поставщик измерительного оборудования</h2>
+				<p>Официальный дилер RIGOL — нашего основного бренда — в России с 2022 года. От заявки до отгрузки со склада в Москве.</p>
+			</div>
+			<a class="s-link" href="<?php echo esc_url( home_url( '/about/' ) ); ?>">Подробнее о компании</a>
+		</div>
+
+		<div class="about-cards">
+			<div class="about-card">
+				<h3>О компании</h3>
+				<p>Официальный дилер RIGOL в России с 2022 года — нашего основного бренда. Также поставляем МигТрейдинг, R&S, Tektronix, Keysight, Ceyear и Emctestlab: оборудование с заводской гарантией, официальной документацией и поддержкой по всей стране.</p>
+			</div>
+			<div class="about-card">
+				<h3>Склад и доставка</h3>
+				<p>Склад в Москве — отгружаем складские позиции в течение 24 часов после оплаты. Работаем по 44-ФЗ и 223-ФЗ, безналичный расчёт для юридических лиц.</p>
+			</div>
+			<div class="about-card">
+				<h3>Руководство</h3>
+				<p>
+					Компанию возглавляет генеральный директор —
+					<b><?php echo esc_html( amis_company_details()['Генеральный директор'] ); ?></b>.
+					Полные реквизиты — на странице «О компании».
+				</p>
+			</div>
+		</div>
+	</div>
+</section>
+
 <!-- ===== КАТЕГОРИИ ===== -->
 <section class="section">
 	<div class="wrap">
@@ -102,6 +128,38 @@ get_header();
 		<div class="cats">
 			<?php foreach ( amis_get_top_categories( 6 ) as $cat ) : ?>
 				<a class="cat" href="<?php echo esc_url( get_term_link( $cat ) ); ?>">
+					<?php
+					/**
+					 * Штатное поле WooCommerce «Изображение» у категории
+					 * (Товары → Категории → thumbnail_id) — пользователь уже
+					 * загрузил реальные фото приборов по каждой категории.
+					 */
+					$cat_thumb_id = get_term_meta( $cat->term_id, 'thumbnail_id', true );
+					?>
+					<?php if ( $cat_thumb_id ) : ?>
+						<div class="cat-media">
+							<?php echo wp_get_attachment_image( $cat_thumb_id, 'medium', false, array( 'alt' => esc_attr( $cat->name ) ) ); ?>
+						</div>
+					<?php else : ?>
+						<?php
+						/**
+						 * Пока фото загружены не для всех категорий — без
+						 * заглушки той же высоты карточки без фото «проваливались»
+						 * вверх и сетка выглядела неровной рядом с карточками
+						 * с фото. Как только фото загрузят для всех — эта
+						 * ветка перестанет использоваться сама по себе.
+						 */
+						?>
+						<div class="cat-media cat-media--empty" aria-hidden="true">
+							<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+								<rect x="3" y="5" width="18" height="12" rx="1.5"/>
+								<path d="M7 12l2.5-3 2.5 2 2-4 3 5"/>
+								<circle cx="6.5" cy="20" r=".9" fill="currentColor" stroke="none"/>
+								<circle cx="17.5" cy="20" r=".9" fill="currentColor" stroke="none"/>
+							</svg>
+						</div>
+					<?php endif; ?>
+
 					<div class="cat-top">
 						<h3><?php echo esc_html( $cat->name ); ?></h3>
 					</div>
@@ -121,17 +179,16 @@ get_header();
 					$values = array_filter( explode( '|', (string) get_term_meta( $cat->term_id, 'amis_spec_value', true ) ) );
 
 					/**
-					 * Для части категорий первое значение можно посчитать по
-					 * факту (amis_category_sort_range(), inc/queries.php) —
-					 * реальный диапазон _amis_sort_value среди товаров,
-					 * вместо текста, вписанного руками и стареющего по мере
-					 * пополнения каталога (см. случай с «214 на складе»).
-					 * Если для категории такого счёта нет — остаётся ручной
-					 * текст термина, как раньше.
+					 * Для части категорий отдельные пары можно посчитать по
+					 * факту (amis_category_sort_ranges(), inc/queries.php) —
+					 * реальный диапазон по атрибутам товаров, вместо текста,
+					 * вписанного руками и стареющего по мере пополнения
+					 * каталога (см. случай с «214 на складе»). Каждый индекс
+					 * подменяется независимо; чего нет в настройке или не
+					 * нашлось — остаётся ручной текст термина, как раньше.
 					 */
-					$computed_range = amis_category_sort_range( $cat );
-					if ( $computed_range ) {
-						$values[0] = $computed_range;
+					foreach ( amis_category_sort_ranges( $cat ) as $index => $computed_range ) {
+						$values[ $index ] = $computed_range;
 					}
 					?>
 
@@ -358,6 +415,29 @@ $posts_query = new WP_Query( array(
 			<div>
 				<h2>База знаний</h2>
 				<p>Пишем о том, что реально спрашивают в переписке.</p>
+
+				<?php $updated = amis_latest_post_update_date(); ?>
+				<div class="blog-meta">
+					<span>
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+						<?php
+						printf(
+							/* translators: %d — число публикаций. */
+							esc_html( _n( '%d публикация', '%d публикаций', wp_count_posts( 'post' )->publish, 'amis' ) ),
+							(int) wp_count_posts( 'post' )->publish
+						);
+						?>
+					</span>
+					<?php if ( $updated ) : ?>
+						<span>
+							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+							<?php
+							/* translators: %s — дата последнего обновления. */
+							printf( esc_html__( 'Обновлено: %s', 'amis' ), esc_html( $updated ) );
+							?>
+						</span>
+					<?php endif; ?>
+				</div>
 			</div>
 			<a class="s-link" href="<?php echo esc_url( get_permalink( get_option( 'page_for_posts' ) ) ); ?>">Все материалы</a>
 		</div>

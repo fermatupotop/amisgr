@@ -28,13 +28,14 @@ $paged         = max( 1, (int) get_query_var( 'paged' ) );
 $in_stock_only = ! empty( $_GET['instock'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- обычный GET-фильтр витрины, без сохранения состояния.
 $current_brand = isset( $_GET['brand'] ) ? sanitize_title( wp_unslash( $_GET['brand'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $current_series = isset( $_GET['series'] ) ? sanitize_title( wp_unslash( $_GET['series'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+$current_freq   = isset( $_GET['filter_frequency-range'] ) ? sanitize_title( wp_unslash( $_GET['filter_frequency-range'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- шкала с главной, см. amis_shop_facet_filter()
 
 /**
  * Ссылка с учётом состояния ВСЕХ активных фильтров сразу — используется
  * в ссылках категорий/бренда/серии, чтобы переключение одного фильтра
  * не сбрасывало остальные уже выбранные.
  */
-$with_filters = function ( $url ) use ( $in_stock_only, $current_brand, $current_series ) {
+$with_filters = function ( $url ) use ( $in_stock_only, $current_brand, $current_series, $current_freq ) {
 	if ( $in_stock_only ) {
 		$url = add_query_arg( 'instock', '1', $url );
 	}
@@ -43,6 +44,9 @@ $with_filters = function ( $url ) use ( $in_stock_only, $current_brand, $current
 	}
 	if ( $current_series ) {
 		$url = add_query_arg( 'series', $current_series, $url );
+	}
+	if ( $current_freq ) {
+		$url = add_query_arg( 'filter_frequency-range', $current_freq, $url );
 	}
 	return $url;
 };
@@ -86,7 +90,7 @@ $series_terms  = $show_facets ? amis_get_archive_facet_terms( 'pa_series' ) : ar
 			<p class="page-lead"><?php echo wp_kses_post( $queried_term->description ); ?></p>
 		<?php elseif ( ! $queried_term ) : ?>
 			<p class="page-lead">
-				<?php esc_html_e( 'Осциллографы, генераторы, анализаторы и лабораторные приборы RIGOL, Siglent, Keysight, Tektronix, АКИП, ПриСТ — в наличии и под заказ.', 'amis' ); ?>
+				<?php esc_html_e( 'Осциллографы, генераторы, анализаторы и лабораторные приборы RIGOL, МигТрейдинг, R&S, Tektronix, Keysight, Ceyear, Emctestlab — в наличии и под заказ.', 'amis' ); ?>
 			</p>
 		<?php endif; ?>
 
@@ -121,12 +125,18 @@ $series_terms  = $show_facets ? amis_get_archive_facet_terms( 'pa_series' ) : ar
 			 * $overrides задаёт, что поставить/убрать в ЭТОМ ряду фильтров
 			 * (пустая строка — убрать), остальные (instock) добавляются как есть.
 			 */
-			$build_facet_url = function ( $overrides ) use ( $base_url, $in_stock_only ) {
+			$build_facet_url = function ( $overrides ) use ( $base_url, $in_stock_only, $current_freq ) {
 				$url = $base_url;
 				foreach ( $overrides as $key => $value ) {
 					$url = '' === $value ? remove_query_arg( $key, $url ) : add_query_arg( $key, $value, $url );
 				}
-				return $in_stock_only ? add_query_arg( 'instock', '1', $url ) : $url;
+				if ( $in_stock_only ) {
+					$url = add_query_arg( 'instock', '1', $url );
+				}
+				if ( $current_freq ) {
+					$url = add_query_arg( 'filter_frequency-range', $current_freq, $url );
+				}
+				return $url;
 			};
 			?>
 
@@ -164,7 +174,7 @@ $series_terms  = $show_facets ? amis_get_archive_facet_terms( 'pa_series' ) : ar
 				</div>
 			<?php endif; ?>
 
-			<?php if ( $in_stock_only || $current_brand || $current_series ) : ?>
+			<?php if ( $in_stock_only || $current_brand || $current_series || $current_freq ) : ?>
 				<a class="shop-reset" href="<?php echo esc_url( $base_url ); ?>">
 					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
 					<?php esc_html_e( 'Сбросить все фильтры', 'amis' ); ?>

@@ -225,7 +225,41 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 						echo esc_html( ', ' . $lead_time );
 					}
 					?>
+					<?php if ( $product->is_in_stock() && null !== $product->get_stock_quantity() ) : ?>
+						<span class="stock-updated">
+							<?php
+							/* translators: %s — дата последнего изменения остатка. */
+							printf( esc_html__( 'обновлено %s', 'amis' ), esc_html( get_the_modified_date( 'd.m.Y', $product->get_id() ) ) );
+							?>
+						</span>
+					<?php endif; ?>
 				</div>
+
+				<?php
+				/**
+				 * Акция «опции в подарок» — показываем, только если заполнены
+				 * и текст, и дата, и дата ещё не прошла. Так просроченная
+				 * акция сама пропадает со страницы, не нужно чистить вручную.
+				 */
+				$promo_text  = get_post_meta( $product->get_id(), '_amis_promo_text', true );
+				$promo_until = get_post_meta( $product->get_id(), '_amis_promo_until', true );
+				$promo_valid = $promo_text && $promo_until && strtotime( $promo_until ) >= strtotime( 'today' );
+				?>
+				<?php if ( $promo_valid ) : ?>
+					<div class="promo">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 12v9H4v-9M2 7h20v5H2V7zM12 22V7M12 7C10.5 3 7 3 6 5s1 4 6 2M12 7c1.5-4 5-4 6-2s-1 4-6 2"/></svg>
+						<span>
+							<?php
+							printf(
+								/* translators: 1: что дарим, 2: дата окончания. */
+								esc_html__( '%1$s — бесплатно до %2$s', 'amis' ),
+								esc_html( $promo_text ),
+								esc_html( date_i18n( 'd.m.Y', strtotime( $promo_until ) ) )
+							);
+							?>
+						</span>
+					</div>
+				<?php endif; ?>
 			</div>
 
 			<div class="buy-acts">
@@ -236,9 +270,17 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 					woocommerce_template_single_add_to_cart();
 				}
 				?>
-				<a class="btn btn-ghost btn-block" href="<?php echo esc_url( home_url( '/request/?sku=' . rawurlencode( $product->get_sku() ) ) ); ?>">
+				<?php
+				/**
+				 * Открывает модалку с той же формой, что и на /contact/#write
+				 * ([contact-form-7 id="791225d"], разметка модалки — footer.php,
+				 * она одна на весь сайт). Артикул передаём атрибутом
+				 * data-sku, base.js подставляет его в поле формы при открытии.
+				 */
+				?>
+				<button type="button" class="btn btn-ghost btn-block js-quote-open" data-sku="<?php echo esc_attr( $product->get_sku() ); ?>">
 					<?php esc_html_e( 'Запросить счёт', 'amis' ); ?>
-				</a>
+				</button>
 				<?php if ( 'yes' === get_post_meta( $product_id, '_amis_demo_available', true ) ) : ?>
 					<a class="btn btn-ghost btn-block" href="<?php echo esc_url( home_url( '/demo/' ) ); ?>">
 						<?php esc_html_e( 'Взять на тест на 14 дней', 'amis' ); ?>

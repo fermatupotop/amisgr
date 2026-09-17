@@ -78,7 +78,9 @@
   cursor:pointer;padding:0;line-height:0;
   transition:background .15s;
 }
-.buy:hover{background:var(--orange-deep);color:#fff}
+.buy:hover,
+.buy:focus,
+.buy:active{background:var(--orange-deep);color:#fff}
 .buy svg{display:block;width:19px;height:19px;transform:translate(-1px,1px)}
 .avail-row{margin-top:12px}
 

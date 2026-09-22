@@ -147,8 +147,15 @@ body.lightbox-open{overflow:hidden}
 .buy-list div{display:flex;gap:11px;align-items:flex-start}
 .buy-list svg{color:var(--orange);flex:none;margin-top:4px}
 .mgr{border-top:1px solid var(--line-2);background:var(--panel);padding:20px 24px;display:flex;gap:14px;align-items:center}
-.mgr-ava{width:46px;height:46px;border-radius:50%;background:var(--graphite);color:#fff;display:grid;place-items:center;
-  font-weight:600;flex:none}
+/*
+ * Не через display:grid/place-items — тот же приём Astra ломает центровку
+ * (см. «Грабли с Astra» в CLAUDE.md, там же .c-ico). Текст здесь без
+ * обёртки, поэтому не абсолютным позиционированием, а простым
+ * line-height = высоте круга + text-align:center — центрирование одной
+ * строки текста, не зависящее от display вообще.
+ */
+.mgr-ava{width:46px;height:46px;border-radius:50%;background:var(--graphite);color:#fff;
+  line-height:46px;text-align:center;font-weight:600;flex:none}
 .mgr b{display:block;font-size:14.5px}
 .mgr span{display:block;font-size:13px;color:var(--gray-2)}
 .mgr a{display:block;font-size:14px;color:var(--orange);margin-top:3px}

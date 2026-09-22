@@ -28,7 +28,16 @@ $paged         = max( 1, (int) get_query_var( 'paged' ) );
 $in_stock_only = ! empty( $_GET['instock'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- обычный GET-фильтр витрины, без сохранения состояния.
 $current_brand = isset( $_GET['brand'] ) ? sanitize_title( wp_unslash( $_GET['brand'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $current_series = isset( $_GET['series'] ) ? sanitize_title( wp_unslash( $_GET['series'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-$current_freq   = isset( $_GET['filter_frequency-range'] ) ? sanitize_title( wp_unslash( $_GET['filter_frequency-range'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- шкала с главной, см. amis_shop_facet_filter()
+/**
+ * Не прогоняем через sanitize_title() здесь: термины диапазона — на
+ * кириллице, а слаг в БД хранится в процентно-закодированном виде.
+ * sanitize_title() пытается закодировать обратно, но это хрупко (см.
+ * разбор в amis_shop_facet_filter(), inc/queries.php) — здесь значение
+ * только переносится дальше в ссылки других фильтров, фактическое
+ * сопоставление с термином (с запасным вариантом на сыром значении)
+ * происходит там же, в amis_shop_facet_filter().
+ */
+$current_freq   = isset( $_GET['filter_frequency-range'] ) ? wp_unslash( $_GET['filter_frequency-range'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- шкала с главной, см. amis_shop_facet_filter()
 
 /**
  * Ссылка с учётом состояния ВСЕХ активных фильтров сразу — используется

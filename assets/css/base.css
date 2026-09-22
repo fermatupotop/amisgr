@@ -138,7 +138,7 @@ img{max-width:100%;display:block}
 .header{position:sticky;top:0;z-index:60;background:#fff;border-bottom:1px solid var(--line)}
 .header .wrap{display:flex;align-items:center;gap:22px;height:82px}
 .logo{display:flex;align-items:center;flex:none}
-.logo img{height:40px;width:auto;display:block}
+.logo img{height:48px;width:auto;display:block}
 .catbtn{display:flex;align-items:center;gap:10px;height:48px;padding:0 20px;background:var(--ink);color:#fff;border-radius:var(--r);font-weight:500;font-size:15px}
 .catbtn:hover,
 .catbtn:focus,
@@ -499,6 +499,16 @@ img{max-width:100%;display:block}
    * а корзина — ссылкой .nav-cart в мобильном меню (см. header.php).
    */
   .phone,.hd-r .ico{display:none}
+
+  /*
+   * .crumbs .wrap{height:46px} рассчитан на одну строку. На мобильном
+   * длинная цепочка крошек (категория/бренд/серия/название товара) не
+   * помещается в одну строку и переносится (flex-wrap:wrap) — фиксированная
+   * высота при этом не растёт, вторая строка оказывается сжата без
+   * отступов сверху/снизу. Меняем на auto-высоту с вертикальным padding.
+   */
+  .crumbs .wrap{height:auto;padding-top:10px;padding-bottom:10px;row-gap:4px}
+
   .mobar{
     display:grid;
     grid-template-columns:1fr 1fr;

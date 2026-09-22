@@ -211,3 +211,76 @@ function amis_canonical_strip_shop_filters( $canonical ) {
 }
 add_filter( 'wpseo_canonical', 'amis_canonical_strip_shop_filters' );
 add_filter( 'get_canonical_url', 'amis_canonical_strip_shop_filters' );
+
+/**
+ * Номер текущей страницы пагинации каталога/категории — 0 для первой.
+ * Косметика для 2-й и далее страниц: сами они уже noindex (см. выше),
+ * поэтому дублирующийся title/description там не вредит выдаче — это
+ * только для вкладки браузера и превью при прямой ссылке на /page/2/.
+ *
+ * @return int
+ */
+function amis_shop_paged_number() {
+
+	if ( ! function_exists( 'is_shop' ) || ! ( is_shop() || is_product_taxonomy() ) ) {
+		return 0;
+	}
+
+	$paged = max( (int) get_query_var( 'paged' ), (int) get_query_var( 'page' ) );
+
+	return $paged > 1 ? $paged : 0;
+}
+
+/**
+ * Title: «Осциллографы — купить в России — страница 3 | АМИС ГРУПП».
+ * Вставляем номер страницы перед разделителем бренда/УТП шаблона Yoast
+ * (см. маску в SEO → Search Appearance → Taxonomies), а не просто
+ * приписываем в конец — иначе «АМИС ГРУПП» оказалось бы посередине.
+ *
+ * @param string $title Заголовок от Yoast.
+ * @return string
+ */
+function amis_shop_paged_title( $title ) {
+
+	$paged = amis_shop_paged_number();
+
+	if ( ! $paged || ! $title ) {
+		return $title;
+	}
+
+	if ( false !== mb_stripos( $title, 'страница ' . $paged ) ) {
+		return $title; // Номер уже есть — например, из %%page%% в самом шаблоне.
+	}
+
+	$suffix = ' — страница ' . $paged;
+
+	foreach ( array( ' | ', ' — купить', ' — серия' ) as $sep ) {
+		$pos = mb_strpos( $title, $sep );
+		if ( false !== $pos ) {
+			return mb_substr( $title, 0, $pos ) . $suffix . mb_substr( $title, $pos );
+		}
+	}
+
+	return $title . $suffix;
+}
+add_filter( 'wpseo_title', 'amis_shop_paged_title', 20 );
+add_filter( 'wpseo_opengraph_title', 'amis_shop_paged_title', 20 );
+
+/**
+ * Description: номер страницы в начале.
+ *
+ * @param string $desc Описание от Yoast.
+ * @return string
+ */
+function amis_shop_paged_description( $desc ) {
+
+	$paged = amis_shop_paged_number();
+
+	if ( ! $paged || ! $desc ) {
+		return $desc;
+	}
+
+	return 'Страница ' . $paged . '. ' . $desc;
+}
+add_filter( 'wpseo_metadesc', 'amis_shop_paged_description', 20 );
+add_filter( 'wpseo_opengraph_desc', 'amis_shop_paged_description', 20 );

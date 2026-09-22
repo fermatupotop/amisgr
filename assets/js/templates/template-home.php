@@ -30,8 +30,14 @@ get_header();
 					закрыть требования входного контроля.
 				</p>
 			</div>
-			<div class="hero-media">
-				<img src="<?php echo esc_url( AMIS_URI . '/assets/img/hero-oscilloscope.webp' ); ?>" alt="<?php esc_attr_e( 'Цифровой осциллограф на столе лаборатории', 'amis' ); ?>">
+			<div class="hero-aside">
+				<p>
+					Нужно сначала попробовать? Отправим прибор в вашу лабораторию на две недели,
+					чтобы вы проверили его на реальных сигналах до покупки.
+				</p>
+				<a class="btn btn-ghost" href="<?php echo esc_url( home_url( '/demo/' ) ); ?>">
+					Заказать прибор на тест
+				</a>
 			</div>
 		</div>
 	</div>
@@ -53,15 +59,7 @@ get_header();
 	<div class="wrap">
 		<div>
 			<b><?php echo esc_html( wp_count_posts( 'product' )->publish ); ?></b>
-			<span>
-				<?php
-				printf(
-					/* translators: %d — количество товаров в наличии. */
-					esc_html__( 'приборов в каталоге, из них %d на складе', 'amis' ),
-					(int) amis_count_instock_products()
-				);
-				?>
-			</span>
+			<span>приборов в каталоге, из них 214 на складе</span>
 		</div>
 		<div>
 			<b>24 ч</b>
@@ -78,44 +76,12 @@ get_header();
 	</div>
 </section>
 
-<!-- ===== О КОМПАНИИ ===== -->
-<section class="section section--panel">
-	<div class="wrap">
-		<div class="s-head">
-			<div>
-				<h2>Надёжный поставщик измерительного оборудования</h2>
-				<p>Официальный дилер RIGOL — нашего основного бренда — в России с 2022 года. От заявки до отгрузки со склада в Москве.</p>
-			</div>
-			<a class="s-link" href="<?php echo esc_url( home_url( '/about/' ) ); ?>">Подробнее о компании</a>
-		</div>
-
-		<div class="about-cards">
-			<div class="about-card">
-				<h3>О компании</h3>
-				<p>Официальный дилер RIGOL в России с 2022 года — нашего основного бренда. Также поставляем МигТрейдинг, R&S, Tektronix, Keysight, Ceyear и Emctestlab: оборудование с заводской гарантией, официальной документацией и поддержкой по всей стране.</p>
-			</div>
-			<div class="about-card">
-				<h3>Склад и доставка</h3>
-				<p>Склад в Москве — отгружаем складские позиции в течение 24 часов после оплаты. Работаем по 44-ФЗ и 223-ФЗ, безналичный расчёт для юридических лиц.</p>
-			</div>
-			<div class="about-card">
-				<h3>Руководство</h3>
-				<p>
-					Компанию возглавляет генеральный директор —
-					<b><?php echo esc_html( amis_company_details()['Генеральный директор'] ); ?></b>.
-					Полные реквизиты — на странице «О компании».
-				</p>
-			</div>
-		</div>
-	</div>
-</section>
-
 <!-- ===== КАТЕГОРИИ ===== -->
 <section class="section">
 	<div class="wrap">
 		<div class="s-head">
 			<div>
-				<h2>Девять направлений каталога</h2>
+				<h2>Шесть направлений каталога</h2>
 				<p>
 					Под каждой категорией — ключевой параметр, по которому её обычно выбирают.
 					Фильтры в каталоге настроены на те же характеристики.
@@ -126,40 +92,8 @@ get_header();
 </div>
 		<div class="wrap wrap--wide">
 		<div class="cats">
-			<?php foreach ( amis_get_top_categories( 9 ) as $cat ) : ?>
+			<?php foreach ( amis_get_top_categories( 6 ) as $cat ) : ?>
 				<a class="cat" href="<?php echo esc_url( get_term_link( $cat ) ); ?>">
-					<?php
-					/**
-					 * Штатное поле WooCommerce «Изображение» у категории
-					 * (Товары → Категории → thumbnail_id) — пользователь уже
-					 * загрузил реальные фото приборов по каждой категории.
-					 */
-					$cat_thumb_id = get_term_meta( $cat->term_id, 'thumbnail_id', true );
-					?>
-					<?php if ( $cat_thumb_id ) : ?>
-						<div class="cat-media">
-							<?php echo wp_get_attachment_image( $cat_thumb_id, 'medium', false, array( 'alt' => esc_attr( $cat->name ) ) ); ?>
-						</div>
-					<?php else : ?>
-						<?php
-						/**
-						 * Пока фото загружены не для всех категорий — без
-						 * заглушки той же высоты карточки без фото «проваливались»
-						 * вверх и сетка выглядела неровной рядом с карточками
-						 * с фото. Как только фото загрузят для всех — эта
-						 * ветка перестанет использоваться сама по себе.
-						 */
-						?>
-						<div class="cat-media cat-media--empty" aria-hidden="true">
-							<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-								<rect x="3" y="5" width="18" height="12" rx="1.5"/>
-								<path d="M7 12l2.5-3 2.5 2 2-4 3 5"/>
-								<circle cx="6.5" cy="20" r=".9" fill="currentColor" stroke="none"/>
-								<circle cx="17.5" cy="20" r=".9" fill="currentColor" stroke="none"/>
-							</svg>
-						</div>
-					<?php endif; ?>
-
 					<div class="cat-top">
 						<h3><?php echo esc_html( $cat->name ); ?></h3>
 					</div>
@@ -177,19 +111,6 @@ get_header();
 					 */
 					$labels = array_filter( explode( '|', (string) get_term_meta( $cat->term_id, 'amis_spec_label', true ) ) );
 					$values = array_filter( explode( '|', (string) get_term_meta( $cat->term_id, 'amis_spec_value', true ) ) );
-
-					/**
-					 * Для части категорий отдельные пары можно посчитать по
-					 * факту (amis_category_sort_ranges(), inc/queries.php) —
-					 * реальный диапазон по атрибутам товаров, вместо текста,
-					 * вписанного руками и стареющего по мере пополнения
-					 * каталога (см. случай с «214 на складе»). Каждый индекс
-					 * подменяется независимо; чего нет в настройке или не
-					 * нашлось — остаётся ручной текст термина, как раньше.
-					 */
-					foreach ( amis_category_sort_ranges( $cat ) as $index => $computed_range ) {
-						$values[ $index ] = $computed_range;
-					}
 					?>
 
 					<?php if ( $labels ) : ?>
@@ -322,7 +243,7 @@ get_header();
 		<div class="s-head">
 			<div>
 				<h2>Не только продаём</h2>
-				<p>Четыре сервиса вокруг прибора — от теста до ремонта через годы работы.</p>
+				<p>Четыре сервиса вокруг прибора — от теста до утилизации старого парка.</p>
 			</div>
 		</div>
 
@@ -330,9 +251,9 @@ get_header();
 			<?php
 			$services = array(
 				array( 'Прибор на тест', 'Отправляем демо-образец в вашу лабораторию на 14 дней. Доставка за наш счёт.', '/demo/', 'Оставить заявку на демо' ),
-				array( 'Поверка и калибровка', 'Первичная поверка в аккредитованном ЦСМ входит в стоимость поставки. Периодическую организуем по тем же приборам.', '/verification/', 'Как проходит поверка' ),
+				array( 'Поверка и калибровка', 'Первичная поверка в аккредитованном ЦСМ входит в стоимость. Ведём график МПИ по вашему парку.', '/verification/', 'Как проходит поверка' ),
 				array( 'Аренда на проект', 'Сдаём в аренду от недели, арендные платежи засчитываем при выкупе.', '/rent/', 'Условия аренды' ),
-				array( 'Гарантия и ремонт', 'Три года гарантии на оборудование, год на аксессуары. Свой сервис на Алтуфьевском шоссе, ремонтируем и после гарантии.', '/warranty/', 'Условия гарантии' ),
+				array( 'Trade-in старого парка', 'Оцениваем ваши приборы и засчитываем их стоимость в счёт новых.', '/trade-in/', 'Оценить приборы' ),
 			);
 
 			foreach ( $services as $i => $s ) :
@@ -358,7 +279,7 @@ get_header();
 		</div>
 		<div class="brands">
 			<?php
-			$brands = array('МигТрейдинг', 'RIGOL', 'R&S', 'Emctestlab', 'Keysight', 'Tektronix', 'Ceyear' );
+			$brands = array( 'АКИП', 'ПриСТ', 'RIGOL', 'SIGLENT', 'GW Instek', 'Keysight', 'Tektronix' );
 
 			foreach ( $brands as $brand ) :
 				?>
@@ -378,10 +299,8 @@ get_header();
 				с ценами, сроками и обоснованием. Обычно отвечаем в тот же рабочий день.
 			</p>
 			<p style="margin-top:26px">
-				<?php echo amis_phone_link( 'free', 'f-phone' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
-				<a href="mailto:<?php echo esc_attr( amis_company_email() ); ?>" style="color:var(--gray)">
-					<?php echo esc_html( amis_company_email() ); ?>
-				</a>
+				<a class="f-phone" href="tel:+74957700497" style="color:var(--ink);font-size:26px">+7 (495) 770-04-97</a>
+				<a href="mailto:info@amisgr.ru" style="color:var(--gray)">info@amisgr.ru</a>
 			</p>
 		</div>
 
@@ -415,29 +334,6 @@ $posts_query = new WP_Query( array(
 			<div>
 				<h2>База знаний</h2>
 				<p>Пишем о том, что реально спрашивают в переписке.</p>
-
-				<?php $updated = amis_latest_post_update_date(); ?>
-				<div class="blog-meta">
-					<span>
-						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-						<?php
-						printf(
-							/* translators: %d — число публикаций. */
-							esc_html( _n( '%d публикация', '%d публикаций', wp_count_posts( 'post' )->publish, 'amis' ) ),
-							(int) wp_count_posts( 'post' )->publish
-						);
-						?>
-					</span>
-					<?php if ( $updated ) : ?>
-						<span>
-							<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-							<?php
-							/* translators: %s — дата последнего обновления. */
-							printf( esc_html__( 'Обновлено: %s', 'amis' ), esc_html( $updated ) );
-							?>
-						</span>
-					<?php endif; ?>
-				</div>
 			</div>
 			<a class="s-link" href="<?php echo esc_url( get_permalink( get_option( 'page_for_posts' ) ) ); ?>">Все материалы</a>
 		</div>
@@ -446,15 +342,6 @@ $posts_query = new WP_Query( array(
 			<?php while ( $posts_query->have_posts() ) : ?>
 				<?php $posts_query->the_post(); ?>
 				<a class="post" href="<?php the_permalink(); ?>">
-					<div class="post__img<?php echo has_post_thumbnail() ? '' : ' post__img--empty'; ?>">
-						<?php if ( has_post_thumbnail() ) : ?>
-							<?php the_post_thumbnail( 'medium_large' ); ?>
-						<?php else : ?>
-							<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-								<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/>
-							</svg>
-						<?php endif; ?>
-					</div>
 					<div class="meta"><?php echo esc_html( get_the_date( 'd.m.Y' ) ); ?></div>
 					<h3><?php the_title(); ?></h3>
 					<p><?php echo esc_html( get_the_excerpt() ); ?></p>

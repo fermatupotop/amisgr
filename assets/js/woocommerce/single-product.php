@@ -30,80 +30,22 @@ $product_id = $product->get_id();
 // Собственные поля.
 $gosreestr = get_post_meta( $product_id, '_amis_gosreestr', true );
 $lead_time = get_post_meta( $product_id, '_amis_lead_time', true );
+$kit       = amis_parse_lines( get_post_meta( $product_id, '_amis_kit', true ) );
+$docs      = amis_parse_lines( get_post_meta( $product_id, '_amis_docs', true ) );
 $long_text = get_post_meta( $product_id, '_amis_long_text', true );
 
 // Характеристики.
 $key_specs = amis_key_specs( $product );
 $groups    = amis_grouped_specs( $product );
-
-// Скриншоты и фото экрана.
-$screen_ids = amis_get_product_screens( $product_id );
-
-// Пробники и аксессуары.
-$accessory_groups = amis_get_product_accessories( $product_id );
-
-// Обратная связь: если этот товар сам — чей-то пробник/аксессуар.
-$compatible_with = amis_get_compatible_instruments( $product_id );
 $neighbors = amis_get_neighbors( $product );
-
-/**
- * Бренд и серия — для хлебных крошек и шапки товара.
- *
- * Бренд берём из штатной таксономии WooCommerce «Бренды» (product_brand),
- * если она включена и заполнена. Резерв — старый способ через глобальный
- * атрибут pa_brand, на случай если у части товаров бренд заполнен только
- * там.
- *
- * Серия (pa_series) ссылается на свой архив, только если архивы для
- * этого атрибута реально включены (Товары → Атрибуты → «Использовать
- * для архивов») — is_taxonomy_viewable() проверяет именно это. Если не
- * включены, показываем просто текст: ссылка вела бы на несуществующую
- * страницу.
- */
-$brand_term = null;
-
-if ( taxonomy_exists( 'product_brand' ) ) {
-	$brand_terms = get_the_terms( $product_id, 'product_brand' );
-	if ( $brand_terms && ! is_wp_error( $brand_terms ) ) {
-		$brand_term = reset( $brand_terms );
-	}
-}
-
-$brand = $brand_term ? $brand_term->name : $product->get_attribute( 'pa_brand' );
-
-$series      = $product->get_attribute( 'pa_series' );
-$series_term = null;
-
-if ( taxonomy_exists( 'pa_series' ) && is_taxonomy_viewable( 'pa_series' ) ) {
-	$series_terms = wc_get_product_terms( $product_id, 'pa_series', array( 'fields' => 'all' ) );
-	if ( $series_terms && ! is_wp_error( $series_terms ) ) {
-		$series_term = reset( $series_terms );
-	}
-}
 
 // Микроразметка товара для поисковиков.
 if ( isset( WC()->structured_data ) ) {
 	WC()->structured_data->generate_product_data( $product );
 }
-
-/**
- * По умолчанию на woocommerce_before_main_content/after_main_content висят
- * штатные колбэки WooCommerce: woocommerce_output_content_wrapper открывает
- * <div class="woocommerce">, woocommerce_breadcrumb выводит СВОИ хлебные
- * крошки (без учёта наших стилей — не в .wrap, без переносов), а
- * woocommerce_output_content_wrapper_end закрывает эту обёртку в самом
- * низу файла. Раз у страницы товара полностью своя разметка (свой
- * <nav class="crumbs">, свой .wrap, свой контейнер #product-N) — эта
- * пара штатных колбэков только дублирует крошки и оборачивает всё в
- * лишний div, который на мобильном и приводил к горизонтальной прокрутке
- * (неадаптивные штатные крошки WooCommerce ничем не ограничены по ширине).
- */
-remove_action( 'woocommerce_before_main_content', 'woocommerce_output_content_wrapper', 10 );
-remove_action( 'woocommerce_before_main_content', 'woocommerce_breadcrumb', 20 );
-remove_action( 'woocommerce_after_main_content', 'woocommerce_output_content_wrapper_end', 10 );
 ?>
 
-<?php do_action( 'woocommerce_before_main_content' ); // Уведомления плагинов (штатная обёртка и крошки сняты выше). ?>
+<?php do_action( 'woocommerce_before_main_content' ); // Уведомления, хлебные крошки плагинов. ?>
 
 <!-- Хлебные крошки -->
 <nav class="crumbs">
@@ -112,25 +54,9 @@ remove_action( 'woocommerce_after_main_content', 'woocommerce_output_content_wra
 		<a href="<?php echo esc_url( amis_shop_url() ); ?>"><?php esc_html_e( 'Каталог', 'amis' ); ?></a><span>/</span>
 		<?php
 		$cats = wp_get_post_terms( $product_id, 'product_cat' );
-		// «Misc» — служебная категория по умолчанию, не показываем её в крошках.
-		$cats = is_wp_error( $cats ) ? array() : array_filter(
-			$cats,
-			static function ( $cat ) {
-				return 'misc' !== $cat->slug;
-			}
-		);
-		if ( $cats ) :
-			$crumb_cat = reset( $cats );
+		if ( ! is_wp_error( $cats ) && $cats ) :
 			?>
-			<a href="<?php echo esc_url( get_term_link( $crumb_cat ) ); ?>"><?php echo esc_html( $crumb_cat->name ); ?></a><span>/</span>
-		<?php endif; ?>
-		<?php if ( $brand_term ) : ?>
-			<a href="<?php echo esc_url( get_term_link( $brand_term ) ); ?>"><?php echo esc_html( $brand_term->name ); ?></a><span>/</span>
-		<?php endif; ?>
-		<?php if ( $series_term ) : ?>
-			<a href="<?php echo esc_url( get_term_link( $series_term ) ); ?>"><?php echo esc_html( $series_term->name ); ?></a><span>/</span>
-		<?php elseif ( $series ) : ?>
-			<span><?php echo esc_html( $series ); ?></span><span>/</span>
+			<a href="<?php echo esc_url( get_term_link( $cats[0] ) ); ?>"><?php echo esc_html( $cats[0]->name ); ?></a><span>/</span>
 		<?php endif; ?>
 		<span><?php the_title(); ?></span>
 	</div>
@@ -153,7 +79,11 @@ remove_action( 'woocommerce_after_main_content', 'woocommerce_output_content_wra
 						<span><?php esc_html_e( 'Артикул:', 'amis' ); ?> <b><?php echo esc_html( $product->get_sku() ); ?></b></span>
 					<?php endif; ?>
 
-					<?php if ( $brand ) : ?>
+					<?php
+					// Производителя берём из глобального атрибута pa_brand, если он заполнен.
+					$brand = $product->get_attribute( 'pa_brand' );
+					if ( $brand ) :
+						?>
 						<span><?php esc_html_e( 'Производитель:', 'amis' ); ?> <b><?php echo esc_html( $brand ); ?></b></span>
 					<?php endif; ?>
 
@@ -226,7 +156,7 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 			<div class="buy-price">
 				<?php if ( $product->get_price() ) : ?>
 					<div class="price"><?php echo wp_kses_post( $product->get_price_html() ); ?></div>
-					<div class="price-note"><?php esc_html_e( 'с НДС 22%. Поверка оплачивается отдельно', 'amis' ); ?></div>
+					<div class="price-note"><?php esc_html_e( 'с НДС 20%, включая первичную поверку', 'amis' ); ?></div>
 				<?php else : ?>
 					<div class="price" style="font-size:22px"><?php esc_html_e( 'Цена по запросу', 'amis' ); ?></div>
 					<div class="price-note"><?php esc_html_e( 'Пришлём КП в течение рабочего дня', 'amis' ); ?></div>
@@ -241,41 +171,7 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 						echo esc_html( ', ' . $lead_time );
 					}
 					?>
-					<?php if ( $product->is_in_stock() && null !== $product->get_stock_quantity() ) : ?>
-						<span class="stock-updated">
-							<?php
-							/* translators: %s — дата последнего изменения остатка. */
-							printf( esc_html__( 'обновлено %s', 'amis' ), esc_html( get_the_modified_date( 'd.m.Y', $product->get_id() ) ) );
-							?>
-						</span>
-					<?php endif; ?>
 				</div>
-
-				<?php
-				/**
-				 * Акция «опции в подарок» — показываем, только если заполнены
-				 * и текст, и дата, и дата ещё не прошла. Так просроченная
-				 * акция сама пропадает со страницы, не нужно чистить вручную.
-				 */
-				$promo_text  = get_post_meta( $product->get_id(), '_amis_promo_text', true );
-				$promo_until = get_post_meta( $product->get_id(), '_amis_promo_until', true );
-				$promo_valid = $promo_text && $promo_until && strtotime( $promo_until ) >= strtotime( 'today' );
-				?>
-				<?php if ( $promo_valid ) : ?>
-					<div class="promo">
-						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 12v9H4v-9M2 7h20v5H2V7zM12 22V7M12 7C10.5 3 7 3 6 5s1 4 6 2M12 7c1.5-4 5-4 6-2s-1 4-6 2"/></svg>
-						<span>
-							<?php
-							printf(
-								/* translators: 1: что дарим, 2: дата окончания. */
-								esc_html__( '%1$s — бесплатно до %2$s', 'amis' ),
-								esc_html( $promo_text ),
-								esc_html( date_i18n( 'd.m.Y', strtotime( $promo_until ) ) )
-							);
-							?>
-						</span>
-					</div>
-				<?php endif; ?>
 			</div>
 
 			<div class="buy-acts">
@@ -286,22 +182,12 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 					woocommerce_template_single_add_to_cart();
 				}
 				?>
-				<?php
-				/**
-				 * Открывает модалку с той же формой, что и на /contact/#write
-				 * ([contact-form-7 id="791225d"], разметка модалки — footer.php,
-				 * она одна на весь сайт). Артикул передаём атрибутом
-				 * data-sku, base.js подставляет его в поле формы при открытии.
-				 */
-				?>
-				<button type="button" class="btn btn-ghost btn-block js-quote-open" data-sku="<?php echo esc_attr( $product->get_sku() ); ?>">
+				<a class="btn btn-ghost btn-block" href="<?php echo esc_url( home_url( '/request/?sku=' . rawurlencode( $product->get_sku() ) ) ); ?>">
 					<?php esc_html_e( 'Запросить счёт', 'amis' ); ?>
-				</button>
-				<?php if ( 'yes' === get_post_meta( $product_id, '_amis_demo_available', true ) ) : ?>
-					<a class="btn btn-ghost btn-block" href="<?php echo esc_url( home_url( '/demo/' ) ); ?>">
-						<?php esc_html_e( 'Взять на тест на 14 дней', 'amis' ); ?>
-					</a>
-				<?php endif; ?>
+				</a>
+				<a class="btn btn-ghost btn-block" href="<?php echo esc_url( home_url( '/demo/' ) ); ?>">
+					<?php esc_html_e( 'Взять на тест на 14 дней', 'amis' ); ?>
+				</a>
 			</div>
 
 			<div class="buy-list">
@@ -311,7 +197,7 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 				</div>
 				<div>
 					<svg width="17" height="17" viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 9l3.5 3.5L14 5"/></svg>
-					<?php esc_html_e( 'Организуем поверку в аккредитованном ЦСМ', 'amis' ); ?>
+					<?php esc_html_e( 'Свидетельство о поверке ЦСМ в комплекте', 'amis' ); ?>
 				</div>
 				<div>
 					<svg width="17" height="17" viewBox="0 0 17 17" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 9l3.5 3.5L14 5"/></svg>
@@ -320,11 +206,11 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 			</div>
 
 			<div class="mgr">
-				<span class="mgr-ava">ВБ</span>
+				<span class="mgr-ava"><?php echo esc_html( 'АК' ); ?></span>
 				<div>
-					<b><?php esc_html_e( 'Владислав Босканов', 'amis' ); ?></b>
+					<b><?php esc_html_e( 'Алексей Кузнецов', 'amis' ); ?></b>
 					<span><?php esc_html_e( 'Инженер по КИП', 'amis' ); ?></span>
-					<?php echo amis_phone_link( 'free' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+					<a href="tel:+74957700497">+7 (495) 770-04-97</a>
 				</div>
 			</div>
 		</aside>
@@ -337,29 +223,6 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 				<div>
 					<h2><?php esc_html_e( 'Описание', 'amis' ); ?></h2>
 					<?php echo wp_kses_post( wpautop( $product->get_description() ) ); ?>
-				</div>
-			</div>
-		</section>
-	<?php endif; ?>
-
-	<!-- Скриншоты и фото экрана -->
-	<?php if ( $screen_ids ) : ?>
-		<section class="sec">
-			<div class="wrap">
-				<h2><?php esc_html_e( 'Экран и интерфейс', 'amis' ); ?></h2>
-
-				<div class="screens">
-					<?php foreach ( $screen_ids as $image_id ) : ?>
-						<a
-							class="screens__item"
-							href="<?php echo esc_url( (string) wp_get_attachment_image_url( $image_id, 'full' ) ); ?>"
-							target="_blank"
-							rel="noopener"
-							data-lightbox="screens"
-						>
-							<?php echo wp_get_attachment_image( $image_id, 'medium_large' ); ?>
-						</a>
-					<?php endforeach; ?>
 				</div>
 			</div>
 		</section>
@@ -387,48 +250,48 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 		</section>
 	<?php endif; ?>
 
-<!-- Совместимость (обратная связь от пробников/аксессуаров к прибору) -->
-<?php if ( $compatible_with ) : ?>
-	<section class="sec">
-		<div class="wrap">
-			<h2><?php esc_html_e( 'Совместимо с приборами', 'amis' ); ?></h2>
-			<?php amis_render_accessories( array( array( 'title' => __( 'Подходит для', 'amis' ), 'items' => $compatible_with ) ) ); ?>
-		</div>
-	</section>
-<?php endif; ?>
+	<!-- Комплект поставки -->
+	<?php if ( $kit ) : ?>
+		<section class="sec">
+			<div class="wrap">
+				<h2><?php esc_html_e( 'Комплект поставки', 'amis' ); ?></h2>
+				<ul class="kit">
+					<?php foreach ( $kit as $item ) : ?>
+						<li>
+							<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8.5L6.5 12 13 4.5"/></svg>
+							<?php echo esc_html( $item[0] ); ?>
+							<?php if ( isset( $item[1] ) ) : ?>
+								<span><?php echo esc_html( $item[1] ); ?></span>
+							<?php endif; ?>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+		</section>
+	<?php endif; ?>
 
-<!-- Комплект поставки -->
-<?php $package = amis_get_product_package( $product_id ); ?>
-<?php if ( $package ) : ?>
-	<section class="sec">
-		<div class="wrap">
-			<h2><?php esc_html_e( 'Комплект поставки', 'amis' ); ?></h2>
-			<?php amis_render_package( $package ); ?>
-		</div>
-	</section>
-<?php endif; ?>
-
-<!-- Пробники и аксессуары -->
-<?php if ( $accessory_groups ) : ?>
-	<section class="sec">
-		<div class="wrap">
-			<h2><?php esc_html_e( 'Пробники и аксессуары', 'amis' ); ?></h2>
-			<?php amis_render_accessories( $accessory_groups ); ?>
-		</div>
-	</section>
-<?php endif; ?>
-
-<!-- Документы -->
-<?php $doc_groups = amis_get_product_docs( $product_id ); ?>
-<?php if ( $doc_groups ) : ?>
-	<section class="sec">
-		<div class="wrap">
-			<h2><?php esc_html_e( 'Документация', 'amis' ); ?></h2>
-			<p class="sec-lead"><?php esc_html_e( 'Файлы доступны без регистрации — можно приложить к заявке на закупку или к обоснованию НМЦК.', 'amis' ); ?></p>
-			<?php amis_render_docs( $doc_groups ); ?>
-		</div>
-	</section>
-<?php endif; ?>
+	<!-- Документы -->
+	<?php if ( $docs ) : ?>
+		<section class="sec">
+			<div class="wrap">
+				<h2><?php esc_html_e( 'Документация', 'amis' ); ?></h2>
+				<p class="sec-lead"><?php esc_html_e( 'Файлы доступны без регистрации — можно приложить к заявке на закупку или к обоснованию НМЦК.', 'amis' ); ?></p>
+				<div class="docs">
+					<?php foreach ( $docs as $doc ) : ?>
+						<a class="doc" href="<?php echo esc_url( isset( $doc[1] ) ? $doc[1] : '#' ); ?>" target="_blank" rel="noopener">
+							<svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M15 2H7a2 2 0 0 0-2 2v18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M15 2v6h6"/></svg>
+							<div>
+								<b><?php echo esc_html( $doc[0] ); ?></b>
+								<?php if ( isset( $doc[2] ) ) : ?>
+									<span><?php echo esc_html( $doc[2] ); ?></span>
+								<?php endif; ?>
+							</div>
+						</a>
+					<?php endforeach; ?>
+				</div>
+			</div>
+		</section>
+	<?php endif; ?>
 
 	<!-- Развёрнутый материал -->
 	<?php if ( $long_text ) : ?>
@@ -447,11 +310,11 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 			<div class="verify">
 				<div>
 					<h3><?php esc_html_e( 'Поверка', 'amis' ); ?></h3>
-					<p><?php esc_html_e( 'Организуем поверку в аккредитованном ЦСМ. Напомним о сроке очередной поверки заранее.', 'amis' ); ?></p>
+					<p><?php esc_html_e( 'Первичная поверка в аккредитованном ЦСМ входит в стоимость. Напомним о сроке очередной поверки заранее.', 'amis' ); ?></p>
 				</div>
 				<div>
 					<h3><?php esc_html_e( 'Гарантия', 'amis' ); ?></h3>
-					<p><?php esc_html_e( 'Гарантия производителя, сервисный центр в Москве и Китае.', 'amis' ); ?></p>
+					<p><?php esc_html_e( 'Гарантия производителя, сервисный центр в Москве, подменный прибор на время ремонта.', 'amis' ); ?></p>
 				</div>
 				<div>
 					<h3><?php esc_html_e( 'Доставка', 'amis' ); ?></h3>
@@ -495,11 +358,7 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 						<?php endif; ?>
 
 							<span class="alt-tag"><?php echo esc_html( $tag ); ?></span>
-							<?php if ( $is_current ) : ?>
-								<p class="alt-title"><?php echo esc_html( $item->get_name() ); ?></p>
-							<?php else : ?>
-								<h3><?php echo esc_html( $item->get_name() ); ?></h3>
-							<?php endif; ?>
+							<h3><?php echo esc_html( $item->get_name() ); ?></h3>
 
 							<dl>
 								<?php foreach ( $item_specs as $spec ) : ?>

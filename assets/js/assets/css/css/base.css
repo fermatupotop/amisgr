@@ -1,0 +1,124 @@
+/* Базовые стили: шапка, меню, подвал. Грузятся на всех страницах. */
+
+:root{
+  --orange:#D9673C;
+  --orange-deep:#B44E28;
+  --orange-soft:#FCF0EA;
+  --ink:#232629;
+  --graphite:#3E4247;
+  --gray:#53565A;
+  --gray-2:#767A7F;
+  --muted:#9CA1A6;
+  --line:#E2E4E6;
+  --line-2:#EDEEF0;
+  --panel:#F3F4F5;
+  --green:#3E8E5A;
+  --wrap: 1360px;
+  --wrap-wide: 1600px;
+  --r:3px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:#fff;color:var(--ink);
+  font-family:"IBM Plex Sans",-apple-system,Segoe UI,Roboto,sans-serif;
+  font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-weight:600;letter-spacing:-.018em;line-height:1.15;margin:0}
+p{margin:0}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 24px}
+.wrap--wide{max-width:var(--wrap-wide)}
+:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+.num{font-family:"IBM Plex Mono",monospace;font-feature-settings:"tnum"}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;height:48px;padding:0 22px;
+  border-radius:var(--r);border:1px solid transparent;font-family:inherit;font-weight:500;font-size:15px;
+  cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}
+.btn-primary{background:var(--orange);color:#fff}
+.btn-primary:hover{background:var(--orange-deep)}
+.btn-ghost{background:#fff;color:var(--ink);border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--gray-2)}
+.btn-dark{background:var(--ink);color:#fff}
+.btn-dark:hover{background:#000}
+.btn-sm{height:40px;padding:0 16px;font-size:14px}
+
+/* ---------- TOPBAR ---------- */
+.topbar{background:var(--panel);border-bottom:1px solid var(--line);font-size:13.5px;color:var(--gray)}
+.topbar .wrap{display:flex;align-items:center;gap:24px;height:38px}
+.topbar a:hover{color:var(--orange)}
+.tb-r{margin-left:auto;display:flex;gap:22px}
+.live{display:inline-flex;align-items:center;gap:7px}
+.live i{width:6px;height:6px;border-radius:50%;background:var(--green)}
+
+/* ---------- HEADER ---------- */
+.header{position:sticky;top:0;z-index:60;background:#fff;border-bottom:1px solid var(--line)}
+.header .wrap{display:flex;align-items:center;gap:22px;height:82px}
+.logo{display:flex;align-items:center;gap:11px;flex:none}
+.logo svg{width:42px;height:42px;flex:none}
+.logo b{display:block;font-size:22px;font-weight:600;letter-spacing:.15em;color:var(--gray);line-height:1}
+.logo span{display:block;font-size:10.5px;letter-spacing:.28em;color:var(--muted);margin-top:4px}
+.catbtn{display:flex;align-items:center;gap:10px;height:48px;padding:0 20px;background:var(--ink);color:#fff;border-radius:var(--r);font-weight:500;font-size:15px}
+.catbtn:hover{background:var(--orange)}
+.search{flex:1;position:relative}
+.search input{width:100%;height:48px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);
+  font:inherit;font-size:15px;padding:0 44px 0 15px;color:var(--ink)}
+.search input::placeholder{color:var(--muted)}
+.search input:focus{outline:none;background:#fff;border-color:var(--orange)}
+.search button{position:absolute;right:5px;top:5px;width:38px;height:38px;border:0;background:none;cursor:pointer;color:var(--gray-2)}
+.hd-r{display:flex;align-items:center;gap:12px;flex:none}
+.phone{font-size:18px;font-weight:600;white-space:nowrap;letter-spacing:-.01em}
+.phone span{display:block;font-size:12px;font-weight:400;color:var(--muted);letter-spacing:0}
+.ico{position:relative;width:48px;height:48px;display:grid;place-items:center;border:1px solid var(--line);border-radius:var(--r);color:var(--gray)}
+.ico:hover{border-color:var(--orange);color:var(--orange)}
+.badge{position:absolute;top:-7px;right:-7px;min-width:19px;height:19px;border-radius:10px;background:var(--orange);
+  color:#fff;font-size:11px;display:grid;place-items:center;padding:0 5px;font-family:"IBM Plex Mono"}
+
+/* ---------- NAV ---------- */
+.nav{border-bottom:1px solid var(--line);background:#fff}
+.nav ul{display:flex;list-style:none;margin:0;padding:0;gap:0;flex-wrap:wrap}
+.nav a{display:flex;align-items:center;height:50px;padding:0 18px 0 0;margin-right:18px;font-size:15px;color:var(--gray)}
+.nav a:hover{color:var(--orange)}
+.nav .last{margin-left:auto;color:var(--orange);padding-right:0;margin-right:0}
+
+/* ---------- FOOTER ---------- */
+.footer{background:var(--ink);color:#B0B4B8;padding:60px 0 0;font-size:14.5px}
+.f-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.1fr;gap:40px;padding-bottom:46px}
+.footer h4{color:#fff;font-size:15px;font-weight:600;margin-bottom:17px}
+.footer ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.footer a:hover{color:var(--orange)}
+.f-phone{display:block;font-size:21px;font-weight:600;color:#fff;margin-bottom:8px;font-family:"IBM Plex Mono";letter-spacing:-.02em}
+.f-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.f-badge{border:1px solid rgba(255,255,255,.16);padding:6px 11px;font-size:12.5px;border-radius:2px}
+.f-note{font-size:12.5px;color:#6C7074;line-height:1.55;padding-bottom:30px;max-width:80ch}
+.f-bot{border-top:1px solid rgba(255,255,255,.1);padding:20px 0 28px;display:flex;justify-content:space-between;
+  gap:20px;flex-wrap:wrap;font-size:13px;color:#7E8286}
+
+
+
+/* ---------- Доступность и мобильное меню ---------- */
+.screen-reader-text{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+.skip-link:focus{
+  position:fixed;top:10px;left:10px;z-index:999;width:auto;height:auto;clip:auto;
+  background:#fff;padding:12px 18px;border:1px solid var(--line);border-radius:3px;
+}
+.burger{display:none;width:48px;height:48px;border:1px solid var(--line);border-radius:var(--r);
+  background:#fff;cursor:pointer;flex-direction:column;gap:4px;align-items:center;justify-content:center}
+.burger span{display:block;width:18px;height:2px;background:var(--gray)}
+
+@media(max-width:1000px){
+  .burger{display:flex}
+  .nav{display:none}
+  .nav.is-open{display:block}
+  .nav ul{flex-direction:column;padding:8px 0}
+  .nav a{height:46px;margin-right:0}
+}
+
+.ast-article-single figure,
+.ast-article-single img:not(figure img){
+  box-shadow:none;
+}

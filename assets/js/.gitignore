@@ -1,0 +1,15 @@
+# Папки и системные файлы
+.git/
+.vscode/
+.idea/
+node_modules/
+
+# Переменные окружения и логи
+.env
+*.log
+
+# Кэш и временные файлы
+cache/
+temp/
+Thumbs.db
+.DS_Store

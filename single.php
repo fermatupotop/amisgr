@@ -76,6 +76,43 @@ while ( have_posts() ) :
 
 			<?php
 			/**
+			 * Блок «Автор» — пока один инженер на всю «Базу знаний»,
+			 * поэтому текстом здесь, а не через поле автора записи/ACF.
+			 * Если авторов станет больше — переносить в поле на записи.
+			 *
+			 * Стаж и число внедрений — цифры, которые подтвердил
+			 * пользователь (не выдумка), а число статей считаем реальным
+			 * запросом — тот же принцип, что и у счётчика товаров на
+			 * главной (amis_count_instock_products) — чтобы цифра не
+			 * расходилась с фактом по мере пополнения раздела.
+			 */
+			$article_count = wp_count_posts( 'post' )->publish;
+			?>
+			<div class="article-author">
+				<div class="article-author__top">
+					<span class="article-author__ava"><?php echo esc_html( 'ВБ' ); ?></span>
+					<div>
+						<b><?php esc_html_e( 'Босканов Владислав', 'amis' ); ?></b>
+						<span><?php esc_html_e( 'Инженер по применению', 'amis' ); ?></span>
+					</div>
+				</div>
+
+				<div class="article-author__stats">
+					<span><b><?php esc_html_e( '10 лет+', 'amis' ); ?></b> <?php esc_html_e( 'опыта с измерительным оборудованием', 'amis' ); ?></span>
+					<span><b><?php esc_html_e( '300+', 'amis' ); ?></b> <?php esc_html_e( 'внедрённых систем на предприятиях', 'amis' ); ?></span>
+					<span>
+						<b><?php echo esc_html( $article_count ); ?></b>
+						<?php echo esc_html( _n( 'статья в блоге компании', 'статей в блоге компании', $article_count, 'amis' ) ); ?>
+					</span>
+				</div>
+
+				<a class="btn btn-ghost article-author__cta" href="<?php echo esc_url( home_url( '/contact/#write' ) ); ?>">
+					<?php esc_html_e( 'Задать вопрос лично', 'amis' ); ?>
+				</a>
+			</div>
+
+			<?php
+			/**
 			 * Похожие статьи: три последних записи из той же категории,
 			 * кроме текущей. Если категория не задана — три последних
 			 * записи из «Базы знаний» вообще.

@@ -27,6 +27,7 @@ require_once AMIS_DIR . '/inc/rename-import.php';
 require_once AMIS_DIR . '/inc/slug-fix.php';
 require_once AMIS_DIR . '/inc/attr-import.php';
 require_once AMIS_DIR . '/inc/amplifiers-import.php';
+require_once AMIS_DIR . '/inc/photo-import.php';
 require_once AMIS_DIR . '/inc/product-resave.php';
 require_once AMIS_DIR . '/inc/product-diag.php';
 require_once AMIS_DIR . '/inc/company.php';

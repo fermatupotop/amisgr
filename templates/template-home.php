@@ -164,8 +164,18 @@ get_header();
 						<h3><?php echo esc_html( $cat->name ); ?></h3>
 					</div>
 
-					<?php if ( $cat->description ) : ?>
-						<p><?php echo esc_html( $cat->description ); ?></p>
+					<?php
+					/**
+					 * Описание категории теперь может быть целой HTML-
+					 * разметкой (несколько абзацев, список — см. archive-
+					 * product.php) — на карточке главной нужен короткий
+					 * текстовый тизер, не вся простыня: снимаем теги и
+					 * обрезаем по словам.
+					 */
+					$cat_teaser = $cat->description ? wp_trim_words( wp_strip_all_tags( $cat->description ), 18 ) : '';
+					?>
+					<?php if ( $cat_teaser ) : ?>
+						<p><?php echo esc_html( $cat_teaser ); ?></p>
 					<?php endif; ?>
 
 					<?php

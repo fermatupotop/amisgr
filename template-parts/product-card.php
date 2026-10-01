@@ -20,13 +20,16 @@ if ( ! $product instanceof WC_Product ) {
 	return;
 }
 
-$stock = amis_stock_state( $product );
-$id    = $product->get_id();
+$stock     = amis_stock_state( $product );
+$id        = $product->get_id();
+$exclusive = 'yes' === get_post_meta( $id, '_amis_exclusive', true );
 ?>
 
 <article class="card">
 
-	<?php if ( $product->is_featured() ) : ?>
+	<?php if ( $exclusive ) : ?>
+		<span class="tag tag--x"><?php esc_html_e( 'Эксклюзив', 'amis' ); ?></span>
+	<?php elseif ( $product->is_featured() ) : ?>
 		<span class="tag"><?php esc_html_e( 'Хит продаж', 'amis' ); ?></span>
 	<?php elseif ( ! $product->is_in_stock() ) : ?>
 		<span class="tag tag--g"><?php esc_html_e( 'Под заказ', 'amis' ); ?></span>
@@ -76,12 +79,13 @@ $id    = $product->get_id();
 		<?php
 		/**
 		 * Лента в углу карточки уже показывает «Под заказ», когда товар
-		 * не в наличии и не «Хит продаж» (см. разметку ленты выше) — эта
-		 * строка тогда повторяла бы то же самое без новой информации.
-		 * Не прячем её, если товар «Хит продаж»: там лента говорит про
-		 * другое, и нижняя строка — единственное место, где видно наличие.
+		 * не в наличии, не «Эксклюзив» и не «Хит продаж» (см. разметку
+		 * ленты выше) — эта строка тогда повторяла бы то же самое без
+		 * новой информации. Не прячем её для «Хит продаж»/«Эксклюзив»:
+		 * там лента говорит про другое, и нижняя строка — единственное
+		 * место, где видно наличие.
 		 */
-		$repeats_ribbon = ! $product->is_featured() && ! $product->is_in_stock();
+		$repeats_ribbon = ! $exclusive && ! $product->is_featured() && ! $product->is_in_stock();
 		?>
 		<?php if ( ! $repeats_ribbon ) : ?>
 			<div class="<?php echo esc_attr( $stock['class'] ); ?> avail-row">

@@ -30,7 +30,10 @@ $product_id = $product->get_id();
 // Собственные поля.
 $gosreestr = get_post_meta( $product_id, '_amis_gosreestr', true );
 $lead_time = get_post_meta( $product_id, '_amis_lead_time', true );
-$long_text = get_post_meta( $product_id, '_amis_long_text', true );
+$long_text     = get_post_meta( $product_id, '_amis_long_text', true );
+$applications  = amis_parse_applications( get_post_meta( $product_id, '_amis_applications', true ) );
+$compare_table = amis_parse_compare_table( get_post_meta( $product_id, '_amis_compare_table', true ) );
+$compare_note  = get_post_meta( $product_id, '_amis_compare_note', true );
 
 // Характеристики.
 $key_specs = amis_key_specs( $product );
@@ -342,6 +345,25 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 		</section>
 	<?php endif; ?>
 
+	<!-- Области применения -->
+	<?php if ( $applications ) : ?>
+		<section class="sec">
+			<div class="wrap">
+				<h2><?php esc_html_e( 'Области применения', 'amis' ); ?></h2>
+				<div class="app-grid">
+					<?php foreach ( $applications as $app ) : ?>
+						<div class="app-card">
+							<span class="app-ico">
+								<?php echo $app['svg']; // phpcs:ignore WordPress.Security.EscapeOutput -- захардкоженный набор инлайн-SVG из amis_app_icon_library(), не пользовательский ввод. ?>
+							</span>
+							<span><?php echo esc_html( $app['label'] ); ?></span>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			</div>
+		</section>
+	<?php endif; ?>
+
 	<!-- Скриншоты и фото экрана -->
 	<?php if ( $screen_ids ) : ?>
 		<section class="sec">
@@ -383,6 +405,54 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 						</div>
 					<?php endforeach; ?>
 				</div>
+			</div>
+		</section>
+	<?php endif; ?>
+
+	<!-- Сравнение моделей линейки -->
+	<?php if ( $compare_table['rows'] ) : ?>
+		<section class="sec">
+			<div class="wrap">
+				<h2><?php esc_html_e( 'Сравнение моделей линейки', 'amis' ); ?></h2>
+				<div class="cmp-table-wrap">
+					<table class="cmp-table">
+						<thead>
+							<tr>
+								<?php foreach ( $compare_table['header'] as $cell ) : ?>
+									<th><?php echo esc_html( $cell ); ?></th>
+								<?php endforeach; ?>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach ( $compare_table['rows'] as $row ) : ?>
+								<?php
+								/**
+								 * Строка текущего товара подсвечивается — сравниваем
+								 * текст заголовков столбцов (кроме первого, «Параметр»)
+								 * с названием товара, без выдумывания отдельного поля
+								 * «это я» на каждой модели линейки.
+								 */
+								?>
+								<tr>
+									<?php foreach ( $row as $i => $cell ) : ?>
+										<?php
+										$is_current = $i > 0 && isset( $compare_table['header'][ $i ] )
+											&& false !== stripos( $compare_table['header'][ $i ], $product->get_name() );
+										?>
+										<?php if ( 0 === $i ) : ?>
+											<th scope="row"><?php echo esc_html( $cell ); ?></th>
+										<?php else : ?>
+											<td class="<?php echo $is_current ? 'cmp-table__current' : ''; ?>"><?php echo esc_html( $cell ); ?></td>
+										<?php endif; ?>
+									<?php endforeach; ?>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				</div>
+				<?php if ( $compare_note ) : ?>
+					<p class="cmp-note"><?php echo esc_html( $compare_note ); ?></p>
+				<?php endif; ?>
 			</div>
 		</section>
 	<?php endif; ?>

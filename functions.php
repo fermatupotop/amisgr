@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'AMIS_VERSION', '1.1.9' );
+define( 'AMIS_VERSION', '1.2.6' );
 define( 'AMIS_DIR', get_stylesheet_directory() );
 define( 'AMIS_URI', get_stylesheet_directory_uri() );
 
@@ -27,7 +27,9 @@ require_once AMIS_DIR . '/inc/rename-import.php';
 require_once AMIS_DIR . '/inc/slug-fix.php';
 require_once AMIS_DIR . '/inc/attr-import.php';
 require_once AMIS_DIR . '/inc/amplifiers-import.php';
+require_once AMIS_DIR . '/inc/gnss-import.php';
 require_once AMIS_DIR . '/inc/photo-import.php';
+require_once AMIS_DIR . '/inc/thumbnail-regen.php';
 require_once AMIS_DIR . '/inc/product-resave.php';
 require_once AMIS_DIR . '/inc/product-diag.php';
 require_once AMIS_DIR . '/inc/company.php';
@@ -50,6 +52,43 @@ function amis_theme_setup() {
 	add_theme_support( 'woocommerce' );
 }
 add_action( 'after_setup_theme', 'amis_theme_setup' );
+
+/**
+ * Миниатюры каталога — вписывать целиком, не обрезать квадратом.
+ *
+ * У обрезки миниатюр WooCommerce — ДВА независимых рычага, и трогать
+ * нужно оба:
+ * 1) опция `woocommerce_thumbnail_cropping` (WooCommerce → Настройки →
+ *    Товары → Отображение → «Обрезка миниатюр») — именно она решает,
+ *    обрезать ли квадратом; add_image_size() сам по себе её не
+ *    перебивает, проверено на деле (имя файла осталось «-300x300»,
+ *    то есть обрезка молча победила регистрацию размера).
+ * 2) сама регистрация размера 'woocommerce_thumbnail' — WooCommerce
+ *    строит её из этой же опции при каждой загрузке, но на случай, если
+ *    порядок хуков где-то изменится, дублируем явным add_image_size().
+ *
+ * Для предметных фото прибора «анфас» обрезка почти незаметна, но для
+ * вытянутых панелей (19″ рэковое оборудование) съедает большую часть
+ * кадра — сетку товаров см. template-parts/product-card.php. CSS
+ * object-fit:contain в shop.css тут бессилен: обрезка происходит на
+ * уровне файла миниатюры, раньше, чем браузер вообще получает картинку.
+ *
+ * Для уже загруженных фото это не поможет само по себе — файлы миниатюр
+ * уже нарезаны старым способом на диске, нужно разово перегенерировать
+ * (см. «Товары → Пересчитать миниатюры», inc/thumbnail-regen.php) ПОСЛЕ
+ * того, как опция ниже реально поменяется (при активации темы).
+ */
+function amis_uncrop_woocommerce_thumbnail() {
+
+	if ( 'uncropped' !== get_option( 'woocommerce_thumbnail_cropping' ) ) {
+		update_option( 'woocommerce_thumbnail_cropping', 'uncropped' );
+	}
+
+	$width = (int) get_option( 'woocommerce_thumbnail_image_width', 300 );
+
+	add_image_size( 'woocommerce_thumbnail', $width, $width, false );
+}
+add_action( 'after_setup_theme', 'amis_uncrop_woocommerce_thumbnail', 20 );
 
 /**
  * Ссылка на каталог. Если WooCommerce выключен — на главную,

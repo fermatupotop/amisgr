@@ -96,7 +96,24 @@ $series_terms  = $show_facets ? amis_get_archive_facet_terms( 'pa_series' ) : ar
 		<h1><?php woocommerce_page_title(); ?></h1>
 
 		<?php if ( $queried_term && $queried_term->description ) : ?>
-			<p class="page-lead"><?php echo wp_kses_post( $queried_term->description ); ?></p>
+			<?php
+			/**
+			 * div, не p: описание категории может содержать свою разметку
+			 * (несколько абзацев, списки, <strong> и т.п.) — обёртка в <p>
+			 * ломала бы её на вложенные блочные теги. .page-lead — чисто
+			 * типографский класс, от тега не зависит (assets/css/page.css).
+			 */
+			?>
+			<?php
+			/**
+			 * --wide снимает max-width:72ch у .page-lead (assets/css/page.css) —
+			 * то ограничение расчитано на короткую одну строку, как у
+			 * большинства категорий. Когда в описании несколько абзацев
+			 * и список (как у «Оборудование ГНСС»), та же ширина оставляет
+			 * половину страницы пустой — тут она не нужна.
+			 */
+			?>
+			<div class="page-lead page-lead--wide"><?php echo wp_kses_post( $queried_term->description ); ?></div>
 		<?php elseif ( ! $queried_term ) : ?>
 			<p class="page-lead">
 				<?php esc_html_e( 'Осциллографы, генераторы, анализаторы и лабораторные приборы RIGOL, МигТрейдинг, R&S, Tektronix, Keysight, Ceyear, Emctestlab — в наличии и под заказ.', 'amis' ); ?>

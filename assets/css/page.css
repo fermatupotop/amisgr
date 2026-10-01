@@ -4,6 +4,18 @@
 .section--head{padding-bottom:0}
 .section--head h1{font-size:clamp(28px,3.4vw,42px);letter-spacing:-.03em;margin-top:14px}
 .page-lead{margin-top:16px;font-size:17px;color:var(--gray);max-width:72ch}
+/* Описание категории может прийти с разметкой (несколько абзацев, список,
+   выделение) — базовая типографика для этих тегов внутри .page-lead. */
+.page-lead p{margin:0 0 14px}
+.page-lead p:last-child{margin-bottom:0}
+.page-lead ul{margin:14px 0 0;padding-left:20px}
+.page-lead li{margin-bottom:7px}
+.page-lead li:last-child{margin-bottom:0}
+.page-lead strong{color:var(--ink);font-weight:600}
+/* Многоабзацное описание (категория) — не ограничиваем до 72ch, иначе
+   половина страницы пустая; 980px всё ещё читается нормально, просто
+   не сжато до одной узкой колонки, как у коротких однострочных лидов. */
+.page-lead--wide{max-width:980px}
 .eyebrow{
   display:inline-flex;align-items:center;gap:7px;
   height:28px;padding:0 12px;border-radius:20px;

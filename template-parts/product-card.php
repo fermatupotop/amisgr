@@ -123,7 +123,18 @@ $exclusive = 'yes' === get_post_meta( $id, '_amis_exclusive', true );
 			<?php else : ?>
 
 				<span class="req"><?php esc_html_e( 'Цена по запросу', 'amis' ); ?></span>
-				<a class="btn btn-primary btn-sm" href="#contact"><?php esc_html_e( 'Запросить', 'amis' ); ?></a>
+				<?php
+				/**
+				 * Та же модалка «Запросить счёт», что на странице товара
+				 * (разметка — footer.php, #amis-quote-modal, открывает
+				 * assets/js/base.js по клику на .js-quote-open). Раньше
+				 * здесь была ссылка на #contact — на страницах без этой
+				 * секции (архив каталога, категории) она никуда не вела.
+				 */
+				?>
+				<button type="button" class="btn btn-primary btn-sm js-quote-open" data-sku="<?php echo esc_attr( $product->get_sku() ); ?>">
+					<?php esc_html_e( 'Запросить', 'amis' ); ?>
+				</button>
 
 			<?php endif; ?>
 		</div>

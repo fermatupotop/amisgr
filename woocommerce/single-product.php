@@ -45,6 +45,9 @@ $screen_ids = amis_get_product_screens( $product_id );
 // Пробники и аксессуары.
 $accessory_groups = amis_get_product_accessories( $product_id );
 
+// Опции и принадлежности (код заказа + назначение, не путать с «Комплектом поставки»).
+$option_groups = amis_get_product_options( $product_id );
+
 // Обратная связь: если этот товар сам — чей-то пробник/аксессуар.
 $compatible_with = amis_get_compatible_instruments( $product_id );
 $neighbors = amis_get_neighbors( $product );
@@ -456,6 +459,16 @@ $images = $main_id ? array_merge( array( $main_id ), $gallery ) : $gallery;
 			</div>
 		</section>
 	<?php endif; ?>
+
+<!-- Опции и принадлежности -->
+<?php if ( $option_groups ) : ?>
+	<section class="sec">
+		<div class="wrap">
+			<h2><?php esc_html_e( 'Опции и принадлежности', 'amis' ); ?></h2>
+			<?php amis_render_options( $option_groups ); ?>
+		</div>
+	</section>
+<?php endif; ?>
 
 <!-- Совместимость (обратная связь от пробников/аксессуаров к прибору) -->
 <?php if ( $compatible_with ) : ?>

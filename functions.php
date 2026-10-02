@@ -7,16 +7,18 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'AMIS_VERSION', '1.2.6' );
+define( 'AMIS_VERSION', '1.2.8' );
 define( 'AMIS_DIR', get_stylesheet_directory() );
 define( 'AMIS_URI', get_stylesheet_directory_uri() );
 
 require_once AMIS_DIR . '/inc/queries.php';
+require_once AMIS_DIR . '/inc/category-fields.php';
 require_once AMIS_DIR . '/inc/shortcodes.php';
 require_once AMIS_DIR . '/inc/product-fields.php';
 require_once AMIS_DIR . '/inc/product-map.php';
 require_once AMIS_DIR . '/inc/product-docs.php';
 require_once AMIS_DIR . '/inc/product-package.php';
+require_once AMIS_DIR . '/inc/product-options.php';
 require_once AMIS_DIR . '/inc/product-accessories.php';
 require_once AMIS_DIR . '/inc/cart.php';
 require_once AMIS_DIR . '/inc/checkout.php';
@@ -28,6 +30,7 @@ require_once AMIS_DIR . '/inc/slug-fix.php';
 require_once AMIS_DIR . '/inc/attr-import.php';
 require_once AMIS_DIR . '/inc/amplifiers-import.php';
 require_once AMIS_DIR . '/inc/gnss-import.php';
+require_once AMIS_DIR . '/inc/network-analyzers-import.php';
 require_once AMIS_DIR . '/inc/photo-import.php';
 require_once AMIS_DIR . '/inc/thumbnail-regen.php';
 require_once AMIS_DIR . '/inc/product-resave.php';

@@ -64,31 +64,11 @@ if ( $queried_term && 'product_brand' === $queried_term->taxonomy ) {
 $current_freq   = isset( $_GET['filter_frequency-range'] ) ? wp_unslash( $_GET['filter_frequency-range'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- шкала с главной, см. amis_shop_facet_filter()
 
 /**
- * Цена — та же GET-схема, что у остальных фильтров (inc/queries.php,
- * amis_shop_price_filter()). sanitize_text_field() тут достаточно: оба
- * значения уходят в (float) на стороне запроса, лишнего не исполнится,
- * а здесь они только возвращаются обратно в поля формы и в ссылки.
- */
-$current_price_min = isset( $_GET['price_min'] ) ? sanitize_text_field( wp_unslash( $_GET['price_min'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-$current_price_max = isset( $_GET['price_max'] ) ? sanitize_text_field( wp_unslash( $_GET['price_max'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
-/**
- * Сортировка по ключевому параметру — имеет смысл только внутри одной
- * категории (amis_shop_spec_sort(), inc/queries.php), но саму ссылку
- * храним и переносим и там, где контрол не показан: иначе переход по
- * категории/бренду с активной сортировкой сбрасывал бы её.
- */
-$current_sort = isset( $_GET['sort'] ) ? sanitize_key( wp_unslash( $_GET['sort'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-if ( ! in_array( $current_sort, array( 'spec-asc', 'spec-desc' ), true ) ) {
-	$current_sort = '';
-}
-
-/**
  * Ссылка с учётом состояния ВСЕХ активных фильтров сразу — используется
  * в ссылках категорий/бренда/серии, чтобы переключение одного фильтра
  * не сбрасывало остальные уже выбранные.
  */
-$with_filters = function ( $url ) use ( $in_stock_only, $current_brand, $current_series, $current_freq, $current_price_min, $current_price_max, $current_sort ) {
+$with_filters = function ( $url ) use ( $in_stock_only, $current_brand, $current_series, $current_freq ) {
 	if ( $in_stock_only ) {
 		$url = add_query_arg( 'instock', '1', $url );
 	}
@@ -100,15 +80,6 @@ $with_filters = function ( $url ) use ( $in_stock_only, $current_brand, $current
 	}
 	if ( $current_freq ) {
 		$url = add_query_arg( 'filter_frequency-range', $current_freq, $url );
-	}
-	if ( '' !== $current_price_min ) {
-		$url = add_query_arg( 'price_min', $current_price_min, $url );
-	}
-	if ( '' !== $current_price_max ) {
-		$url = add_query_arg( 'price_max', $current_price_max, $url );
-	}
-	if ( $current_sort ) {
-		$url = add_query_arg( 'sort', $current_sort, $url );
 	}
 	return $url;
 };
@@ -197,31 +168,19 @@ $series_terms  = $show_facets ? amis_get_archive_facet_terms( 'pa_series' ) : ar
 		<?php
 		/**
 		 * Базовый адрес текущей страницы архива (без query-параметров
-		 * фильтров) — нужен и плашкам категорий, и форме цены, и
-		 * сортировке, и facet-ссылкам ниже, поэтому считаем один раз здесь.
+		 * фильтров) — нужен и плашкам категорий, и facet-ссылкам ниже,
+		 * поэтому считаем один раз здесь.
 		 */
 		$base_url = $queried_term ? get_term_link( $queried_term ) : amis_shop_url();
 
 		/**
-		 * Название ключевого параметра для контрола сортировки —
-		 * только на страницах категорий (amis_archive_spec_sort_label(),
-		 * inc/queries.php): единицы у разных категорий разные, сравнивать
-		 * «полосу» осциллографа с «мощностью» усилителя в одном списке
-		 * было бы бессмысленно, поэтому на /shop/ и на бренде/серии
-		 * (где категории вперемешку) сортировки нет.
-		 */
-		$spec_sort_label = ( $queried_term && 'product_cat' === $queried_term->taxonomy && function_exists( 'amis_archive_spec_sort_label' ) )
-			? amis_archive_spec_sort_label( $queried_term )
-			: '';
-
-		/**
 		 * Строит ссылку фильтра бренда/серии с учётом остальных активных
 		 * фильтров: $overrides задаёт, что поставить/убрать в ЭТОМ ряду
-		 * (пустая строка — убрать), остальные (instock, цена, сортировка,
-		 * второй из пары бренд/серия) добавляются как есть. Объявлено
-		 * здесь — один closure нужен и блоку бренда, и блоку серии ниже.
+		 * (пустая строка — убрать), остальные (instock, второй из пары
+		 * бренд/серия) добавляются как есть. Объявлено здесь — один
+		 * closure нужен и блоку бренда, и блоку серии ниже.
 		 */
-		$build_facet_url = function ( $overrides ) use ( $base_url, $in_stock_only, $current_freq, $current_price_min, $current_price_max, $current_sort ) {
+		$build_facet_url = function ( $overrides ) use ( $base_url, $in_stock_only, $current_freq ) {
 			$url = $base_url;
 			foreach ( $overrides as $key => $value ) {
 				$url = '' === $value ? remove_query_arg( $key, $url ) : add_query_arg( $key, $value, $url );
@@ -231,15 +190,6 @@ $series_terms  = $show_facets ? amis_get_archive_facet_terms( 'pa_series' ) : ar
 			}
 			if ( $current_freq ) {
 				$url = add_query_arg( 'filter_frequency-range', $current_freq, $url );
-			}
-			if ( '' !== $current_price_min ) {
-				$url = add_query_arg( 'price_min', $current_price_min, $url );
-			}
-			if ( '' !== $current_price_max ) {
-				$url = add_query_arg( 'price_max', $current_price_max, $url );
-			}
-			if ( $current_sort ) {
-				$url = add_query_arg( 'sort', $current_sort, $url );
 			}
 			return $url;
 		};
@@ -270,62 +220,6 @@ $series_terms  = $show_facets ? amis_get_archive_facet_terms( 'pa_series' ) : ar
 		<?php endif; ?>
 
 		<div class="shop-facets">
-
-			<!-- Цена: обычная GET-форма, без JS. Показывается всегда на
-			     этом шаблоне (/shop/, категория, бренд, серия) — в отличие
-			     от категории/бренда цена не «уводит» с текущего выбора,
-			     а только сужает его, поэтому не скрываем её нигде. -->
-			<div class="shop-facet">
-				<span class="shop-facet__label"><?php esc_html_e( 'Цена, ₽', 'amis' ); ?></span>
-				<form class="shop-price" method="get" action="<?php echo esc_url( $base_url ); ?>">
-					<input type="number" name="price_min" inputmode="numeric" min="0" step="1" placeholder="<?php esc_attr_e( 'от', 'amis' ); ?>" value="<?php echo esc_attr( $current_price_min ); ?>">
-					<span class="shop-price__dash">—</span>
-					<input type="number" name="price_max" inputmode="numeric" min="0" step="1" placeholder="<?php esc_attr_e( 'до', 'amis' ); ?>" value="<?php echo esc_attr( $current_price_max ); ?>">
-					<button type="submit" class="btn btn-ghost btn-sm"><?php esc_html_e( 'Применить', 'amis' ); ?></button>
-					<?php
-					/**
-					 * Остальные активные фильтры — скрытыми полями, чтобы
-					 * отправка формы их не сбрасывала (обычная GET-форма
-					 * идёт с нуля, в отличие от add_query_arg() у ссылок).
-					 */
-					?>
-					<?php if ( $in_stock_only ) : ?><input type="hidden" name="instock" value="1"><?php endif; ?>
-					<?php if ( $current_brand ) : ?><input type="hidden" name="brand" value="<?php echo esc_attr( $current_brand ); ?>"><?php endif; ?>
-					<?php if ( $current_series ) : ?><input type="hidden" name="series" value="<?php echo esc_attr( $current_series ); ?>"><?php endif; ?>
-					<?php if ( $current_freq ) : ?><input type="hidden" name="filter_frequency-range" value="<?php echo esc_attr( $current_freq ); ?>"><?php endif; ?>
-					<?php if ( $current_sort ) : ?><input type="hidden" name="sort" value="<?php echo esc_attr( $current_sort ); ?>"><?php endif; ?>
-				</form>
-			</div>
-
-			<?php if ( $spec_sort_label ) : ?>
-				<?php
-				/**
-				 * Строит ссылку сортировки, сохраняя остальные фильтры —
-				 * через тот же $with_filters(), что и у плашек категорий,
-				 * только сперва снимаем текущий ?sort=, чтобы не задвоить.
-				 */
-				$sort_url = function ( $value ) use ( $with_filters, $base_url ) {
-					$url = remove_query_arg( 'sort', $with_filters( $base_url ) );
-					return $value ? add_query_arg( 'sort', $value, $url ) : $url;
-				};
-				?>
-				<div class="shop-facet">
-					<span class="shop-facet__label">
-						<?php
-						/* translators: %s — название ключевого параметра категории, например «Полоса пропускания». */
-						printf( esc_html__( 'Сортировка по: %s', 'amis' ), esc_html( $spec_sort_label ) );
-						?>
-					</span>
-					<div class="shop-filter">
-						<a href="<?php echo esc_url( $sort_url( 'spec-asc' ) ); ?>" class="<?php echo esc_attr( 'spec-asc' === $current_sort ? 'is-active' : '' ); ?>">
-							<?php esc_html_e( 'По возрастанию', 'amis' ); ?>
-						</a>
-						<a href="<?php echo esc_url( $sort_url( 'spec-desc' ) ); ?>" class="<?php echo esc_attr( 'spec-desc' === $current_sort ? 'is-active' : '' ); ?>">
-							<?php esc_html_e( 'По убыванию', 'amis' ); ?>
-						</a>
-					</div>
-				</div>
-			<?php endif; ?>
 
 			<?php if ( $show_facets && $brand_terms ) : ?>
 				<div class="shop-facet">
@@ -359,7 +253,7 @@ $series_terms  = $show_facets ? amis_get_archive_facet_terms( 'pa_series' ) : ar
 				</div>
 			<?php endif; ?>
 
-			<?php if ( $in_stock_only || $current_brand || $current_series || $current_freq || '' !== $current_price_min || '' !== $current_price_max || $current_sort ) : ?>
+			<?php if ( $in_stock_only || $current_brand || $current_series || $current_freq ) : ?>
 				<a class="shop-reset" href="<?php echo esc_url( $base_url ); ?>">
 					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
 					<?php esc_html_e( 'Сбросить все фильтры', 'amis' ); ?>

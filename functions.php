@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'AMIS_VERSION', '1.2.13' );
+define( 'AMIS_VERSION', '1.2.15' );
 define( 'AMIS_DIR', get_stylesheet_directory() );
 define( 'AMIS_URI', get_stylesheet_directory_uri() );
 

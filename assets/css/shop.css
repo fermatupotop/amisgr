@@ -15,7 +15,7 @@
 .shop-filter a:hover{border-color:var(--gray-2);color:var(--ink)}
 .shop-filter a.is-active{background:var(--ink);border-color:var(--ink);color:#fff}
 
-/* ---------- Панель «Цена» / «Сортировка» / «Бренд» / «Серия» — визуально отдельно от категорий ---------- */
+/* ---------- Панель «Бренд» / «Серия» — визуально отдельно от категорий ---------- */
 .shop-facets{
   margin-top:20px;padding:20px 22px 4px;
   background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
@@ -28,16 +28,6 @@
 .shop-facet .shop-filter{margin-top:0}
 .shop-facet .shop-filter a{background:#fff}
 .shop-facet .shop-filter a.is-active{background:var(--ink)}
-
-/* Цена — GET-форма, не пилюли-ссылки: два поля числа + тире + кнопка. */
-.shop-price{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.shop-price input[type="number"]{
-  width:100px;height:34px;padding:0 10px;
-  border:1px solid var(--line);border-radius:var(--r);
-  font-family:inherit;font-size:13.5px;color:var(--ink);background:#fff;
-}
-.shop-price input[type="number"]:focus{border-color:var(--gray-2);outline:none}
-.shop-price__dash{color:var(--gray-2)}
 
 .shop-reset{
   display:inline-flex;align-items:center;gap:6px;margin-bottom:16px;

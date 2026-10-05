@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'AMIS_VERSION', '1.2.8' );
+define( 'AMIS_VERSION', '1.2.13' );
 define( 'AMIS_DIR', get_stylesheet_directory() );
 define( 'AMIS_URI', get_stylesheet_directory_uri() );
 
@@ -127,7 +127,7 @@ function amis_cart_count() {
  */
 function amis_nav_fallback() {
 
-	$cats = amis_get_top_categories( 6 );
+	$cats = amis_get_top_categories( 20 );
 
 	if ( ! $cats ) {
 		return;
@@ -143,6 +143,45 @@ function amis_nav_fallback() {
 	}
 	echo '</ul>';
 }
+
+/**
+ * Адрес архива брендов — латиницей.
+ *
+ * Таксономию `product_brand` регистрирует не тема (WooCommerce/плагин),
+ * и по умолчанию её rewrite-слаг оказался русским («бренд» →
+ * percent-encoded в URL, amisgr.ru/%D0%B1.../rigol/). Фильтр
+ * `register_taxonomy_args` достаточно общий — срабатывает для любого
+ * вызова register_taxonomy(), независимо от того, кто её регистрирует.
+ *
+ * Внешних ссылок на старый адрес ещё не было (подтверждено пользователем),
+ * поэтому обошлось без 301-редиректа со старого слага — при появлении
+ * проиндексированных ссылок на /бренд/... его нужно будет добавить отдельно.
+ */
+function amis_brand_taxonomy_slug( $args, $taxonomy ) {
+
+	if ( 'product_brand' === $taxonomy ) {
+		$args['rewrite']['slug'] = 'brand';
+	}
+
+	return $args;
+}
+add_filter( 'register_taxonomy_args', 'amis_brand_taxonomy_slug', 10, 2 );
+
+/**
+ * Разовый сброс правил перелинковки после смены слага выше — без этого
+ * WordPress продолжает ожидать старый адрес, и новые /brand/... ссылки
+ * просто ведут на 404 до первого ручного захода в Настройки →
+ * Постоянные ссылки. Флаг в опциях — чтобы не дёргать flush_rewrite_rules()
+ * (тяжёлая операция) на каждой загрузке.
+ */
+function amis_brand_taxonomy_slug_flush() {
+
+	if ( 'v1' !== get_option( 'amis_brand_slug_flushed' ) ) {
+		flush_rewrite_rules();
+		update_option( 'amis_brand_slug_flushed', 'v1' );
+	}
+}
+add_action( 'init', 'amis_brand_taxonomy_slug_flush', 20 );
 
 /**
  * Порядок терминов частотной шкалы.

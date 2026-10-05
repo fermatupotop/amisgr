@@ -156,8 +156,9 @@ add_filter( 'astra_page_layout', 'amis_no_sidebar_layout' );
 /**
  * Служебные варианты страницы каталога — не отдельная ценная страница
  * для выдачи, а то же самое содержимое под другим URL: пагинация
- * (/shop/page/2/) и фильтры (?instock=1, ?brand=, ?series=), в любых
- * сочетаниях. noindex, но НЕ через robots.txt: страницу всё равно нужно
+ * (/shop/page/2/) и фильтры (?instock=1, ?brand=, ?series=, ?price_min=/
+ * ?price_max=, ?sort=), в любых сочетаниях. noindex, но НЕ через
+ * robots.txt: страницу всё равно нужно
  * обходить роботу, чтобы он доходил по ссылкам до самих товаров —
  * noindex,follow убирает её из результатов поиска, не блокируя обход.
  * wp_robots — фильтр самого WordPress (с 5.7), работает независимо от
@@ -172,7 +173,10 @@ function amis_noindex_filtered_shop( $robots ) {
 	$is_filtered = is_paged()
 		|| ! empty( $_GET['instock'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- обычный GET-фильтр витрины, только для решения о noindex, ничего не сохраняем и не выводим.
 		|| ! empty( $_GET['brand'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		|| ! empty( $_GET['series'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		|| ! empty( $_GET['series'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		|| ! empty( $_GET['price_min'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		|| ! empty( $_GET['price_max'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		|| ! empty( $_GET['sort'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 	if ( $is_filtered ) {
 		$robots['noindex'] = true;
@@ -203,11 +207,12 @@ function amis_canonical_strip_shop_filters( $canonical ) {
 		return $canonical;
 	}
 
-	if ( empty( $_GET['instock'] ) && empty( $_GET['brand'] ) && empty( $_GET['series'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- обычный GET-фильтр витрины, только для решения о canonical.
+	if ( empty( $_GET['instock'] ) && empty( $_GET['brand'] ) && empty( $_GET['series'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- обычный GET-фильтр витрины, только для решения о canonical.
+		&& empty( $_GET['price_min'] ) && empty( $_GET['price_max'] ) && empty( $_GET['sort'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return $canonical;
 	}
 
-	return remove_query_arg( array( 'instock', 'brand', 'series' ), $canonical );
+	return remove_query_arg( array( 'instock', 'brand', 'series', 'price_min', 'price_max', 'sort' ), $canonical );
 }
 add_filter( 'wpseo_canonical', 'amis_canonical_strip_shop_filters' );
 add_filter( 'get_canonical_url', 'amis_canonical_strip_shop_filters' );

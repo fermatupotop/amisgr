@@ -198,7 +198,7 @@ defined( 'ABSPATH' ) || exit;
 				?>
 
 				<ul class="f-links f-links--icons">
-					<?php foreach ( amis_get_top_categories( 8 ) as $cat ) : ?>
+					<?php foreach ( amis_get_top_categories( 20 ) as $cat ) : ?>
 						<?php $icon = isset( $cat_icons[ $cat->slug ] ) ? $cat_icons[ $cat->slug ] : $default_icon; ?>
 						<li>
 							<a href="<?php echo esc_url( get_term_link( $cat ) ); ?>">
@@ -210,6 +210,18 @@ defined( 'ABSPATH' ) || exit;
 						</li>
 					<?php endforeach; ?>
 				</ul>
+
+				<?php $footer_brands = amis_get_top_brands( 6 ); ?>
+				<?php if ( $footer_brands ) : ?>
+					<div class="f-group f-group--brands">
+						<h5 class="f-subtitle"><?php esc_html_e( 'Бренды', 'amis' ); ?></h5>
+						<ul class="f-links">
+							<?php foreach ( $footer_brands as $brand ) : ?>
+								<li><a href="<?php echo esc_url( get_term_link( $brand ) ); ?>"><?php echo esc_html( $brand->name ); ?></a></li>
+							<?php endforeach; ?>
+						</ul>
+					</div>
+				<?php endif; ?>
 
 				<a class="f-btn f-btn--primary f-btn--wide" href="<?php echo esc_url( amis_shop_url() ); ?>">
 					<?php esc_html_e( 'Весь каталог', 'amis' ); ?>

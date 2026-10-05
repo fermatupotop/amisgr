@@ -115,7 +115,7 @@ get_header();
 	<div class="wrap">
 		<div class="s-head">
 			<div>
-				<h2>Девять направлений каталога</h2>
+				<h2>Направления каталога</h2>
 				<p>
 					Под каждой категорией — ключевой параметр, по которому её обычно выбирают.
 					Фильтры в каталоге настроены на те же характеристики.
@@ -126,7 +126,7 @@ get_header();
 </div>
 		<div class="wrap wrap--wide">
 		<div class="cats">
-			<?php foreach ( amis_get_top_categories( 9 ) as $cat ) : ?>
+			<?php foreach ( amis_get_top_categories( 20 ) as $cat ) : ?>
 				<a class="cat" href="<?php echo esc_url( get_term_link( $cat ) ); ?>">
 					<?php
 					/**

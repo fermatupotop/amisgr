@@ -1,6 +1,10 @@
 /* Каталог (архив товаров WooCommerce): /shop/, категории, метки.
    Подключается вместе с page.css — см. amis_enqueue_assets() в inc/enqueue.php. */
 
+/* ---------- Логотип бренда (архив product_brand) ---------- */
+.brand-logo{margin-top:14px;height:56px;display:flex;align-items:center}
+.brand-logo img{height:100%;width:auto;max-width:220px;object-fit:contain}
+
 /* ---------- Фильтр по категориям ---------- */
 .shop-filter{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
 .shop-filter a{
@@ -11,7 +15,7 @@
 .shop-filter a:hover{border-color:var(--gray-2);color:var(--ink)}
 .shop-filter a.is-active{background:var(--ink);border-color:var(--ink);color:#fff}
 
-/* ---------- Панель «Бренд» / «Серия» — визуально отдельно от категорий ---------- */
+/* ---------- Панель «Цена» / «Сортировка» / «Бренд» / «Серия» — визуально отдельно от категорий ---------- */
 .shop-facets{
   margin-top:20px;padding:20px 22px 4px;
   background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
@@ -24,6 +28,16 @@
 .shop-facet .shop-filter{margin-top:0}
 .shop-facet .shop-filter a{background:#fff}
 .shop-facet .shop-filter a.is-active{background:var(--ink)}
+
+/* Цена — GET-форма, не пилюли-ссылки: два поля числа + тире + кнопка. */
+.shop-price{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.shop-price input[type="number"]{
+  width:100px;height:34px;padding:0 10px;
+  border:1px solid var(--line);border-radius:var(--r);
+  font-family:inherit;font-size:13.5px;color:var(--ink);background:#fff;
+}
+.shop-price input[type="number"]:focus{border-color:var(--gray-2);outline:none}
+.shop-price__dash{color:var(--gray-2)}
 
 .shop-reset{
   display:inline-flex;align-items:center;gap:6px;margin-bottom:16px;

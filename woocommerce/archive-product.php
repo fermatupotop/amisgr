@@ -23,11 +23,35 @@ get_header();
  */
 $queried_term  = ( function_exists( 'is_product_taxonomy' ) && is_product_taxonomy() ) ? get_queried_object() : null;
 $current_cat   = ( $queried_term && 'product_cat' === $queried_term->taxonomy ) ? $queried_term->term_id : 0;
-$top_cats      = function_exists( 'amis_get_top_categories' ) ? amis_get_top_categories( 10 ) : array();
+$top_cats      = function_exists( 'amis_get_top_categories' ) ? amis_get_top_categories( 20 ) : array();
 $paged         = max( 1, (int) get_query_var( 'paged' ) );
 $in_stock_only = ! empty( $_GET['instock'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- обычный GET-фильтр витрины, без сохранения состояния.
 $current_brand = isset( $_GET['brand'] ) ? sanitize_title( wp_unslash( $_GET['brand'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 $current_series = isset( $_GET['series'] ) ? sanitize_title( wp_unslash( $_GET['series'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+/**
+ * На самой странице бренда/серии (/brand/rigol/, не /shop/?brand=rigol)
+ * бренд/серия — это сам запрошенный таксономический термин, а не
+ * GET-параметр фильтра: $_GET['brand'] тут пуст, хотя бренд, очевидно,
+ * выбран. Без этого ссылки категорий ниже ($with_filters()) не несли
+ * бы его дальше, и клик по категории со страницы бренда сбрасывал бы
+ * бренд вместо того, чтобы его сохранить.
+ */
+if ( $queried_term && 'product_brand' === $queried_term->taxonomy ) {
+	$current_brand = $queried_term->slug;
+
+	/**
+	 * Плашки категорий на странице бренда — только те, где у этого
+	 * бренда реально есть товары (amis_filter_categories_with_brand_products(),
+	 * inc/queries.php). Без этого показывались бы и категории, где у
+	 * бренда нет ни одной позиции — пустой клик на страницу с 0 товаров.
+	 */
+	if ( function_exists( 'amis_filter_categories_with_brand_products' ) ) {
+		$top_cats = amis_filter_categories_with_brand_products( $top_cats, $queried_term->term_id );
+	}
+} elseif ( $queried_term && 'pa_series' === $queried_term->taxonomy ) {
+	$current_series = $queried_term->slug;
+}
 /**
  * Не прогоняем через sanitize_title() здесь: термины диапазона — на
  * кириллице, а слаг в БД хранится в процентно-закодированном виде.
@@ -40,11 +64,31 @@ $current_series = isset( $_GET['series'] ) ? sanitize_title( wp_unslash( $_GET['
 $current_freq   = isset( $_GET['filter_frequency-range'] ) ? wp_unslash( $_GET['filter_frequency-range'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- шкала с главной, см. amis_shop_facet_filter()
 
 /**
+ * Цена — та же GET-схема, что у остальных фильтров (inc/queries.php,
+ * amis_shop_price_filter()). sanitize_text_field() тут достаточно: оба
+ * значения уходят в (float) на стороне запроса, лишнего не исполнится,
+ * а здесь они только возвращаются обратно в поля формы и в ссылки.
+ */
+$current_price_min = isset( $_GET['price_min'] ) ? sanitize_text_field( wp_unslash( $_GET['price_min'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+$current_price_max = isset( $_GET['price_max'] ) ? sanitize_text_field( wp_unslash( $_GET['price_max'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+/**
+ * Сортировка по ключевому параметру — имеет смысл только внутри одной
+ * категории (amis_shop_spec_sort(), inc/queries.php), но саму ссылку
+ * храним и переносим и там, где контрол не показан: иначе переход по
+ * категории/бренду с активной сортировкой сбрасывал бы её.
+ */
+$current_sort = isset( $_GET['sort'] ) ? sanitize_key( wp_unslash( $_GET['sort'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+if ( ! in_array( $current_sort, array( 'spec-asc', 'spec-desc' ), true ) ) {
+	$current_sort = '';
+}
+
+/**
  * Ссылка с учётом состояния ВСЕХ активных фильтров сразу — используется
  * в ссылках категорий/бренда/серии, чтобы переключение одного фильтра
  * не сбрасывало остальные уже выбранные.
  */
-$with_filters = function ( $url ) use ( $in_stock_only, $current_brand, $current_series, $current_freq ) {
+$with_filters = function ( $url ) use ( $in_stock_only, $current_brand, $current_series, $current_freq, $current_price_min, $current_price_max, $current_sort ) {
 	if ( $in_stock_only ) {
 		$url = add_query_arg( 'instock', '1', $url );
 	}
@@ -56,6 +100,15 @@ $with_filters = function ( $url ) use ( $in_stock_only, $current_brand, $current
 	}
 	if ( $current_freq ) {
 		$url = add_query_arg( 'filter_frequency-range', $current_freq, $url );
+	}
+	if ( '' !== $current_price_min ) {
+		$url = add_query_arg( 'price_min', $current_price_min, $url );
+	}
+	if ( '' !== $current_price_max ) {
+		$url = add_query_arg( 'price_max', $current_price_max, $url );
+	}
+	if ( $current_sort ) {
+		$url = add_query_arg( 'sort', $current_sort, $url );
 	}
 	return $url;
 };
@@ -93,6 +146,27 @@ $series_terms  = $show_facets ? amis_get_archive_facet_terms( 'pa_series' ) : ar
 <section class="section section--head">
 	<div class="wrap">
 		<span class="eyebrow"><?php esc_html_e( 'Каталог', 'amis' ); ?></span>
+
+		<?php
+		/**
+		 * Логотип бренда — то же поле «Изображение» термина
+		 * (thumbnail_id), что и у фото категорий на главной
+		 * (templates/template-home.php): WooCommerce хранит его под
+		 * одним и тем же ключом term meta что для product_cat, что
+		 * для product_brand. Показываем только на архиве самого бренда,
+		 * не на /shop/ и не на категориях/сериях — там нет одного
+		 * конкретного бренда, которому логотип соответствовал бы.
+		 */
+		$brand_logo_id = ( $queried_term && 'product_brand' === $queried_term->taxonomy )
+			? get_term_meta( $queried_term->term_id, 'thumbnail_id', true )
+			: 0;
+		?>
+		<?php if ( $brand_logo_id ) : ?>
+			<div class="brand-logo">
+				<?php echo wp_get_attachment_image( $brand_logo_id, 'medium', false, array( 'alt' => esc_attr( $queried_term->name ) ) ); ?>
+			</div>
+		<?php endif; ?>
+
 		<h1><?php woocommerce_page_title(); ?></h1>
 
 		<?php if ( $queried_term && $queried_term->description ) : ?>
@@ -122,12 +196,65 @@ $series_terms  = $show_facets ? amis_get_archive_facet_terms( 'pa_series' ) : ar
 
 		<?php
 		/**
-		 * Кнопки категорий имеют смысл только на общем каталоге и на
-		 * самих страницах категорий — там это переключение «смотрю
-		 * похожее». На архиве атрибута (серия, бренд) они бы уводили
-		 * с текущего фильтра, а не дополняли его, поэтому скрываем.
+		 * Базовый адрес текущей страницы архива (без query-параметров
+		 * фильтров) — нужен и плашкам категорий, и форме цены, и
+		 * сортировке, и facet-ссылкам ниже, поэтому считаем один раз здесь.
 		 */
-		$show_cat_filter = ! $queried_term || 'product_cat' === $queried_term->taxonomy;
+		$base_url = $queried_term ? get_term_link( $queried_term ) : amis_shop_url();
+
+		/**
+		 * Название ключевого параметра для контрола сортировки —
+		 * только на страницах категорий (amis_archive_spec_sort_label(),
+		 * inc/queries.php): единицы у разных категорий разные, сравнивать
+		 * «полосу» осциллографа с «мощностью» усилителя в одном списке
+		 * было бы бессмысленно, поэтому на /shop/ и на бренде/серии
+		 * (где категории вперемешку) сортировки нет.
+		 */
+		$spec_sort_label = ( $queried_term && 'product_cat' === $queried_term->taxonomy && function_exists( 'amis_archive_spec_sort_label' ) )
+			? amis_archive_spec_sort_label( $queried_term )
+			: '';
+
+		/**
+		 * Строит ссылку фильтра бренда/серии с учётом остальных активных
+		 * фильтров: $overrides задаёт, что поставить/убрать в ЭТОМ ряду
+		 * (пустая строка — убрать), остальные (instock, цена, сортировка,
+		 * второй из пары бренд/серия) добавляются как есть. Объявлено
+		 * здесь — один closure нужен и блоку бренда, и блоку серии ниже.
+		 */
+		$build_facet_url = function ( $overrides ) use ( $base_url, $in_stock_only, $current_freq, $current_price_min, $current_price_max, $current_sort ) {
+			$url = $base_url;
+			foreach ( $overrides as $key => $value ) {
+				$url = '' === $value ? remove_query_arg( $key, $url ) : add_query_arg( $key, $value, $url );
+			}
+			if ( $in_stock_only ) {
+				$url = add_query_arg( 'instock', '1', $url );
+			}
+			if ( $current_freq ) {
+				$url = add_query_arg( 'filter_frequency-range', $current_freq, $url );
+			}
+			if ( '' !== $current_price_min ) {
+				$url = add_query_arg( 'price_min', $current_price_min, $url );
+			}
+			if ( '' !== $current_price_max ) {
+				$url = add_query_arg( 'price_max', $current_price_max, $url );
+			}
+			if ( $current_sort ) {
+				$url = add_query_arg( 'sort', $current_sort, $url );
+			}
+			return $url;
+		};
+
+		/**
+		 * Кнопки категорий — на общем каталоге, на самих страницах
+		 * категорий и на странице бренда: категория и бренд — разные
+		 * оси фильтра, одно другое не перебивает. Ссылки строятся через
+		 * $with_filters(), который сохраняет текущий ?brand=, так что
+		 * клик по категории со страницы бренда ведёт на «категория +
+		 * этот же бренд», а не сбрасывает его.
+		 * На странице серии (pa_series) и на метках — по-прежнему
+		 * скрыто: туда уводило бы с текущего выбора, а не дополняло.
+		 */
+		$show_cat_filter = ! $queried_term || in_array( $queried_term->taxonomy, array( 'product_cat', 'product_brand' ), true );
 		?>
 		<?php if ( $show_cat_filter && $top_cats ) : ?>
 			<div class="shop-filter">
@@ -142,33 +269,65 @@ $series_terms  = $show_facets ? amis_get_archive_facet_terms( 'pa_series' ) : ar
 			</div>
 		<?php endif; ?>
 
-		<?php if ( $show_facets && ( $brand_terms || $series_terms ) ) : ?>
-			<?php
-			$base_url = $queried_term ? get_term_link( $queried_term ) : amis_shop_url();
+		<div class="shop-facets">
 
-			/**
-			 * Строит ссылку фильтра с учётом остальных активных фильтров:
-			 * $overrides задаёт, что поставить/убрать в ЭТОМ ряду фильтров
-			 * (пустая строка — убрать), остальные (instock) добавляются как есть.
-			 */
-			$build_facet_url = function ( $overrides ) use ( $base_url, $in_stock_only, $current_freq ) {
-				$url = $base_url;
-				foreach ( $overrides as $key => $value ) {
-					$url = '' === $value ? remove_query_arg( $key, $url ) : add_query_arg( $key, $value, $url );
-				}
-				if ( $in_stock_only ) {
-					$url = add_query_arg( 'instock', '1', $url );
-				}
-				if ( $current_freq ) {
-					$url = add_query_arg( 'filter_frequency-range', $current_freq, $url );
-				}
-				return $url;
-			};
-			?>
+			<!-- Цена: обычная GET-форма, без JS. Показывается всегда на
+			     этом шаблоне (/shop/, категория, бренд, серия) — в отличие
+			     от категории/бренда цена не «уводит» с текущего выбора,
+			     а только сужает его, поэтому не скрываем её нигде. -->
+			<div class="shop-facet">
+				<span class="shop-facet__label"><?php esc_html_e( 'Цена, ₽', 'amis' ); ?></span>
+				<form class="shop-price" method="get" action="<?php echo esc_url( $base_url ); ?>">
+					<input type="number" name="price_min" inputmode="numeric" min="0" step="1" placeholder="<?php esc_attr_e( 'от', 'amis' ); ?>" value="<?php echo esc_attr( $current_price_min ); ?>">
+					<span class="shop-price__dash">—</span>
+					<input type="number" name="price_max" inputmode="numeric" min="0" step="1" placeholder="<?php esc_attr_e( 'до', 'amis' ); ?>" value="<?php echo esc_attr( $current_price_max ); ?>">
+					<button type="submit" class="btn btn-ghost btn-sm"><?php esc_html_e( 'Применить', 'amis' ); ?></button>
+					<?php
+					/**
+					 * Остальные активные фильтры — скрытыми полями, чтобы
+					 * отправка формы их не сбрасывала (обычная GET-форма
+					 * идёт с нуля, в отличие от add_query_arg() у ссылок).
+					 */
+					?>
+					<?php if ( $in_stock_only ) : ?><input type="hidden" name="instock" value="1"><?php endif; ?>
+					<?php if ( $current_brand ) : ?><input type="hidden" name="brand" value="<?php echo esc_attr( $current_brand ); ?>"><?php endif; ?>
+					<?php if ( $current_series ) : ?><input type="hidden" name="series" value="<?php echo esc_attr( $current_series ); ?>"><?php endif; ?>
+					<?php if ( $current_freq ) : ?><input type="hidden" name="filter_frequency-range" value="<?php echo esc_attr( $current_freq ); ?>"><?php endif; ?>
+					<?php if ( $current_sort ) : ?><input type="hidden" name="sort" value="<?php echo esc_attr( $current_sort ); ?>"><?php endif; ?>
+				</form>
+			</div>
 
-			<div class="shop-facets">
+			<?php if ( $spec_sort_label ) : ?>
+				<?php
+				/**
+				 * Строит ссылку сортировки, сохраняя остальные фильтры —
+				 * через тот же $with_filters(), что и у плашек категорий,
+				 * только сперва снимаем текущий ?sort=, чтобы не задвоить.
+				 */
+				$sort_url = function ( $value ) use ( $with_filters, $base_url ) {
+					$url = remove_query_arg( 'sort', $with_filters( $base_url ) );
+					return $value ? add_query_arg( 'sort', $value, $url ) : $url;
+				};
+				?>
+				<div class="shop-facet">
+					<span class="shop-facet__label">
+						<?php
+						/* translators: %s — название ключевого параметра категории, например «Полоса пропускания». */
+						printf( esc_html__( 'Сортировка по: %s', 'amis' ), esc_html( $spec_sort_label ) );
+						?>
+					</span>
+					<div class="shop-filter">
+						<a href="<?php echo esc_url( $sort_url( 'spec-asc' ) ); ?>" class="<?php echo esc_attr( 'spec-asc' === $current_sort ? 'is-active' : '' ); ?>">
+							<?php esc_html_e( 'По возрастанию', 'amis' ); ?>
+						</a>
+						<a href="<?php echo esc_url( $sort_url( 'spec-desc' ) ); ?>" class="<?php echo esc_attr( 'spec-desc' === $current_sort ? 'is-active' : '' ); ?>">
+							<?php esc_html_e( 'По убыванию', 'amis' ); ?>
+						</a>
+					</div>
+				</div>
+			<?php endif; ?>
 
-			<?php if ( $brand_terms ) : ?>
+			<?php if ( $show_facets && $brand_terms ) : ?>
 				<div class="shop-facet">
 					<span class="shop-facet__label"><?php esc_html_e( 'Бренд', 'amis' ); ?></span>
 					<div class="shop-filter">
@@ -184,7 +343,7 @@ $series_terms  = $show_facets ? amis_get_archive_facet_terms( 'pa_series' ) : ar
 				</div>
 			<?php endif; ?>
 
-			<?php if ( $series_terms ) : ?>
+			<?php if ( $show_facets && $series_terms ) : ?>
 				<div class="shop-facet">
 					<span class="shop-facet__label"><?php esc_html_e( 'Серия', 'amis' ); ?></span>
 					<div class="shop-filter">
@@ -200,15 +359,14 @@ $series_terms  = $show_facets ? amis_get_archive_facet_terms( 'pa_series' ) : ar
 				</div>
 			<?php endif; ?>
 
-			<?php if ( $in_stock_only || $current_brand || $current_series || $current_freq ) : ?>
+			<?php if ( $in_stock_only || $current_brand || $current_series || $current_freq || '' !== $current_price_min || '' !== $current_price_max || $current_sort ) : ?>
 				<a class="shop-reset" href="<?php echo esc_url( $base_url ); ?>">
 					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
 					<?php esc_html_e( 'Сбросить все фильтры', 'amis' ); ?>
 				</a>
 			<?php endif; ?>
 
-			</div>
-		<?php endif; ?>
+		</div>
 	</div>
 </section>
 

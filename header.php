@@ -68,7 +68,7 @@ defined( 'ABSPATH' ) || exit;
 			 * (см. .cat-panel в base.css). На мобильном кнопка остаётся
 			 * обычной ссылкой в каталог, без панели.
 			 */
-			$cat_panel_items = function_exists( 'amis_get_top_categories' ) ? amis_get_top_categories( 10 ) : array();
+			$cat_panel_items = function_exists( 'amis_get_top_categories' ) ? amis_get_top_categories( 20 ) : array();
 			if ( $cat_panel_items ) :
 				?>
 				<div class="cat-panel">

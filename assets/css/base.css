@@ -322,6 +322,7 @@ img{max-width:100%;display:block}
 /* группы ссылок */
 .f-group{margin-bottom:22px}
 .f-group:last-child{margin-bottom:0}
+.f-group--brands{margin-top:22px}
 .f-subtitle{
   color:var(--orange);font-size:12px;font-weight:600;
   letter-spacing:.06em;text-transform:uppercase;margin-bottom:11px;
